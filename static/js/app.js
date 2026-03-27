@@ -2,6 +2,48 @@
    Zalaegerszeg Hangja — Frontend JavaScript
    ============================================== */
 
+// ── THEME ──
+function getThemePreference() {
+    return localStorage.getItem('theme') || 'system';
+}
+
+function applyTheme(pref) {
+    var html = document.documentElement;
+    if (pref === 'dark') {
+        html.setAttribute('data-theme', 'dark');
+    } else if (pref === 'light') {
+        html.removeAttribute('data-theme');
+    } else {
+        // system
+        if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            html.setAttribute('data-theme', 'dark');
+        } else {
+            html.removeAttribute('data-theme');
+        }
+    }
+}
+
+function setTheme(pref) {
+    localStorage.setItem('theme', pref);
+    applyTheme(pref);
+    // Save to server if logged in
+    var csrfEl = document.querySelector('meta[name="csrf-token"]');
+    var csrfToken = csrfEl ? csrfEl.getAttribute('content') : '';
+    fetch('/api/settings/theme', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json', 'X-CSRFToken': csrfToken},
+        body: JSON.stringify({theme: pref})
+    }).catch(function() {});
+}
+
+// Apply immediately (before page renders to avoid flash)
+applyTheme(getThemePreference());
+
+// Listen for system theme changes
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function() {
+    if (getThemePreference() === 'system') applyTheme('system');
+});
+
 // CSRF token from meta tag
 function getCsrf() {
   const el = document.querySelector('meta[name="csrf-token"]');

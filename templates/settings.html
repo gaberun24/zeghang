@@ -21,6 +21,43 @@
   {% endif %}
   {% endwith %}
 
+  <!-- Appearance / Theme -->
+  <div class="settings-card">
+    <h2 class="settings-card-title">🎨 Megjelenés</h2>
+    <p style="font-size:13px; color:var(--text-muted); margin-bottom:1rem;">
+      Válaszd ki a kívánt megjelenési módot.
+    </p>
+    <div style="display:flex; gap:0.75rem; flex-wrap:wrap;" id="themeOptions">
+      <label style="flex:1; min-width:120px; cursor:pointer;">
+        <input type="radio" name="theme_pref" value="system" style="display:none;">
+        <div class="theme-option" data-value="system" onclick="selectThemeOption(this)"
+             style="border:2px solid var(--cream-dark); border-radius:var(--radius); padding:1rem; text-align:center; transition:all 0.2s;">
+          <div style="font-size:24px; margin-bottom:0.5rem;">💻</div>
+          <div style="font-size:14px; font-weight:600; color:var(--text-dark);">Rendszer</div>
+          <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">Alapértelmezett</div>
+        </div>
+      </label>
+      <label style="flex:1; min-width:120px; cursor:pointer;">
+        <input type="radio" name="theme_pref" value="light" style="display:none;">
+        <div class="theme-option" data-value="light" onclick="selectThemeOption(this)"
+             style="border:2px solid var(--cream-dark); border-radius:var(--radius); padding:1rem; text-align:center; transition:all 0.2s;">
+          <div style="font-size:24px; margin-bottom:0.5rem;">☀️</div>
+          <div style="font-size:14px; font-weight:600; color:var(--text-dark);">Világos</div>
+          <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">Mindig világos</div>
+        </div>
+      </label>
+      <label style="flex:1; min-width:120px; cursor:pointer;">
+        <input type="radio" name="theme_pref" value="dark" style="display:none;">
+        <div class="theme-option" data-value="dark" onclick="selectThemeOption(this)"
+             style="border:2px solid var(--cream-dark); border-radius:var(--radius); padding:1rem; text-align:center; transition:all 0.2s;">
+          <div style="font-size:24px; margin-bottom:0.5rem;">🌙</div>
+          <div style="font-size:14px; font-weight:600; color:var(--text-dark);">Sötét</div>
+          <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">Mindig sötét</div>
+        </div>
+      </label>
+    </div>
+  </div>
+
   <!-- Display name -->
   <div class="settings-card">
     <h2 class="settings-card-title">👤 Megjelenítési név</h2>
@@ -190,6 +227,31 @@
 
 {% block scripts %}
 <script>
+// Theme selection
+function selectThemeOption(el) {
+  // Update visual state
+  document.querySelectorAll('.theme-option').forEach(function(opt) {
+    opt.style.borderColor = 'var(--cream-dark)';
+    opt.style.background = 'transparent';
+  });
+  el.style.borderColor = 'var(--meadow)';
+  el.style.background = 'var(--green-bg)';
+
+  // Apply theme
+  var value = el.dataset.value;
+  setTheme(value);
+}
+
+// Highlight current theme on load
+document.addEventListener('DOMContentLoaded', function() {
+  var current = getThemePreference();
+  var opt = document.querySelector('.theme-option[data-value="' + current + '"]');
+  if (opt) {
+    opt.style.borderColor = 'var(--meadow)';
+    opt.style.background = 'var(--green-bg)';
+  }
+});
+
 // Push notification management
 function togglePushNotifications() {
   if (!('serviceWorker' in navigator) || !('PushManager' in window)) {

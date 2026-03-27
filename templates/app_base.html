@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="hu">
+<script>(function(){var t=localStorage.getItem('theme')||'system';var d=t==='dark'||(t==='system'&&window.matchMedia('(prefers-color-scheme:dark)').matches);if(d)document.documentElement.setAttribute('data-theme','dark');})();</script>
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -150,6 +151,14 @@
   </div>
 
   <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+  {% if current_user.is_authenticated and current_user.theme and current_user.theme != 'system' %}
+  <script>
+  if (!localStorage.getItem('theme')) {
+    localStorage.setItem('theme', '{{ current_user.theme }}');
+    applyTheme('{{ current_user.theme }}');
+  }
+  </script>
+  {% endif %}
   <script>
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('/static/sw.js').catch(function() {});

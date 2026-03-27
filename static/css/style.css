@@ -38,6 +38,292 @@
     --topbar-h:     64px;
   }
 
+  /* ── DARK THEME ── */
+  [data-theme="dark"] {
+    --blue-deep:    #0a1929;
+    --blue-mid:     #1565c0;
+    --blue-light:   #42a5f5;
+    --blue-pale:    #1e3a5f;
+    --forest:       #0f1a2e;
+    --forest-mid:   #1a3050;
+    --meadow:       #4caf50;
+    --hill-light:   #64b5f6;
+    --hill-pale:    #8eafc4;
+    --cream:        #0f1419;
+    --cream-dark:   #1e2a3a;
+    --white:        #162032;
+    --text-dark:    #e8e8e8;
+    --text-mid:     #c8d0da;
+    --text-muted:   #9ca3af;
+    --gold:         #d4a04a;
+    --red-soft:     #ef5350;
+    --red-bg:       #2d1a1a;
+    --green-bg:     #1a2e1a;
+    --orange-bg:    #2e2414;
+    --orange:       #f0a030;
+    --shadow-sm:    0 1px 3px rgba(0,0,0,0.3);
+    --shadow-md:    0 4px 16px rgba(0,0,0,0.4);
+    --shadow-lg:    0 8px 32px rgba(0,0,0,0.5);
+  }
+
+  [data-theme="dark"] body {
+    background: #0f1419;
+    color: #e8e8e8;
+  }
+
+  /* Dark theme: inputs, selects, textareas */
+  [data-theme="dark"] input,
+  [data-theme="dark"] select,
+  [data-theme="dark"] textarea {
+    background: #1a2332 !important;
+    color: #e8e8e8 !important;
+    border-color: #2d3748 !important;
+  }
+
+  [data-theme="dark"] input:focus,
+  [data-theme="dark"] select:focus,
+  [data-theme="dark"] textarea:focus {
+    background: #1e2d3d !important;
+    border-color: var(--meadow) !important;
+  }
+
+  [data-theme="dark"] input::placeholder,
+  [data-theme="dark"] textarea::placeholder {
+    color: #6b7a8c !important;
+  }
+
+  /* Dark theme: auth card */
+  [data-theme="dark"] .auth-card {
+    background: #162032;
+    border: 1px solid #2d3748;
+  }
+
+  /* Dark theme: settings card */
+  [data-theme="dark"] .settings-card {
+    background: #162032;
+    border: 1px solid #2d3748;
+  }
+
+  /* Dark theme: settings toggle slider */
+  [data-theme="dark"] .settings-toggle-slider {
+    background: #4a5568;
+  }
+
+  [data-theme="dark"] .settings-toggle-slider::after {
+    background: #d1d5db;
+  }
+
+  /* Dark theme: issue cards */
+  [data-theme="dark"] .issue {
+    background: #162032;
+    border-color: #2d3748;
+  }
+
+  [data-theme="dark"] .issue:hover {
+    border-color: rgba(76, 175, 80, 0.4);
+  }
+
+  /* Dark theme: panels */
+  [data-theme="dark"] .panel {
+    background: #162032;
+    border-color: #2d3748;
+  }
+
+  /* Dark theme: form card */
+  [data-theme="dark"] .form-card {
+    background: #162032;
+  }
+
+  [data-theme="dark"] .form-actions {
+    background: #0f1a2e;
+    border-color: #2d3748;
+  }
+
+  /* Dark theme: tags - slightly brighter for dark bg */
+  [data-theme="dark"] .tag-road   { background: #3d2f14; color: #f0c050; }
+  [data-theme="dark"] .tag-park   { background: #1a3018; color: #66bb6a; }
+  [data-theme="dark"] .tag-safety { background: #1a2e4a; color: #64b5f6; }
+  [data-theme="dark"] .tag-infra  { background: #3d1a1a; color: #ef9a9a; }
+  [data-theme="dark"] .tag-trans  { background: #2e1a4a; color: #b39ddb; }
+  [data-theme="dark"] .tag-other  { background: #2a2a20; color: #a8b0a0; }
+
+  /* Dark theme: vote button hover */
+  [data-theme="dark"] .vote-btn:hover {
+    background: #1e2a3a;
+  }
+
+  /* Dark theme: filter pills */
+  [data-theme="dark"] .filter-pill {
+    background: #162032;
+    border-color: #2d3748;
+    color: #c8d0da;
+  }
+
+  [data-theme="dark"] .filter-pill.active {
+    background: #0f1a2e;
+    color: white;
+    border-color: #0f1a2e;
+  }
+
+  /* Dark theme: tabs */
+  [data-theme="dark"] .tabs {
+    border-bottom-color: #2d3748;
+  }
+
+  [data-theme="dark"] .tab-count {
+    background: #2d3748;
+    color: #9ca3af;
+  }
+
+  /* Dark theme: cat chips */
+  [data-theme="dark"] .cat-chip {
+    background: #162032;
+    border-color: #2d3748;
+    color: #c8d0da;
+  }
+
+  /* Dark theme: photo upload */
+  [data-theme="dark"] .photo-upload {
+    border-color: #2d3748;
+    color: #9ca3af;
+  }
+
+  [data-theme="dark"] .photo-upload:hover {
+    border-color: var(--meadow);
+    background: rgba(76,175,80,0.05);
+  }
+
+  /* Dark theme: sidebar */
+  [data-theme="dark"] .sidebar {
+    background: #111d2e;
+    border-right-color: #2d3748;
+  }
+
+  [data-theme="dark"] .sb-section {
+    border-bottom-color: #2d3748;
+  }
+
+  [data-theme="dark"] .sb-stat {
+    background: #0f1a2e;
+  }
+
+  [data-theme="dark"] .sb-nav li a:hover {
+    background: #1a2332;
+  }
+
+  /* Dark theme: rep progress bar */
+  [data-theme="dark"] .rep-progress-bar {
+    background: #2d3748;
+  }
+
+  /* Dark theme: rep badge inline */
+  [data-theme="dark"] .rep-badge-inline {
+    background: #1a2332;
+    color: #9ca3af;
+  }
+
+  /* Dark theme: district mini */
+  [data-theme="dark"] .district-mini {
+    background: #0f1a2e;
+  }
+
+  [data-theme="dark"] .district-mini:hover {
+    background: #1a2332;
+  }
+
+  /* Dark theme: trending items */
+  [data-theme="dark"] .trending-item {
+    border-bottom-color: #1e2a3a;
+  }
+
+  /* Dark theme: flash messages */
+  [data-theme="dark"] .flash-error {
+    background: #2d1a1a;
+    color: #ef5350;
+    border-color: rgba(239, 83, 80, 0.3);
+  }
+
+  [data-theme="dark"] .flash-success {
+    background: #1a2e1a;
+    color: #66bb6a;
+    border-color: rgba(102, 187, 106, 0.3);
+  }
+
+  /* Dark theme: how-highlight */
+  [data-theme="dark"] .how-highlight {
+    background: #1a2e1a;
+    color: #66bb6a;
+    border-left-color: var(--meadow);
+  }
+
+  /* Dark theme: how-section */
+  [data-theme="dark"] .how-section + .how-section {
+    border-top-color: #2d3748;
+  }
+
+  /* Dark theme: scrollbar */
+  [data-theme="dark"] ::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  [data-theme="dark"] ::-webkit-scrollbar-track {
+    background: #0f1419;
+  }
+
+  [data-theme="dark"] ::-webkit-scrollbar-thumb {
+    background: #2d3748;
+    border-radius: 4px;
+  }
+
+  [data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+    background: #4a5568;
+  }
+
+  /* Dark theme: links in content */
+  [data-theme="dark"] a {
+    color: inherit;
+  }
+
+  /* Dark theme: issue-district-badge */
+  [data-theme="dark"] .issue-district-badge {
+    background: #1a2332;
+    color: #9ca3af;
+  }
+
+  /* Dark theme: btn-cancel */
+  [data-theme="dark"] .btn-cancel {
+    border-color: #2d3748;
+    color: #9ca3af;
+  }
+
+  [data-theme="dark"] .btn-cancel:hover {
+    border-color: #4a5568;
+    color: #e8e8e8;
+  }
+
+  /* Dark theme: section background for how-section */
+  [data-theme="dark"] .how-section {
+    background: transparent;
+  }
+
+  /* Dark theme: step-number */
+  [data-theme="dark"] .step-number {
+    color: #2d3748;
+  }
+
+  /* Dark theme: step-icon backgrounds */
+  [data-theme="dark"] .step-icon-1 { background: #1a2e4a; }
+  [data-theme="dark"] .step-icon-2 { background: #1a2e1a; }
+  [data-theme="dark"] .step-icon-3 { background: #2e2414; }
+
+  /* Dark theme: warning boxes */
+  [data-theme="dark"] [style*="background:#fff3cd"],
+  [data-theme="dark"] [style*="background: #fff3cd"] {
+    background: #2e2414 !important;
+    border-color: #5a4a20 !important;
+    color: #e8c860 !important;
+  }
+
   html { scroll-behavior: smooth; }
 
   body {

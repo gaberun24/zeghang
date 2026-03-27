@@ -108,6 +108,7 @@ class User(UserMixin):
         self.notify_status = row.get("notify_status", True) if row.get("notify_status") is not None else True
         self.push_subscription = row.get("push_subscription")
         self.is_banned = row.get("is_banned", False)
+        self.theme = row.get("theme", "system") or "system"
         self.district = DistrictInfo(district_row) if district_row else None
 
     @property
@@ -2012,6 +2013,22 @@ def admin_security():
             event_types=event_types, current_filter=event_filter,
             event_labels=SECURITY_EVENT_LABELS,
         )
+    finally:
+        conn.close()
+
+
+@app.route("/api/settings/theme", methods=["POST"])
+@login_required
+def update_theme():
+    data = request.get_json()
+    theme = data.get("theme", "system")
+    if theme not in ("system", "light", "dark"):
+        theme = "system"
+    conn = get_db()
+    try:
+        conn.execute("UPDATE users SET theme = %s WHERE id = %s", (theme, current_user.id))
+        conn.commit()
+        return jsonify({"ok": True})
     finally:
         conn.close()
 
