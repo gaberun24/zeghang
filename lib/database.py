@@ -290,6 +290,7 @@ def init_db():
             "ALTER TABLE users ADD COLUMN IF NOT EXISTS is_shadowbanned BOOLEAN DEFAULT FALSE",
             "ALTER TABLE users ADD COLUMN IF NOT EXISTS daily_issue_count INT DEFAULT 0",
             "ALTER TABLE users ADD COLUMN IF NOT EXISTS daily_issue_date DATE",
+            "ALTER TABLE users ADD COLUMN IF NOT EXISTS reputation INT DEFAULT 0",
             "ALTER TABLE issues ADD COLUMN IF NOT EXISTS resolution_started_at TIMESTAMP",
             "ALTER TABLE issues ADD COLUMN IF NOT EXISTS resolution_started_by INT REFERENCES users(id)",
         ]:
