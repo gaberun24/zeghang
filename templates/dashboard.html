@@ -52,9 +52,9 @@
   {% for issue in issues %}
   <div class="issue fade-in" style="animation-delay:{{ loop.index0 * 0.05 }}s" data-category="{{ issue.category }}">
     <div class="vote-col" data-issue-id="{{ issue.id }}">
-      <button class="vote-btn {{ 'upvoted' if issue.user_vote == 1 }}" onclick="vote(this, 1)">▲</button>
+      <button class="vote-btn {{ 'upvoted' if issue.user_vote == 1 }}" onclick="vote(this, 1)">👍</button>
       <span class="vote-count">{{ issue.vote_score }}</span>
-      <button class="vote-btn {{ 'downvoted' if issue.user_vote == -1 }}" onclick="vote(this, -1)">▼</button>
+      <button class="vote-btn {{ 'downvoted' if issue.user_vote == -1 }}" onclick="vote(this, -1)">👎</button>
     </div>
     <a href="{{ url_for('issue_detail', issue_id=issue.id) }}" class="issue-content" style="text-decoration:none; color:inherit;">
       <div class="issue-content-top">

@@ -69,9 +69,9 @@
     <!-- Vote row -->
     <div style="display:flex; align-items:center; gap:1rem; padding-top:1rem; border-top:1px solid var(--cream-dark);"
       <div class="vote-col" data-issue-id="{{ issue.id }}" style="flex-direction:row; gap:8px;">
-        <button class="vote-btn {{ 'upvoted' if user_vote == 1 }}" onclick="vote(this, 1)">▲</button>
+        <button class="vote-btn {{ 'upvoted' if user_vote == 1 }}" onclick="vote(this, 1)">👍</button>
         <span class="vote-count" style="font-size:20px;">{{ issue.vote_score }}</span>
-        <button class="vote-btn {{ 'downvoted' if user_vote == -1 }}" onclick="vote(this, -1)">▼</button>
+        <button class="vote-btn {{ 'downvoted' if user_vote == -1 }}" onclick="vote(this, -1)">👎</button>
       </div>
       <span style="font-size:13px; color:var(--text-muted);">{{ issue.vote_score }} szavazat</span>
     </div>
