@@ -23,7 +23,7 @@ MAX_UPLOAD_MB = int(os.getenv("MAX_UPLOAD_MB", "20"))
 
 # Brevo (email)
 BREVO_API_KEY = os.getenv("BREVO_API_KEY", "")
-BREVO_SENDER_EMAIL = os.getenv("BREVO_SENDER_EMAIL", "noreply@zeghangja.hu")
+BREVO_SENDER_EMAIL = os.getenv("BREVO_SENDER_EMAIL", "zeghangja@gmail.com")
 BREVO_SENDER_NAME = os.getenv("BREVO_SENDER_NAME", "Zalaegerszeg Hangja")
 
 # Web Push (VAPID)
