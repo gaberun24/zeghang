@@ -1,0 +1,55 @@
+{% extends "admin/base.html" %}
+{% set admin_page = "comments" %}
+{% block title %}Hozzászólások — Admin{% endblock %}
+
+{% block content %}
+<h2 style="font-size:20px; font-weight:700; margin-bottom:1rem;">Hozzászólások</h2>
+
+<div class="admin-card" style="padding:0; overflow-x:auto;">
+  <table class="admin-table">
+    <thead>
+      <tr><th>#</th><th>Bejelentés</th><th>Szerző</th><th>Tartalom</th><th>Szűrt tartalom</th><th>Dátum</th><th>Státusz</th><th>Műveletek</th></tr>
+    </thead>
+    <tbody>
+      {% for c in comments %}
+      <tr class="{{ 'hidden-row' if c.is_hidden }}">
+        <td>{{ c.id }}</td>
+        <td><a href="{{ url_for('issue_detail', issue_id=c.issue_id) }}" style="color:var(--admin-primary); text-decoration:none; font-size:12px;">{{ c.issue_title|truncate(40) }}</a></td>
+        <td style="font-size:12px;">{{ c.author_name }}<br><span style="color:var(--admin-muted);">{{ c.author_email }}</span></td>
+        <td style="max-width:250px; font-size:12px; word-break:break-word;">{{ c.content|truncate(120) }}</td>
+        <td style="max-width:250px; font-size:12px; word-break:break-word; color:var(--admin-muted);">{{ c.content|censor|truncate(120) }}</td>
+        <td style="white-space:nowrap; font-size:12px;">{{ c.created_at.strftime('%m.%d. %H:%M') }}</td>
+        <td>
+          {% if c.is_hidden %}<span class="badge badge-hidden">Rejtett</span>
+          {% else %}<span class="badge badge-new">Látható</span>{% endif %}
+        </td>
+        <td>
+          <div class="action-group">
+            {% if c.is_hidden %}
+            <form class="action-form" method="POST" action="{{ url_for('admin_comment_action', comment_id=c.id) }}">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <input type="hidden" name="action" value="unhide">
+              <button class="btn-sm btn-action">Vissza</button>
+            </form>
+            {% else %}
+            <form class="action-form" method="POST" action="{{ url_for('admin_comment_action', comment_id=c.id) }}">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <input type="hidden" name="action" value="hide">
+              <button class="btn-sm btn-danger">Elrejt</button>
+            </form>
+            {% endif %}
+            <form class="action-form" method="POST" action="{{ url_for('admin_comment_action', comment_id=c.id) }}" onsubmit="return confirm('Biztosan törlöd véglegesen?')">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <input type="hidden" name="action" value="delete">
+              <button class="btn-sm btn-danger">Törlés</button>
+            </form>
+          </div>
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="8" style="text-align:center; padding:2rem; color:var(--admin-muted);">Nincs hozzászólás.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

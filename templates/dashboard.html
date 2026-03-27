@@ -67,8 +67,8 @@
         <span class="issue-status status-done">Megoldva ✓</span>
         {% endif %}
       </div>
-      <div class="issue-h">{{ issue.title }}</div>
-      <div class="issue-desc">{{ issue.description[:200] }}{% if issue.description|length > 200 %}...{% endif %}</div>
+      <div class="issue-h">{{ issue.title|censor }}</div>
+      <div class="issue-desc">{{ issue.description[:200]|censor }}{% if issue.description|length > 200 %}...{% endif %}</div>
       <div class="issue-footer">
         <span class="issue-footer-item"><span class="issue-district-badge">{{ '%02d' % issue.district_number }}. körzet</span></span>
         <span class="issue-footer-item">💬 {{ issue.comment_count }} hozzászólás</span>

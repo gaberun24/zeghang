@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="csrf-token" content="{{ csrf_token() }}">
+  <title>{% block title %}Admin — Zalaegerszeg Hangja{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --admin-bg: #f1f5f9;
+      --admin-card: #ffffff;
+      --admin-border: #e2e8f0;
+      --admin-text: #1e293b;
+      --admin-muted: #64748b;
+      --admin-primary: #2563eb;
+      --admin-danger: #dc2626;
+      --admin-success: #16a34a;
+      --admin-warning: #d97706;
+      --radius: 8px;
+    }
+    body { font-family: 'Inter', sans-serif; background: var(--admin-bg); color: var(--admin-text); font-size: 14px; line-height: 1.5; }
+
+    /* Top bar */
+    .admin-topbar {
+      background: #1e293b; color: white; padding: 0.75rem 2rem;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .admin-topbar-title { font-weight: 700; font-size: 15px; }
+    .admin-topbar-title span { color: #ef4444; }
+    .admin-topbar-links { display: flex; gap: 1.5rem; align-items: center; }
+    .admin-topbar-links a { color: #94a3b8; text-decoration: none; font-size: 13px; font-weight: 500; }
+    .admin-topbar-links a:hover, .admin-topbar-links a.active { color: white; }
+
+    /* Nav */
+    .admin-nav {
+      background: white; border-bottom: 1px solid var(--admin-border);
+      padding: 0 2rem; display: flex; gap: 0;
+    }
+    .admin-nav a {
+      padding: 0.75rem 1.25rem; text-decoration: none; color: var(--admin-muted);
+      font-weight: 500; font-size: 13px; border-bottom: 2px solid transparent;
+    }
+    .admin-nav a:hover { color: var(--admin-text); }
+    .admin-nav a.active { color: var(--admin-primary); border-bottom-color: var(--admin-primary); }
+
+    /* Content */
+    .admin-content { max-width: 1200px; margin: 0 auto; padding: 1.5rem 2rem; }
+
+    /* Cards */
+    .admin-card { background: var(--admin-card); border: 1px solid var(--admin-border); border-radius: var(--radius); padding: 1.25rem; margin-bottom: 1rem; }
+    .admin-card h3 { font-size: 14px; font-weight: 600; margin-bottom: 1rem; color: var(--admin-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+
+    /* Stat grid */
+    .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+    .stat-card { background: white; border: 1px solid var(--admin-border); border-radius: var(--radius); padding: 1rem; text-align: center; }
+    .stat-num { font-size: 28px; font-weight: 700; color: var(--admin-text); }
+    .stat-label { font-size: 12px; color: var(--admin-muted); margin-top: 2px; }
+    .stat-num.danger { color: var(--admin-danger); }
+    .stat-num.success { color: var(--admin-success); }
+    .stat-num.warning { color: var(--admin-warning); }
+
+    /* Table */
+    .admin-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .admin-table th { text-align: left; padding: 8px 10px; font-weight: 600; color: var(--admin-muted); border-bottom: 2px solid var(--admin-border); font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .admin-table td { padding: 8px 10px; border-bottom: 1px solid var(--admin-border); vertical-align: middle; }
+    .admin-table tr:hover { background: #f8fafc; }
+    .admin-table tr.hidden-row { opacity: 0.5; }
+
+    /* Badges */
+    .badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; }
+    .badge-new { background: #dbeafe; color: #1d4ed8; }
+    .badge-in-progress { background: #fef3c7; color: #92400e; }
+    .badge-done { background: #d1fae5; color: #065f46; }
+    .badge-hidden { background: #fecaca; color: #991b1b; }
+    .badge-admin { background: #ede9fe; color: #5b21b6; }
+    .badge-banned { background: #fecaca; color: #991b1b; }
+
+    .badge-low { background: #f0fdf4; color: #166534; }
+    .badge-medium { background: #fefce8; color: #854d0e; }
+    .badge-high { background: #fff7ed; color: #9a3412; }
+    .badge-urgent { background: #fef2f2; color: #991b1b; }
+
+    /* Buttons */
+    .btn-sm { display: inline-block; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 500; border: none; cursor: pointer; text-decoration: none; }
+    .btn-action { background: #f1f5f9; color: var(--admin-text); border: 1px solid var(--admin-border); }
+    .btn-action:hover { background: #e2e8f0; }
+    .btn-danger { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
+    .btn-danger:hover { background: #fecaca; }
+    .btn-success { background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; }
+    .btn-success:hover { background: #bbf7d0; }
+
+    /* Action form */
+    .action-form { display: inline; }
+    .action-group { display: flex; gap: 4px; flex-wrap: wrap; }
+
+    /* Filter bar */
+    .filter-bar { display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap; }
+    .filter-link { padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 500; text-decoration: none; color: var(--admin-muted); background: white; border: 1px solid var(--admin-border); }
+    .filter-link:hover { background: #f8fafc; }
+    .filter-link.active { background: var(--admin-primary); color: white; border-color: var(--admin-primary); }
+
+    /* Truncate */
+    .truncate { max-width: 300px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    @media (max-width: 768px) {
+      .admin-topbar, .admin-nav, .admin-content { padding-left: 1rem; padding-right: 1rem; }
+      .admin-table { font-size: 12px; }
+      .stat-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+  <div class="admin-topbar">
+    <div class="admin-topbar-title">Z! <span>Admin</span></div>
+    <div class="admin-topbar-links">
+      <a href="{{ url_for('dashboard') }}">Vissza a platformra</a>
+      <a href="{{ url_for('logout') }}">Kilépés</a>
+    </div>
+  </div>
+
+  <div class="admin-nav">
+    <a href="{{ url_for('admin_dashboard') }}" class="{{ 'active' if admin_page == 'dashboard' else '' }}">Áttekintés</a>
+    <a href="{{ url_for('admin_issues') }}" class="{{ 'active' if admin_page == 'issues' else '' }}">Bejelentések</a>
+    <a href="{{ url_for('admin_comments') }}" class="{{ 'active' if admin_page == 'comments' else '' }}">Hozzászólások</a>
+    <a href="{{ url_for('admin_users') }}" class="{{ 'active' if admin_page == 'users' else '' }}">Felhasználók</a>
+  </div>
+
+  <div class="admin-content">
+    {% block content %}{% endblock %}
+  </div>
+</body>
+</html>

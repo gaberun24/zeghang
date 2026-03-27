@@ -29,6 +29,9 @@
       <div class="topbar-avatar" title="{{ current_user.display_name or current_user.email }}">
         {{ (current_user.display_name or current_user.email)[:2]|upper }}
       </div>
+      {% if current_user.is_admin %}
+        <a href="{{ url_for('admin_dashboard') }}" style="color:#e74c3c; font-size:13px; text-decoration:none; font-weight:600;">Admin</a>
+      {% endif %}
       <a href="{{ url_for('logout') }}" style="color:var(--hill-pale); font-size:13px; text-decoration:none;">Kilépés</a>
     </div>
   </div>

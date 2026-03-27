@@ -232,6 +232,10 @@ def init_db():
             "ALTER TABLE issues ADD COLUMN IF NOT EXISTS lat DOUBLE PRECISION",
             "ALTER TABLE issues ADD COLUMN IF NOT EXISTS lng DOUBLE PRECISION",
             "ALTER TABLE districts ADD COLUMN IF NOT EXISTS population INT DEFAULT 0",
+            "ALTER TABLE users ADD COLUMN IF NOT EXISTS is_admin BOOLEAN DEFAULT FALSE",
+            "ALTER TABLE users ADD COLUMN IF NOT EXISTS is_banned BOOLEAN DEFAULT FALSE",
+            "ALTER TABLE issues ADD COLUMN IF NOT EXISTS is_hidden BOOLEAN DEFAULT FALSE",
+            "ALTER TABLE comments ADD COLUMN IF NOT EXISTS is_hidden BOOLEAN DEFAULT FALSE",
         ]:
             conn.execute(col_sql)
 

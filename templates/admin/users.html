@@ -1,0 +1,63 @@
+{% extends "admin/base.html" %}
+{% set admin_page = "users" %}
+{% block title %}Felhasználók — Admin{% endblock %}
+
+{% block content %}
+<h2 style="font-size:20px; font-weight:700; margin-bottom:1rem;">Felhasználók</h2>
+
+<div class="admin-card" style="padding:0; overflow-x:auto;">
+  <table class="admin-table">
+    <thead>
+      <tr><th>#</th><th>Név</th><th>Email</th><th>Körzet</th><th>Bejelentések</th><th>Hozzászólások</th><th>Reg. dátum</th><th>Státusz</th><th>Műveletek</th></tr>
+    </thead>
+    <tbody>
+      {% for u in users %}
+      <tr>
+        <td>{{ u.id }}</td>
+        <td>{{ u.display_name or 'Körzeti lakos' }}</td>
+        <td style="font-size:12px;">{{ u.email }}</td>
+        <td>{% if u.district_number %}{{ '%02d' % u.district_number }}{% else %}—{% endif %}</td>
+        <td style="text-align:center;">{{ u.issue_count }}</td>
+        <td style="text-align:center;">{{ u.comment_count }}</td>
+        <td style="white-space:nowrap; font-size:12px;">{{ u.created_at.strftime('%Y.%m.%d.') }}</td>
+        <td>
+          {% if u.is_banned %}<span class="badge badge-banned">Tiltott</span>
+          {% elif u.is_admin %}<span class="badge badge-admin">Admin</span>
+          {% else %}<span class="badge badge-new">Aktív</span>{% endif %}
+        </td>
+        <td>
+          <div class="action-group">
+            {% if u.is_banned %}
+            <form class="action-form" method="POST" action="{{ url_for('admin_user_action', user_id=u.id) }}">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <input type="hidden" name="action" value="unban">
+              <button class="btn-sm btn-success">Feloldás</button>
+            </form>
+            {% else %}
+            <form class="action-form" method="POST" action="{{ url_for('admin_user_action', user_id=u.id) }}" onsubmit="return confirm('Biztosan tiltod ezt a felhasználót?')">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <input type="hidden" name="action" value="ban">
+              <button class="btn-sm btn-danger">Tiltás</button>
+            </form>
+            {% endif %}
+            {% if u.is_admin %}
+            <form class="action-form" method="POST" action="{{ url_for('admin_user_action', user_id=u.id) }}" onsubmit="return confirm('Elveszed az admin jogot?')">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <input type="hidden" name="action" value="remove_admin">
+              <button class="btn-sm btn-action">Admin elvétel</button>
+            </form>
+            {% else %}
+            <form class="action-form" method="POST" action="{{ url_for('admin_user_action', user_id=u.id) }}" onsubmit="return confirm('Admin jogot adsz ennek a felhasználónak?')">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <input type="hidden" name="action" value="make_admin">
+              <button class="btn-sm btn-action">Admin</button>
+            </form>
+            {% endif %}
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

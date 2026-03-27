@@ -31,6 +31,7 @@ from lib.ai import (
     categorize_issue, check_duplicates, quick_categorize,
     CATEGORIES, URGENCY_LABELS,
 )
+from lib.moderation import censor_text
 from districts import DISTRICTS, guess_district
 
 # ── App setup ──
@@ -55,6 +56,9 @@ login_manager.login_view = "login"
 login_manager.login_message = "Jelentkezz be a folytatáshoz."
 login_manager.login_message_category = "error"
 
+# ── Jinja2 filters ──
+app.jinja_env.filters["censor"] = censor_text
+
 
 # ── User model ──
 class DistrictInfo:
@@ -72,7 +76,19 @@ class User(UserMixin):
         self.email = row["email"]
         self.display_name = row.get("display_name") or "Körzeti lakos"
         self.district_id = row["district_id"]
+        self.is_admin = row.get("is_admin", False)
         self.district = DistrictInfo(district_row) if district_row else None
+
+
+def admin_required(f):
+    @wraps(f)
+    @login_required
+    def decorated(*args, **kwargs):
+        if not current_user.is_admin:
+            flash("Nincs jogosultságod ehhez az oldalhoz.", "error")
+            return redirect(url_for("dashboard"))
+        return f(*args, **kwargs)
+    return decorated
 
 
 @login_manager.user_loader
@@ -459,6 +475,7 @@ def dashboard():
             where_clauses.append("i.category = %s")
             params.append(category_filter)
 
+        where_clauses.append("i.is_hidden = FALSE")
         where_sql = " AND ".join(where_clauses) if where_clauses else "TRUE"
 
         issues = conn.execute(
@@ -610,11 +627,11 @@ def issue_detail(issue_id):
         ).fetchone()
         user_vote = vote_row["direction"] if vote_row else 0
 
-        # Comments
+        # Comments (hide moderated ones for non-admins)
         comments_raw = conn.execute(
             "SELECT c.*, COALESCE(u.display_name, 'Körzeti lakos') AS author_name "
             "FROM comments c JOIN users u ON c.user_id = u.id "
-            "WHERE c.issue_id = %s ORDER BY c.created_at ASC",
+            "WHERE c.issue_id = %s AND c.is_hidden = FALSE ORDER BY c.created_at ASC",
             (issue_id,)
         ).fetchall()
         comments = []
@@ -788,6 +805,201 @@ def api_check_district():
 @app.route("/uploads/<path:filename>")
 def uploaded_file(filename):
     return send_from_directory(UPLOAD_DIR, filename)
+
+
+# ── Routes: Admin ──
+@app.route("/admin")
+@admin_required
+def admin_dashboard():
+    conn = get_db()
+    try:
+        total_issues = conn.execute("SELECT COUNT(*) AS cnt FROM issues").fetchone()["cnt"]
+        active_issues = conn.execute("SELECT COUNT(*) AS cnt FROM issues WHERE status != 'done'").fetchone()["cnt"]
+        solved_issues = conn.execute("SELECT COUNT(*) AS cnt FROM issues WHERE status = 'done'").fetchone()["cnt"]
+        hidden_issues = conn.execute("SELECT COUNT(*) AS cnt FROM issues WHERE is_hidden = TRUE").fetchone()["cnt"]
+        total_users = conn.execute("SELECT COUNT(*) AS cnt FROM users WHERE is_active = TRUE").fetchone()["cnt"]
+        banned_users = conn.execute("SELECT COUNT(*) AS cnt FROM users WHERE is_banned = TRUE").fetchone()["cnt"]
+        total_comments = conn.execute("SELECT COUNT(*) AS cnt FROM comments").fetchone()["cnt"]
+        hidden_comments = conn.execute("SELECT COUNT(*) AS cnt FROM comments WHERE is_hidden = TRUE").fetchone()["cnt"]
+
+        # Recent issues
+        recent = conn.execute(
+            "SELECT i.*, d.number AS district_number, "
+            "COALESCE(u.display_name, 'Körzeti lakos') AS author_name, u.email AS author_email "
+            "FROM issues i JOIN districts d ON i.district_id = d.id "
+            "JOIN users u ON i.user_id = u.id "
+            "ORDER BY i.created_at DESC LIMIT 20"
+        ).fetchall()
+
+        # District breakdown
+        district_stats = conn.execute(
+            "SELECT d.number, d.name, "
+            "COUNT(CASE WHEN i.status != 'done' THEN 1 END) AS active, "
+            "COUNT(CASE WHEN i.status = 'done' THEN 1 END) AS solved, "
+            "COUNT(i.id) AS total "
+            "FROM districts d LEFT JOIN issues i ON i.district_id = d.id "
+            "GROUP BY d.number, d.name ORDER BY d.number"
+        ).fetchall()
+
+        return render_template("admin/dashboard.html",
+            total_issues=total_issues, active_issues=active_issues,
+            solved_issues=solved_issues, hidden_issues=hidden_issues,
+            total_users=total_users, banned_users=banned_users,
+            total_comments=total_comments, hidden_comments=hidden_comments,
+            recent=recent, district_stats=district_stats,
+            category_labels=CATEGORIES, urgency_labels=URGENCY_LABELS,
+        )
+    finally:
+        conn.close()
+
+
+@app.route("/admin/issues")
+@admin_required
+def admin_issues():
+    status = request.args.get("status", "all")
+    page = request.args.get("page", 1, type=int)
+    per_page = 30
+    offset = (page - 1) * per_page
+
+    conn = get_db()
+    try:
+        where = "TRUE"
+        params = []
+        if status == "hidden":
+            where = "i.is_hidden = TRUE"
+        elif status != "all":
+            where = "i.status = %s AND i.is_hidden = FALSE"
+            params.append(status)
+
+        issues = conn.execute(
+            f"SELECT i.*, d.number AS district_number, "
+            f"COALESCE(u.display_name, 'Körzeti lakos') AS author_name, u.email AS author_email "
+            f"FROM issues i JOIN districts d ON i.district_id = d.id "
+            f"JOIN users u ON i.user_id = u.id "
+            f"WHERE {where} ORDER BY i.created_at DESC LIMIT %s OFFSET %s",
+            params + [per_page, offset],
+        ).fetchall()
+
+        total = conn.execute(
+            f"SELECT COUNT(*) AS cnt FROM issues i WHERE {where}", params
+        ).fetchone()["cnt"]
+
+        return render_template("admin/issues.html",
+            issues=issues, status=status, page=page,
+            total=total, per_page=per_page,
+            category_labels=CATEGORIES, urgency_labels=URGENCY_LABELS,
+        )
+    finally:
+        conn.close()
+
+
+@app.route("/admin/issue/<int:issue_id>/action", methods=["POST"])
+@admin_required
+def admin_issue_action(issue_id):
+    action = request.form.get("action")
+    conn = get_db()
+    try:
+        if action == "hide":
+            conn.execute("UPDATE issues SET is_hidden = TRUE WHERE id = %s", (issue_id,))
+        elif action == "unhide":
+            conn.execute("UPDATE issues SET is_hidden = FALSE WHERE id = %s", (issue_id,))
+        elif action in ("new", "in_progress", "done"):
+            update = "UPDATE issues SET status = %s, updated_at = NOW()"
+            params = [action, issue_id]
+            if action == "done":
+                update += ", resolved_at = NOW()"
+            update += " WHERE id = %s"
+            conn.execute(update, params)
+        elif action == "delete":
+            conn.execute("DELETE FROM issues WHERE id = %s", (issue_id,))
+        conn.commit()
+    except Exception:
+        conn.rollback()
+    finally:
+        conn.close()
+    return redirect(request.referrer or url_for("admin_issues"))
+
+
+@app.route("/admin/users")
+@admin_required
+def admin_users():
+    conn = get_db()
+    try:
+        users = conn.execute(
+            "SELECT u.*, d.number AS district_number, d.name AS district_name, "
+            "(SELECT COUNT(*) FROM issues WHERE user_id = u.id) AS issue_count, "
+            "(SELECT COUNT(*) FROM comments WHERE user_id = u.id) AS comment_count "
+            "FROM users u LEFT JOIN districts d ON u.district_id = d.id "
+            "ORDER BY u.created_at DESC"
+        ).fetchall()
+        return render_template("admin/users.html", users=users)
+    finally:
+        conn.close()
+
+
+@app.route("/admin/user/<int:user_id>/action", methods=["POST"])
+@admin_required
+def admin_user_action(user_id):
+    action = request.form.get("action")
+    conn = get_db()
+    try:
+        if action == "ban":
+            conn.execute("UPDATE users SET is_banned = TRUE, is_active = FALSE WHERE id = %s", (user_id,))
+        elif action == "unban":
+            conn.execute("UPDATE users SET is_banned = FALSE, is_active = TRUE WHERE id = %s", (user_id,))
+        elif action == "make_admin":
+            conn.execute("UPDATE users SET is_admin = TRUE WHERE id = %s", (user_id,))
+        elif action == "remove_admin":
+            conn.execute("UPDATE users SET is_admin = FALSE WHERE id = %s", (user_id,))
+        conn.commit()
+    except Exception:
+        conn.rollback()
+    finally:
+        conn.close()
+    return redirect(request.referrer or url_for("admin_users"))
+
+
+@app.route("/admin/comments")
+@admin_required
+def admin_comments():
+    conn = get_db()
+    try:
+        comments = conn.execute(
+            "SELECT c.*, i.title AS issue_title, "
+            "COALESCE(u.display_name, 'Körzeti lakos') AS author_name, u.email AS author_email "
+            "FROM comments c JOIN issues i ON c.issue_id = i.id "
+            "JOIN users u ON c.user_id = u.id "
+            "ORDER BY c.created_at DESC LIMIT 100"
+        ).fetchall()
+        return render_template("admin/comments.html", comments=comments)
+    finally:
+        conn.close()
+
+
+@app.route("/admin/comment/<int:comment_id>/action", methods=["POST"])
+@admin_required
+def admin_comment_action(comment_id):
+    action = request.form.get("action")
+    conn = get_db()
+    try:
+        if action == "hide":
+            conn.execute("UPDATE comments SET is_hidden = TRUE WHERE id = %s", (comment_id,))
+        elif action == "unhide":
+            conn.execute("UPDATE comments SET is_hidden = FALSE WHERE id = %s", (comment_id,))
+        elif action == "delete":
+            comment = conn.execute("SELECT issue_id FROM comments WHERE id = %s", (comment_id,)).fetchone()
+            if comment:
+                conn.execute("DELETE FROM comments WHERE id = %s", (comment_id,))
+                conn.execute(
+                    "UPDATE issues SET comment_count = GREATEST(comment_count - 1, 0) WHERE id = %s",
+                    (comment["issue_id"],)
+                )
+        conn.commit()
+    except Exception:
+        conn.rollback()
+    finally:
+        conn.close()
+    return redirect(request.referrer or url_for("admin_comments"))
 
 
 # ── Init & Run ──

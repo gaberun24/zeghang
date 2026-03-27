@@ -1,0 +1,92 @@
+{% extends "admin/base.html" %}
+{% set admin_page = "dashboard" %}
+{% block title %}Admin áttekintés — Zalaegerszeg Hangja{% endblock %}
+
+{% block content %}
+<h2 style="font-size:20px; font-weight:700; margin-bottom:1rem;">Áttekintés</h2>
+
+<div class="stat-grid">
+  <div class="stat-card">
+    <div class="stat-num">{{ total_issues }}</div>
+    <div class="stat-label">Összes bejelentés</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-num warning">{{ active_issues }}</div>
+    <div class="stat-label">Aktív</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-num success">{{ solved_issues }}</div>
+    <div class="stat-label">Megoldva</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-num danger">{{ hidden_issues }}</div>
+    <div class="stat-label">Rejtett</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-num">{{ total_users }}</div>
+    <div class="stat-label">Felhasználók</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-num danger">{{ banned_users }}</div>
+    <div class="stat-label">Tiltott</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-num">{{ total_comments }}</div>
+    <div class="stat-label">Hozzászólások</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-num danger">{{ hidden_comments }}</div>
+    <div class="stat-label">Rejtett hsz.</div>
+  </div>
+</div>
+
+<!-- District breakdown -->
+<div class="admin-card">
+  <h3>Körzeti bontás</h3>
+  <table class="admin-table">
+    <thead>
+      <tr><th>Körzet</th><th>Név</th><th>Aktív</th><th>Megoldva</th><th>Összesen</th></tr>
+    </thead>
+    <tbody>
+      {% for d in district_stats %}
+      <tr>
+        <td><strong>{{ '%02d' % d.number }}</strong></td>
+        <td>{{ d.name or '—' }}</td>
+        <td>{{ d.active }}</td>
+        <td>{{ d.solved }}</td>
+        <td>{{ d.total }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<!-- Recent issues -->
+<div class="admin-card">
+  <h3>Legutóbbi bejelentések</h3>
+  <table class="admin-table">
+    <thead>
+      <tr><th>#</th><th>Cím</th><th>Körzet</th><th>Szerző</th><th>Kategória</th><th>Sürgősség</th><th>Státusz</th><th>Dátum</th></tr>
+    </thead>
+    <tbody>
+      {% for i in recent %}
+      <tr class="{{ 'hidden-row' if i.is_hidden }}">
+        <td>{{ i.id }}</td>
+        <td class="truncate"><a href="{{ url_for('issue_detail', issue_id=i.id) }}" style="color:var(--admin-primary); text-decoration:none;">{{ i.title }}</a></td>
+        <td>{{ '%02d' % i.district_number }}</td>
+        <td style="font-size:12px;">{{ i.author_name }}<br><span style="color:var(--admin-muted);">{{ i.author_email }}</span></td>
+        <td>{{ category_labels.get(i.category, i.category) }}</td>
+        <td><span class="badge badge-{{ i.ai_urgency or 'low' }}">{{ urgency_labels.get(i.ai_urgency, 'Alacsony') }}</span></td>
+        <td>
+          {% if i.is_hidden %}<span class="badge badge-hidden">Rejtett</span>
+          {% elif i.status == 'done' %}<span class="badge badge-done">Megoldva</span>
+          {% elif i.status == 'in_progress' %}<span class="badge badge-in-progress">Vizsgálat</span>
+          {% else %}<span class="badge badge-new">Új</span>{% endif %}
+        </td>
+        <td style="white-space:nowrap; font-size:12px;">{{ i.created_at.strftime('%m.%d. %H:%M') }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

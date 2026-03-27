@@ -1,0 +1,93 @@
+{% extends "admin/base.html" %}
+{% set admin_page = "issues" %}
+{% block title %}Bejelentések kezelése — Admin{% endblock %}
+
+{% block content %}
+<h2 style="font-size:20px; font-weight:700; margin-bottom:1rem;">Bejelentések</h2>
+
+<div class="filter-bar">
+  <a href="{{ url_for('admin_issues', status='all') }}" class="filter-link {{ 'active' if status == 'all' }}">Mind</a>
+  <a href="{{ url_for('admin_issues', status='new') }}" class="filter-link {{ 'active' if status == 'new' }}">Új</a>
+  <a href="{{ url_for('admin_issues', status='in_progress') }}" class="filter-link {{ 'active' if status == 'in_progress' }}">Vizsgálat alatt</a>
+  <a href="{{ url_for('admin_issues', status='done') }}" class="filter-link {{ 'active' if status == 'done' }}">Megoldva</a>
+  <a href="{{ url_for('admin_issues', status='hidden') }}" class="filter-link {{ 'active' if status == 'hidden' }}">Rejtett</a>
+</div>
+
+<div class="admin-card" style="padding:0; overflow-x:auto;">
+  <table class="admin-table">
+    <thead>
+      <tr><th>#</th><th>Cím</th><th>Körzet</th><th>Szerző</th><th>Kat.</th><th>Sürg.</th><th>Szav.</th><th>Státusz</th><th>Dátum</th><th>Műveletek</th></tr>
+    </thead>
+    <tbody>
+      {% for i in issues %}
+      <tr class="{{ 'hidden-row' if i.is_hidden }}">
+        <td>{{ i.id }}</td>
+        <td class="truncate"><a href="{{ url_for('issue_detail', issue_id=i.id) }}" style="color:var(--admin-primary); text-decoration:none;">{{ i.title }}</a></td>
+        <td>{{ '%02d' % i.district_number }}</td>
+        <td style="font-size:12px;">{{ i.author_name }}<br><span style="color:var(--admin-muted);">{{ i.author_email }}</span></td>
+        <td style="font-size:12px;">{{ category_labels.get(i.category, i.category) }}</td>
+        <td><span class="badge badge-{{ i.ai_urgency or 'low' }}">{{ urgency_labels.get(i.ai_urgency, 'Alacsony') }}</span></td>
+        <td style="text-align:center;">{{ i.vote_score }}</td>
+        <td>
+          {% if i.is_hidden %}<span class="badge badge-hidden">Rejtett</span>
+          {% elif i.status == 'done' %}<span class="badge badge-done">Megoldva</span>
+          {% elif i.status == 'in_progress' %}<span class="badge badge-in-progress">Vizsgálat</span>
+          {% else %}<span class="badge badge-new">Új</span>{% endif %}
+        </td>
+        <td style="white-space:nowrap; font-size:12px;">{{ i.created_at.strftime('%m.%d. %H:%M') }}</td>
+        <td>
+          <div class="action-group">
+            {% if i.status == 'new' %}
+            <form class="action-form" method="POST" action="{{ url_for('admin_issue_action', issue_id=i.id) }}">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <input type="hidden" name="action" value="in_progress">
+              <button class="btn-sm btn-action" title="Vizsgálat alá">Vizsgálat</button>
+            </form>
+            {% endif %}
+            {% if i.status != 'done' %}
+            <form class="action-form" method="POST" action="{{ url_for('admin_issue_action', issue_id=i.id) }}">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <input type="hidden" name="action" value="done">
+              <button class="btn-sm btn-success" title="Megoldva">Megoldva</button>
+            </form>
+            {% endif %}
+            {% if i.is_hidden %}
+            <form class="action-form" method="POST" action="{{ url_for('admin_issue_action', issue_id=i.id) }}">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <input type="hidden" name="action" value="unhide">
+              <button class="btn-sm btn-action" title="Visszaállítás">Vissza</button>
+            </form>
+            {% else %}
+            <form class="action-form" method="POST" action="{{ url_for('admin_issue_action', issue_id=i.id) }}">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <input type="hidden" name="action" value="hide">
+              <button class="btn-sm btn-danger" title="Elrejtés">Elrejt</button>
+            </form>
+            {% endif %}
+            <form class="action-form" method="POST" action="{{ url_for('admin_issue_action', issue_id=i.id) }}" onsubmit="return confirm('Biztosan törlöd? Ez nem visszavonható!')">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <input type="hidden" name="action" value="delete">
+              <button class="btn-sm btn-danger" title="Végleges törlés">Törlés</button>
+            </form>
+          </div>
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="10" style="text-align:center; padding:2rem; color:var(--admin-muted);">Nincs találat.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% if total > per_page %}
+<div style="display:flex; gap:0.5rem; justify-content:center; margin-top:1rem;">
+  {% if page > 1 %}
+  <a href="{{ url_for('admin_issues', status=status, page=page-1) }}" class="btn-sm btn-action">Előző</a>
+  {% endif %}
+  <span style="padding:4px 10px; font-size:12px; color:var(--admin-muted);">{{ page }} / {{ ((total - 1) // per_page) + 1 }}</span>
+  {% if page * per_page < total %}
+  <a href="{{ url_for('admin_issues', status=status, page=page+1) }}" class="btn-sm btn-action">Következő</a>
+  {% endif %}
+</div>
+{% endif %}
+{% endblock %}
