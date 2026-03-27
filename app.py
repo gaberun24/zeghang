@@ -5,6 +5,7 @@ Flask application with all routes.
 
 import hashlib
 import os
+import secrets
 import uuid
 from datetime import datetime, timedelta
 from functools import wraps
@@ -203,6 +204,14 @@ def set_security_headers(response):
     response.headers["X-Frame-Options"] = "DENY"
     response.headers["X-XSS-Protection"] = "1; mode=block"
     response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    response.headers["Content-Security-Policy"] = (
+        "default-src 'self'; "
+        "script-src 'self' 'unsafe-inline' https://*.tile.openstreetmap.org https://unpkg.com; "
+        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; "
+        "font-src 'self' https://fonts.gstatic.com; "
+        "img-src 'self' data: https://*.tile.openstreetmap.org; "
+        "connect-src 'self'"
+    )
     return response
 
 
@@ -503,6 +512,12 @@ def forgot_password():
         return redirect(url_for("dashboard"))
 
     if request.method == "POST":
+        ip = request.remote_addr
+        if check_rate_limit(ip, event_type="password_reset_attempt", max_attempts=3, window_seconds=600):
+            flash("Túl sok próbálkozás. Kérjük, várj 10 percet.", "error")
+            return render_template("forgot_password.html")
+        log_security("password_reset_attempt", f"ip={ip}", ip)
+
         email = request.form.get("email", "").strip().lower()
         # Always show success message (don't reveal if email exists)
         flash("Ha ez az email cím regisztrálva van, hamarosan kapsz egy jelszó-visszaállító linket.", "success")
@@ -516,8 +531,8 @@ def forgot_password():
                 ).fetchone()
 
                 if user:
-                    # Generate token
-                    token = uuid.uuid4().hex + uuid.uuid4().hex
+                    # Generate cryptographically secure token
+                    token = secrets.token_urlsafe(48)
                     expires = datetime.now() + timedelta(hours=1)
 
                     # Invalidate old tokens
@@ -941,10 +956,22 @@ def new_issue():
 
         # Handle photo uploads
         photos = request.files.getlist("photos")
+        MAGIC_BYTES = {
+            b"\xff\xd8\xff": ".jpg",
+            b"\x89PNG\r\n\x1a\n": ".png",
+            b"GIF87a": ".gif",
+            b"GIF89a": ".gif",
+            b"RIFF": ".webp",
+        }
         for photo in photos:
             if photo and photo.filename:
                 ext = os.path.splitext(photo.filename)[1].lower()
                 if ext in (".jpg", ".jpeg", ".png", ".webp", ".gif"):
+                    # Validate file content (magic bytes)
+                    header = photo.read(16)
+                    photo.seek(0)
+                    if not any(header.startswith(magic) for magic in MAGIC_BYTES):
+                        continue  # Skip invalid files silently
                     filename = f"{uuid.uuid4().hex}{ext}"
                     os.makedirs(UPLOAD_DIR, exist_ok=True)
                     photo.save(os.path.join(UPLOAD_DIR, filename))
@@ -956,9 +983,9 @@ def new_issue():
 
         conn.commit()
         return jsonify({"ok": True, "issue_id": issue_id})
-    except Exception as e:
+    except Exception:
         conn.rollback()
-        return jsonify({"ok": False, "error": str(e)}), 500
+        return jsonify({"ok": False, "error": "Hiba történt a bejelentés mentése során."}), 500
     finally:
         conn.close()
 

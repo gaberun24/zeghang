@@ -7,7 +7,7 @@ for _env_path in ["/opt/zeghang/.env", ".env"]:
         load_dotenv(_env_path, override=True)
 
 # Flask
-FLASK_SECRET_KEY = os.getenv("FLASK_SECRET_KEY", "")
+FLASK_SECRET_KEY = os.getenv("FLASK_SECRET_KEY") or os.urandom(32).hex()
 FLASK_DEBUG = os.getenv("FLASK_DEBUG", "0") == "1"
 
 # Database
