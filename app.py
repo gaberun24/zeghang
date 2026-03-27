@@ -917,6 +917,63 @@ def issue_detail(issue_id):
         author_rep = issue["author_reputation"] or 0
         author_rep_name, author_rep_icon = get_reputation_level(author_rep)
 
+        # Resolution voting data
+        resolution_active = False
+        resolution_expired = False
+        resolution_yes = 0
+        resolution_no = 0
+        user_resolution_vote = None
+        resolution_deadline = None
+        resolution_starter = None
+
+        if issue["resolution_started_at"]:
+            deadline = issue["resolution_started_at"] + timedelta(days=7)
+            resolution_deadline = deadline
+            now = datetime.now()
+            if now <= deadline:
+                resolution_active = True
+            else:
+                resolution_expired = True
+
+            # Vote counts
+            res_counts = conn.execute(
+                "SELECT vote, COUNT(*) AS cnt FROM resolution_votes "
+                "WHERE issue_id = %s GROUP BY vote",
+                (issue_id,)
+            ).fetchall()
+            for rc in res_counts:
+                if rc["vote"]:
+                    resolution_yes = rc["cnt"]
+                else:
+                    resolution_no = rc["cnt"]
+
+            # Current user's vote
+            user_rv = conn.execute(
+                "SELECT vote FROM resolution_votes WHERE issue_id = %s AND user_id = %s",
+                (issue_id, current_user.id),
+            ).fetchone()
+            if user_rv is not None:
+                user_resolution_vote = user_rv["vote"]
+
+            # Who started it
+            starter = conn.execute(
+                "SELECT COALESCE(display_name, 'Körzeti lakos') AS name FROM users WHERE id = %s",
+                (issue["resolution_started_by"],)
+            ).fetchone()
+            if starter:
+                resolution_starter = starter["name"]
+
+            # Auto-resolve if expired and majority says yes
+            if resolution_expired and issue["status"] != "done":
+                if resolution_yes > resolution_no and resolution_yes >= 3:
+                    conn.execute(
+                        "UPDATE issues SET status = 'done', resolved_at = NOW(), updated_at = NOW() WHERE id = %s",
+                        (issue_id,)
+                    )
+                    conn.commit()
+                    issue = dict(issue.items())
+                    issue["status"] = "done"
+
         return render_template("issue_detail.html",
             issue=issue,
             user_vote=user_vote,
@@ -928,6 +985,13 @@ def issue_detail(issue_id):
             active_page="dashboard",
             author_rep_name=author_rep_name,
             author_rep_icon=author_rep_icon,
+            resolution_active=resolution_active,
+            resolution_expired=resolution_expired,
+            resolution_yes=resolution_yes,
+            resolution_no=resolution_no,
+            user_resolution_vote=user_resolution_vote,
+            resolution_deadline=resolution_deadline,
+            resolution_starter=resolution_starter,
         )
     finally:
         conn.close()
@@ -986,6 +1050,95 @@ def vote_issue(issue_id):
                 pass
 
         return jsonify({"ok": True, "vote_score": new_score, "user_vote": user_vote})
+    except Exception:
+        conn.rollback()
+        return jsonify({"ok": False}), 500
+    finally:
+        conn.close()
+
+
+@app.route("/issue/<int:issue_id>/resolve", methods=["POST"])
+@login_required
+def start_resolution(issue_id):
+    """Start a community resolution vote (7-day voting period)."""
+    conn = get_db()
+    try:
+        issue = conn.execute("SELECT * FROM issues WHERE id = %s", (issue_id,)).fetchone()
+        if not issue:
+            return jsonify({"ok": False, "error": "Nem található."}), 404
+        if issue["status"] == "done":
+            return jsonify({"ok": False, "error": "Már megoldottnak jelölve."}), 400
+        if issue["resolution_started_at"]:
+            return jsonify({"ok": False, "error": "Már folyamatban van a szavazás."}), 400
+
+        conn.execute(
+            "UPDATE issues SET resolution_started_at = NOW(), resolution_started_by = %s, updated_at = NOW() WHERE id = %s",
+            (current_user.id, issue_id),
+        )
+        # Auto-vote yes for the initiator
+        conn.execute(
+            "INSERT INTO resolution_votes (issue_id, user_id, vote) VALUES (%s, %s, TRUE)",
+            (issue_id, current_user.id),
+        )
+        conn.commit()
+        return jsonify({"ok": True})
+    except Exception:
+        conn.rollback()
+        return jsonify({"ok": False}), 500
+    finally:
+        conn.close()
+
+
+@app.route("/issue/<int:issue_id>/resolve-vote", methods=["POST"])
+@login_required
+def resolution_vote(issue_id):
+    """Vote on whether an issue is resolved."""
+    data = request.get_json()
+    vote = data.get("vote")  # True = yes resolved, False = no not resolved
+    if vote is None:
+        return jsonify({"ok": False}), 400
+
+    conn = get_db()
+    try:
+        issue = conn.execute("SELECT * FROM issues WHERE id = %s", (issue_id,)).fetchone()
+        if not issue or not issue["resolution_started_at"]:
+            return jsonify({"ok": False, "error": "Nincs aktív szavazás."}), 400
+
+        deadline = issue["resolution_started_at"] + timedelta(days=7)
+        if datetime.now() > deadline:
+            return jsonify({"ok": False, "error": "A szavazási időszak lejárt."}), 400
+
+        # Upsert vote
+        existing = conn.execute(
+            "SELECT id FROM resolution_votes WHERE issue_id = %s AND user_id = %s",
+            (issue_id, current_user.id),
+        ).fetchone()
+        if existing:
+            conn.execute(
+                "UPDATE resolution_votes SET vote = %s WHERE id = %s",
+                (vote, existing["id"]),
+            )
+        else:
+            conn.execute(
+                "INSERT INTO resolution_votes (issue_id, user_id, vote) VALUES (%s, %s, %s)",
+                (issue_id, current_user.id, vote),
+            )
+        conn.commit()
+
+        # Return updated counts
+        counts = conn.execute(
+            "SELECT vote, COUNT(*) AS cnt FROM resolution_votes WHERE issue_id = %s GROUP BY vote",
+            (issue_id,)
+        ).fetchall()
+        yes_count = 0
+        no_count = 0
+        for c in counts:
+            if c["vote"]:
+                yes_count = c["cnt"]
+            else:
+                no_count = c["cnt"]
+
+        return jsonify({"ok": True, "yes": yes_count, "no": no_count, "user_vote": vote})
     except Exception:
         conn.rollback()
         return jsonify({"ok": False}), 500

@@ -77,6 +77,78 @@
     </div>
   </div>
 
+  <!-- Resolution voting -->
+  {% if issue.status != 'done' and not resolution_active and not resolution_expired %}
+  <div style="background:var(--white); border-radius:var(--radius-lg); padding:1.5rem 2rem; box-shadow:var(--shadow-sm); margin-bottom:2rem; text-align:center;">
+    <p style="font-size:14px; color:var(--text-muted); margin-bottom:1rem;">Szerinted ez a probléma megoldódott?</p>
+    <button onclick="startResolution({{ issue.id }})" class="btn btn-primary" style="background:var(--meadow);">
+      ✓ Megoldódott — szavazás indítása
+    </button>
+    <p style="font-size:12px; color:var(--text-muted); margin-top:0.75rem;">A közösség 7 napig szavazhat, a többség dönt.</p>
+  </div>
+  {% endif %}
+
+  {% if resolution_active or resolution_expired %}
+  <div style="background:var(--white); border-radius:var(--radius-lg); padding:1.5rem 2rem; box-shadow:var(--shadow-sm); margin-bottom:2rem;">
+    <h3 style="font-family:'Playfair Display',serif; font-size:18px; font-weight:700; margin-bottom:0.5rem;">
+      🗳️ Megoldódott? — Közösségi szavazás
+    </h3>
+    <p style="font-size:13px; color:var(--text-muted); margin-bottom:1rem;">
+      {{ resolution_starter }} kezdeményezte
+      {% if resolution_active %}
+       — szavazás vége: <strong>{{ resolution_deadline.strftime('%Y.%m.%d %H:%M') }}</strong>
+      {% else %}
+       — szavazás lezárult
+      {% endif %}
+    </p>
+
+    <div id="resolutionVotes" style="display:flex; gap:1rem; align-items:center; margin-bottom:1rem;">
+      <div style="flex:1; text-align:center; padding:1rem; border-radius:var(--radius-sm); background:var(--cream); {{ 'border:2px solid var(--meadow);' if user_resolution_vote == true else '' }}">
+        <div style="font-size:28px; font-weight:700; color:var(--meadow);" id="resYes">{{ resolution_yes }}</div>
+        <div style="font-size:13px; color:var(--text-muted);">Igen, megoldódott</div>
+      </div>
+      <div style="flex:1; text-align:center; padding:1rem; border-radius:var(--radius-sm); background:var(--cream); {{ 'border:2px solid #e74c3c;' if user_resolution_vote == false else '' }}">
+        <div style="font-size:28px; font-weight:700; color:#e74c3c;" id="resNo">{{ resolution_no }}</div>
+        <div style="font-size:13px; color:var(--text-muted);">Nem, még nem</div>
+      </div>
+    </div>
+
+    {% if resolution_active %}
+    <div style="display:flex; gap:0.75rem; justify-content:center;">
+      <button onclick="resolutionVote({{ issue.id }}, true)" class="btn" style="background:var(--meadow); color:white; {{ 'opacity:0.5;' if user_resolution_vote == true else '' }}" id="btnResYes">
+        👍 Igen, megoldódott
+      </button>
+      <button onclick="resolutionVote({{ issue.id }}, false)" class="btn" style="background:#e74c3c; color:white; {{ 'opacity:0.5;' if user_resolution_vote == false else '' }}" id="btnResNo">
+        👎 Nem, még nem
+      </button>
+    </div>
+    {% else %}
+    <div style="text-align:center; padding:0.75rem; border-radius:var(--radius-sm); font-weight:600; font-size:14px;
+      {% if resolution_yes > resolution_no and resolution_yes >= 3 %}
+        background:rgba(76,175,80,0.1); color:var(--meadow);">
+        ✓ A közösség megerősítette: a probléma megoldódott!
+      {% elif resolution_no >= resolution_yes %}
+        background:rgba(231,76,60,0.1); color:#e74c3c;">
+        ✗ A közösség szerint a probléma még nem oldódott meg.
+      {% else %}
+        background:var(--cream); color:var(--text-muted);">
+        Nem érkezett elég szavazat (min. 3 igen szükséges).
+      {% endif %}
+    </div>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  {% if issue.status == 'done' and not resolution_active %}
+  <div style="background:rgba(76,175,80,0.08); border:1px solid rgba(76,175,80,0.2); border-radius:var(--radius-lg); padding:1.5rem 2rem; margin-bottom:2rem; text-align:center;">
+    <span style="font-size:24px;">✅</span>
+    <p style="font-size:15px; font-weight:600; color:var(--meadow); margin-top:0.5rem;">Ez a probléma megoldódott!</p>
+    {% if issue.resolved_at %}
+    <p style="font-size:12px; color:var(--text-muted);">{{ issue.resolved_at.strftime('%Y.%m.%d') }}</p>
+    {% endif %}
+  </div>
+  {% endif %}
+
   <!-- Comments -->
   <div style="background:var(--white); border-radius:var(--radius-lg); padding:2rem; box-shadow:var(--shadow-sm);">
     <h2 style="font-family:'Playfair Display',serif; font-size:20px; font-weight:700; margin-bottom:1.5rem;">

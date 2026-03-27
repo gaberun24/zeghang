@@ -216,6 +216,18 @@ def init_db():
             )
         """)
 
+        # Resolution votes (community verification of resolved issues)
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS resolution_votes (
+                id SERIAL PRIMARY KEY,
+                issue_id INT REFERENCES issues(id) ON DELETE CASCADE,
+                user_id INT REFERENCES users(id),
+                vote BOOLEAN NOT NULL,
+                created_at TIMESTAMP DEFAULT NOW(),
+                UNIQUE(issue_id, user_id)
+            )
+        """)
+
         # Security log
         conn.execute("""
             CREATE TABLE IF NOT EXISTS security_log (
@@ -241,6 +253,8 @@ def init_db():
             "ALTER TABLE users ADD COLUMN IF NOT EXISTS notify_comments BOOLEAN DEFAULT TRUE",
             "ALTER TABLE users ADD COLUMN IF NOT EXISTS notify_status BOOLEAN DEFAULT TRUE",
             "ALTER TABLE users ADD COLUMN IF NOT EXISTS push_subscription TEXT",
+            "ALTER TABLE issues ADD COLUMN IF NOT EXISTS resolution_started_at TIMESTAMP",
+            "ALTER TABLE issues ADD COLUMN IF NOT EXISTS resolution_started_by INT REFERENCES users(id)",
         ]:
             conn.execute(col_sql)
 

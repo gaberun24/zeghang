@@ -312,6 +312,51 @@ function submitComment(e) {
     .catch(() => {});
 }
 
+// ── RESOLUTION VOTING ──
+function startResolution(issueId) {
+  if (!confirm('Biztos, hogy szerinted megoldódott ez a probléma?\n\nEzzel 7 napos szavazás indul, ahol a közösség megerősítheti vagy cáfolhatja.')) return;
+
+  fetch(`/issue/${issueId}/resolve`, {
+    method: 'POST',
+    headers: { 'X-CSRFToken': getCsrf() },
+  })
+    .then(r => r.json())
+    .then(data => {
+      if (data.ok) {
+        window.location.reload();
+      } else {
+        showToast('\u26a0 ' + (data.error || 'Hiba történt.'), true);
+      }
+    })
+    .catch(() => showToast('\u26a0 Hiba történt.', true));
+}
+
+function resolutionVote(issueId, vote) {
+  fetch(`/issue/${issueId}/resolve-vote`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': getCsrf(),
+    },
+    body: JSON.stringify({ vote: vote }),
+  })
+    .then(r => r.json())
+    .then(data => {
+      if (data.ok) {
+        document.getElementById('resYes').textContent = data.yes;
+        document.getElementById('resNo').textContent = data.no;
+        var btnYes = document.getElementById('btnResYes');
+        var btnNo = document.getElementById('btnResNo');
+        if (btnYes) btnYes.style.opacity = data.user_vote === true ? '0.5' : '1';
+        if (btnNo) btnNo.style.opacity = data.user_vote === false ? '0.5' : '1';
+        showToast('\u2713 Szavazat rögzítve!');
+      } else {
+        showToast('\u26a0 ' + (data.error || 'Hiba történt.'), true);
+      }
+    })
+    .catch(() => showToast('\u26a0 Hiba történt.', true));
+}
+
 // ── DISTRICT AUTO-DETECT (registration) ──
 function checkDistrict() {
   const streetInput = document.getElementById('addressStreet');
