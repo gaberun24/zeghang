@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="csrf-token" content="{{ csrf_token() }}">
-  <title>{% block title %}ZEG Hang — Zalaegerszeg Közösségi Platform{% endblock %}</title>
+  <title>{% block title %}Zalaegerszeg Hangja — Közösségi Platform{% endblock %}</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -19,7 +19,7 @@
     <a href="{{ url_for('index') }}" class="nav-logo">
       <div class="nav-logo-mark">Z!</div>
       <div>
-        <div class="nav-name">ZEG Hang</div>
+        <div class="nav-name">Zalaegerszeg Hangja</div>
         <div class="nav-tagline">Zalaegerszeg közösségi platformja</div>
       </div>
     </a>
@@ -41,7 +41,7 @@
   <!-- Footer -->
   {% block footer %}
   <footer style="background: var(--forest); padding: 2rem; text-align: center;">
-    <div class="footer-logo" style="font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700; color: white; margin-bottom: 0.5rem;">ZEG Hang</div>
+    <div class="footer-logo" style="font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700; color: white; margin-bottom: 0.5rem;">Zalaegerszeg Hangja</div>
     <p style="font-size: 13px; color: var(--hill-pale);">Független civil platform · Zalaegerszeg · 2026</p>
     <ul style="list-style: none; display: flex; justify-content: center; gap: 2rem; margin-top: 1rem; flex-wrap: wrap;">
       <li><a href="{{ url_for('how_it_works') }}" style="color: var(--hill-pale); text-decoration: none; font-size: 13px;">Hogyan működik</a></li>

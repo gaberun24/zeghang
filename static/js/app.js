@@ -1,5 +1,5 @@
 /* ==============================================
-   ZEG Hang — Frontend JavaScript
+   Zalaegerszeg Hangja — Frontend JavaScript
    ============================================== */
 
 // CSRF token from meta tag

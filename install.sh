@@ -1,6 +1,6 @@
 #!/bin/bash
 # ============================================================
-# ZEG Hang — Teljes telepítő script (Debian/Ubuntu szűz CT)
+# Zalaegerszeg Hangja — Teljes telepítő script (Debian/Ubuntu szűz CT)
 # Futtatás: curl -sSL <url> | bash   VAGY   bash install.sh
 # ============================================================
 
@@ -24,7 +24,7 @@ DB_PASS=${DB_PASS:-$(openssl rand -hex 16)}
 FLASK_SECRET=${FLASK_SECRET:-$(openssl rand -hex 32)}
 
 echo "========================================="
-echo " ZEG Hang — Telepítés indul"
+echo " Zalaegerszeg Hangja — Telepítés indul"
 echo "========================================="
 
 # ── 1. Rendszer frissítés + alapcsomagok ──
@@ -120,7 +120,7 @@ chown "$APP_USER":"$APP_USER" "${APP_DIR}/flask_sessions"
 echo "[7/9] Systemd service..."
 cat > /etc/systemd/system/zeghang.service <<SVCEOF
 [Unit]
-Description=ZEG Hang — Zalaegerszeg Közösségi Platform
+Description=Zalaegerszeg Hangja — Közösségi Platform
 After=network.target postgresql.service
 Requires=postgresql.service
 

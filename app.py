@@ -1,5 +1,5 @@
 """
-ZEG Hang — Zalaegerszeg Közösségi Platform
+Zalaegerszeg Hangja — Közösségi Platform
 Flask application with all routes.
 """
 
