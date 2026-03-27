@@ -340,6 +340,11 @@ def how_it_works():
     return render_template("how_it_works.html")
 
 
+@app.route("/hasznalati-utmutato")
+def user_guide():
+    return render_template("guide.html")
+
+
 @app.route("/adatvedelem")
 def privacy():
     return render_template("privacy.html")

@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+{% block title %}Használati útmutató — Zalaegerszeg Hangja{% endblock %}
+
+{% block footer %}{% endblock %}
+
+{% block content %}
+<div class="how-page">
+  <!-- Hero -->
+  <div class="how-hero">
+    <h1>Használati útmutató</h1>
+    <p>Lépésről lépésre megmutatjuk, hogyan használd a Zalaegerszeg Hangja platformot.</p>
+  </div>
+
+  <!-- 1. Regisztráció -->
+  <div class="how-section">
+    <h2><span class="icon">📝</span> 1. Regisztráció</h2>
+    <ol>
+      <li>Kattints a <strong>„Regisztráció"</strong> gombra a főoldalon.</li>
+      <li>Add meg az <strong>email címedet</strong> és válassz egy jelszót (min. 8 karakter).</li>
+      <li>Add meg a <strong>zalaegerszegi lakcímedet</strong> — a rendszer automatikusan felismeri, melyik választókerületbe tartozol.</li>
+      <li>Ha szeretnéd, adj meg egy <strong>megjelenítési nevet</strong> — egyébként „Körzeti lakos"-ként jelensz meg.</li>
+      <li>Fogadd el az Általános Szerződési Feltételeket és az Adatvédelmi tájékoztatót.</li>
+      <li>Kattints a <strong>„Regisztráció"</strong> gombra — kész is!</li>
+    </ol>
+    <div class="how-highlight">
+      A pontos lakcímed soha nem jelenik meg nyilvánosan — csak a körzeted száma látható mások számára.
+    </div>
+  </div>
+
+  <!-- 2. Bejelentkezés -->
+  <div class="how-section">
+    <h2><span class="icon">🔑</span> 2. Bejelentkezés</h2>
+    <ol>
+      <li>Kattints a <strong>„Bejelentkezés"</strong> gombra.</li>
+      <li>Add meg az email címedet és jelszavadat.</li>
+      <li>Máris az áttekintő oldalon vagy, ahol a körzeted problémáit látod.</li>
+    </ol>
+  </div>
+
+  <!-- 3. Áttekintő -->
+  <div class="how-section">
+    <h2><span class="icon">📋</span> 3. Az áttekintő oldal</h2>
+    <p>Bejelentkezés után az <strong>áttekintő</strong> oldalra kerülsz. Itt három fül közül választhatsz:</p>
+    <ul>
+      <li><strong>Körzetem</strong> — a saját választókerületed problémái, a képviselőd adataival</li>
+      <li><strong>Egész város</strong> — Zalaegerszeg összes bejelentése, minden körzetből</li>
+      <li><strong>Saját bejelentéseim</strong> — az általad beküldött problémák és állapotuk</li>
+    </ul>
+    <p style="margin-top:1rem;">A térképen láthatod a bejelentések helyét. A szűrőgombokkal kategória szerint válogathatsz (Közút, Park, Biztonság stb.).</p>
+  </div>
+
+  <!-- 4. Új bejelentés -->
+  <div class="how-section">
+    <h2><span class="icon">🆕</span> 4. Új probléma bejelentése</h2>
+    <ol>
+      <li>Kattints az <strong>„Új bejelentés"</strong> gombra (zöld gomb az oldal alján).</li>
+      <li>Add meg a probléma <strong>címét</strong> — röviden, lényegre törően (pl. „Kátyú a Kossuth utcában").</li>
+      <li>Írd le részletesen a <strong>problémát</strong> — hol van pontosan, mióta áll fenn, kit érint.</li>
+      <li>Válassz <strong>kategóriát</strong> — az AI automatikusan javasol egyet, de te is módosíthatod.</li>
+      <li>Ha van róla, csatolj <strong>fényképet</strong> — egy kép többet mond ezer szónál!</li>
+      <li>Kattints a <strong>„Beküldés"</strong> gombra.</li>
+    </ol>
+    <div class="how-highlight">
+      <strong>Mi kerülhet be?</strong> Kizárólag közterületi problémák: kátyúk, hiányzó közvilágítás, elhanyagolt parkok, veszélyes forgalmi helyzetek stb.<br>
+      <strong>Mi nem?</strong> Magánéleti viták, szomszédsági panaszok, üzleti sérelmek, politikai vélemények.
+    </div>
+  </div>
+
+  <!-- 5. Szavazás -->
+  <div class="how-section">
+    <h2><span class="icon">🗳️</span> 5. Szavazás</h2>
+    <p>Minden bejelentésnél két nyíl látható:</p>
+    <ul>
+      <li><strong>▲ Felszavazás</strong> — ha egyetértesz, hogy ez fontos probléma</li>
+      <li><strong>▼ Leszavazás</strong> — ha szerinted nem prioritás</li>
+    </ul>
+    <p style="margin-top:1rem;">Minden bejelentésre egyszer szavazhatsz, de bármikor megváltoztathatod. A szavazatod <strong>anonim</strong> — senki nem látja, mire szavaztál.</p>
+    <p style="margin-top:0.5rem;">Minél több szavazatot kap egy probléma, annál feljebb kerül a körzeti toplistán — így a képviselők is látják, mi a legfontosabb a lakóknak.</p>
+  </div>
+
+  <!-- 6. Hozzászólás -->
+  <div class="how-section">
+    <h2><span class="icon">💬</span> 6. Hozzászólás</h2>
+    <ol>
+      <li>Nyiss meg egy bejelentést a címére kattintva.</li>
+      <li>Görgess le a <strong>„Hozzászólások"</strong> részhez.</li>
+      <li>Írd meg a véleményed vagy kiegészítő információdat.</li>
+      <li>Kattints a <strong>„Küldés"</strong> gombra.</li>
+    </ol>
+    <p style="margin-top:1rem;">A hozzászólásokkal pontosíthatod a problémát, megerősítheted a bejelentést, vagy új információt adhatsz hozzá.</p>
+  </div>
+
+  <!-- 7. Értesítések -->
+  <div class="how-section">
+    <h2><span class="icon">🔔</span> 7. Értesítések</h2>
+    <p>A platform értesít, ha valami történik a bejelentéseiddel:</p>
+    <ul>
+      <li><strong>Szavazat</strong> — ha valaki szavaz a bejelentésedre</li>
+      <li><strong>Hozzászólás</strong> — ha valaki kommentál a bejelentésedhez</li>
+      <li><strong>Állapotváltozás</strong> — ha a bejelentésed státusza megváltozik (pl. „Vizsgálat alatt" vagy „Megoldva")</li>
+    </ul>
+    <p style="margin-top:1rem;">Az értesítéseket a <strong>Beállítások</strong> menüben kapcsolhatod ki-be, típusonként külön-külön.</p>
+  </div>
+
+  <!-- 8. Beállítások -->
+  <div class="how-section">
+    <h2><span class="icon">⚙️</span> 8. Beállítások</h2>
+    <p>A beállítások oldalon az alábbi dolgokat módosíthatod:</p>
+    <ul>
+      <li><strong>Megjelenítési név</strong> — bármikor megváltoztathatod</li>
+      <li><strong>Jelszó</strong> — új jelszó beállítása</li>
+      <li><strong>Lakcím</strong> — évente egyszer módosítható (költözés esetén)</li>
+      <li><strong>Értesítések</strong> — push értesítések be-/kikapcsolása típusonként</li>
+    </ul>
+  </div>
+
+  <!-- 9. Reputáció -->
+  <div class="how-section">
+    <h2><span class="icon">⭐</span> 9. Reputáció és szintek</h2>
+    <p>Az aktív és hasznos tagok reputációs pontokat gyűjtenek:</p>
+    <ul>
+      <li><strong>Bejelentésre kapott felszavazat</strong> — +2 pont</li>
+      <li><strong>Bejelentésre kapott leszavazat</strong> — -1 pont</li>
+      <li><strong>Hozzászólás írása</strong> — +1 pont</li>
+      <li><strong>Bejelentés megoldva státuszba kerül</strong> — +5 pont</li>
+    </ul>
+    <p style="margin-top:1rem;">A pontjaid alapján szintet lépsz:</p>
+    <ul>
+      <li>🌱 <strong>Újonc</strong> — 0 pont</li>
+      <li>🏘️ <strong>Lakó</strong> — 10 pont</li>
+      <li>⭐ <strong>Aktív tag</strong> — 50 pont</li>
+      <li>🏅 <strong>Közösségi hős</strong> — 100 pont</li>
+      <li>🏆 <strong>Körzeti bajnok</strong> — 250 pont</li>
+    </ul>
+    <p style="margin-top:1rem;">A szinted a neved mellett jelenik meg — mutasd meg, hogy aktív tagja vagy a közösségnek!</p>
+  </div>
+
+  <!-- 10. Fontos tudnivalók -->
+  <div class="how-section">
+    <h2><span class="icon">⚠️</span> 10. Fontos tudnivalók</h2>
+    <ul>
+      <li>Ez a platform <strong>NEM hivatalos bejelentő</strong> és <strong>NEM a segélyhívó</strong>. Vészhelyzet esetén hívd a <strong>112</strong>-t!</li>
+      <li>A bejelentések tartalma automatikusan szűrésre kerül — a trágár kifejezések csillagozva jelennek meg.</li>
+      <li>A platform független, nem tartozik egyetlen párthoz vagy szervezethez sem.</li>
+      <li>Kérdésed van? Írj nekünk a <strong>Kapcsolat</strong> oldalon!</li>
+    </ul>
+  </div>
+
+  <!-- CTA -->
+  <div style="text-align:center; padding:4rem 2rem; background:var(--cream-dark);">
+    <h2 style="font-family:'Playfair Display',serif; font-size:28px; font-weight:700; margin-bottom:1rem;">Készen állsz?</h2>
+    <p style="color:var(--text-muted); margin-bottom:2rem;">Jelentkezz be és szólj bele a körzeted ügyeibe!</p>
+    {% if current_user.is_authenticated %}
+    <a href="{{ url_for('dashboard') }}" class="btn btn-primary btn-lg">Áttekintő megnyitása →</a>
+    {% else %}
+    <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg">Regisztrálj most →</a>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

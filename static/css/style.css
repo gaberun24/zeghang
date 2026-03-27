@@ -2133,6 +2133,33 @@
   background: var(--forest-mid);
 }
 
+.checkbox-field {
+  margin-top: 1rem;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  cursor: pointer;
+  font-weight: 400 !important;
+  font-size: 13px !important;
+  line-height: 1.5;
+}
+
+.checkbox-label input[type="checkbox"] {
+  margin-top: 3px;
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  min-width: 18px;
+}
+
+.checkbox-label a {
+  color: var(--meadow);
+  font-weight: 600;
+}
+
 .auth-links {
   text-align: center;
   margin-top: 1.5rem;

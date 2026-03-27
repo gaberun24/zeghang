@@ -8,7 +8,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
-  <title>{% block title %}Zalaegerszeg Hangja — Dashboard{% endblock %}</title>
+  <title>{% block title %}Zalaegerszeg Hangja — Áttekintő{% endblock %}</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -111,6 +111,9 @@
         </a></li>
         <li><a href="{{ url_for('dashboard', tab='mine') }}" class="{{ 'active' if active_page == 'my_issues' }}">
           <span class="sb-nav-icon">📝</span> Saját bejelentéseim
+        </a></li>
+        <li><a href="{{ url_for('user_guide') }}">
+          <span class="sb-nav-icon">📖</span> Használati útmutató
         </a></li>
         <li><a href="{{ url_for('how_it_works') }}">
           <span class="sb-nav-icon">❓</span> Hogyan működik

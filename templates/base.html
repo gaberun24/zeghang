@@ -28,11 +28,12 @@
       </div>
     </a>
     <ul class="nav-links">
+      <li><a href="{{ url_for('user_guide') }}">Útmutató</a></li>
       <li><a href="{{ url_for('how_it_works') }}">Hogyan működik</a></li>
       <li><a href="{{ url_for('index') }}#korzetletes">Körzetek</a></li>
       <li><a href="{{ url_for('privacy') }}">Adatvédelem</a></li>
       {% if current_user.is_authenticated %}
-        <li><a href="{{ url_for('dashboard') }}" class="btn btn-primary">Dashboard</a></li>
+        <li><a href="{{ url_for('dashboard') }}" class="btn btn-primary">Áttekintő</a></li>
       {% else %}
         <li><a href="{{ url_for('login') }}" class="btn btn-outline">Bejelentkezés</a></li>
         <li><a href="{{ url_for('register') }}" class="btn btn-primary">Regisztráció</a></li>
