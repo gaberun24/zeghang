@@ -217,16 +217,19 @@ def init_db():
         """)
 
         # Resolution votes (community verification of resolved issues)
-        conn.execute("""
-            CREATE TABLE IF NOT EXISTS resolution_votes (
-                id SERIAL PRIMARY KEY,
-                issue_id INT REFERENCES issues(id) ON DELETE CASCADE,
-                user_id INT REFERENCES users(id),
-                vote BOOLEAN NOT NULL,
-                created_at TIMESTAMP DEFAULT NOW(),
-                UNIQUE(issue_id, user_id)
-            )
-        """)
+        try:
+            conn.execute("""
+                CREATE TABLE IF NOT EXISTS resolution_votes (
+                    id SERIAL PRIMARY KEY,
+                    issue_id INT REFERENCES issues(id) ON DELETE CASCADE,
+                    user_id INT REFERENCES users(id),
+                    vote BOOLEAN NOT NULL,
+                    created_at TIMESTAMP DEFAULT NOW(),
+                    UNIQUE(issue_id, user_id)
+                )
+            """)
+        except Exception:
+            conn.rollback()
 
         # Security log
         conn.execute("""
