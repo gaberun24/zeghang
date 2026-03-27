@@ -204,6 +204,13 @@ function submitIssue(e) {
     }
   }
 
+  // Disable button to prevent double submit
+  var btn = document.querySelector('.btn-submit');
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = 'Küldés...';
+  }
+
   fetch('/issue/new', {
     method: 'POST',
     headers: { 'X-CSRFToken': getCsrf() },
@@ -216,10 +223,14 @@ function submitIssue(e) {
         showToast('✓ Bejelentés elküldve — megjelenik a körzeti listán');
         setTimeout(() => window.location.reload(), 1500);
       } else {
+        if (btn) { btn.disabled = false; btn.textContent = 'Bejelentés küldése →'; }
         alert(data.error || 'Hiba történt a küldés során.');
       }
     })
-    .catch(() => alert('Hiba történt a küldés során.'));
+    .catch(() => {
+      if (btn) { btn.disabled = false; btn.textContent = 'Bejelentés küldése →'; }
+      alert('Hiba történt a küldés során.');
+    });
 }
 
 // ── TOAST ──
