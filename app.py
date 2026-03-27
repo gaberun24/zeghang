@@ -106,7 +106,18 @@ class User(UserMixin):
         self.notify_comments = row.get("notify_comments", True) if row.get("notify_comments") is not None else True
         self.notify_status = row.get("notify_status", True) if row.get("notify_status") is not None else True
         self.push_subscription = row.get("push_subscription")
+        self.is_banned = row.get("is_banned", False)
         self.district = DistrictInfo(district_row) if district_row else None
+
+    @property
+    def is_shadowbanned(self):
+        """User is shadowbanned if reputation drops below -10."""
+        return self.reputation <= -10 and not self.is_admin
+
+    @property
+    def is_restricted(self):
+        """User is restricted (rate limited) if reputation is below 0."""
+        return self.reputation < 0 and not self.is_admin
 
     @property
     def rep_level(self):
@@ -830,6 +841,16 @@ def dashboard():
             params.append(category_filter)
 
         where_clauses.append("i.is_hidden = FALSE")
+
+        # Shadowban: hide shadowbanned users' posts from others
+        if tab != "mine":
+            where_clauses.append(
+                "(i.user_id = %s OR NOT EXISTS ("
+                "  SELECT 1 FROM users sb WHERE sb.id = i.user_id AND sb.is_shadowbanned = TRUE"
+                "))"
+            )
+            params.append(current_user.id)
+
         where_sql = " AND ".join(where_clauses) if where_clauses else "TRUE"
 
         issues = conn.execute(
@@ -894,6 +915,32 @@ def new_issue():
 
     if not title or not description:
         return jsonify({"ok": False, "error": "Cím és leírás megadása kötelező."}), 400
+
+    # Rate limit: restricted users (rep < 0) can post max 1/day
+    if current_user.is_restricted:
+        conn_rl = get_db()
+        try:
+            today_count = conn_rl.execute(
+                "SELECT COUNT(*) AS cnt FROM issues WHERE user_id = %s AND created_at::date = CURRENT_DATE",
+                (current_user.id,)
+            ).fetchone()
+            if today_count["cnt"] >= 1:
+                return jsonify({"ok": False, "error": "Napi bejelentési limit elérve. Próbáld újra holnap."}), 429
+        finally:
+            conn_rl.close()
+
+    # Normal users: max 10 issues per day (anti-spam)
+    elif not current_user.is_admin:
+        conn_rl = get_db()
+        try:
+            today_count = conn_rl.execute(
+                "SELECT COUNT(*) AS cnt FROM issues WHERE user_id = %s AND created_at::date = CURRENT_DATE",
+                (current_user.id,)
+            ).fetchone()
+            if today_count["cnt"] >= 10:
+                return jsonify({"ok": False, "error": "Napi bejelentési limit elérve (max. 10)."}), 429
+        finally:
+            conn_rl.close()
 
     if category not in CATEGORIES:
         category = "other"
@@ -1036,8 +1083,10 @@ def issue_detail(issue_id):
             "  SELECT COUNT(*) * 5 FROM issues i3 WHERE i3.user_id = u.id AND i3.status = 'done'"
             "), 0) AS author_reputation "
             "FROM comments c JOIN users u ON c.user_id = u.id "
-            "WHERE c.issue_id = %s AND c.is_hidden = FALSE ORDER BY c.created_at ASC",
-            (issue_id,)
+            "WHERE c.issue_id = %s AND c.is_hidden = FALSE "
+            "AND (u.is_shadowbanned = FALSE OR c.user_id = %s) "
+            "ORDER BY c.created_at ASC",
+            (issue_id, current_user.id)
         ).fetchall()
         comments = []
         for c in comments_raw:
@@ -1183,6 +1232,29 @@ def vote_issue(issue_id):
             "UPDATE issues SET vote_score = %s, updated_at = NOW() WHERE id = %s",
             (new_score, issue_id),
         )
+        # Auto-shadowban check: recalculate issue author's reputation
+        issue_author = conn.execute(
+            "SELECT user_id FROM issues WHERE id = %s", (issue_id,)
+        ).fetchone()
+        if issue_author:
+            author_rep = conn.execute(
+                "SELECT COALESCE(("
+                "  SELECT SUM(CASE WHEN v.direction = 1 THEN 2 WHEN v.direction = -1 THEN -1 ELSE 0 END) "
+                "  FROM votes v JOIN issues i ON v.issue_id = i.id WHERE i.user_id = %s"
+                "), 0) + COALESCE(("
+                "  SELECT COUNT(*) FROM comments c WHERE c.user_id = %s AND c.is_hidden = FALSE"
+                "), 0) + COALESCE(("
+                "  SELECT COUNT(*) * 5 FROM issues i WHERE i.user_id = %s AND i.status = 'done'"
+                "), 0) AS rep",
+                (issue_author["user_id"], issue_author["user_id"], issue_author["user_id"]),
+            ).fetchone()
+            rep = author_rep["rep"] if author_rep else 0
+            should_shadowban = rep <= -10
+            conn.execute(
+                "UPDATE users SET is_shadowbanned = %s WHERE id = %s AND is_admin = FALSE",
+                (should_shadowban, issue_author["user_id"]),
+            )
+
         conn.commit()
 
         # Send push notification (async-safe, non-blocking)
@@ -1296,6 +1368,19 @@ def add_comment(issue_id):
     content = data.get("content", "").strip()
     if not content:
         return jsonify({"ok": False, "error": "Üres hozzászólás."}), 400
+
+    # Rate limit comments for restricted users
+    if current_user.is_restricted:
+        conn_rl = get_db()
+        try:
+            recent = conn_rl.execute(
+                "SELECT COUNT(*) AS cnt FROM comments WHERE user_id = %s AND created_at > NOW() - INTERVAL '1 hour'",
+                (current_user.id,)
+            ).fetchone()
+            if recent["cnt"] >= 3:
+                return jsonify({"ok": False, "error": "Túl sok hozzászólás. Próbáld újra később."}), 429
+        finally:
+            conn_rl.close()
 
     conn = get_db()
     try:
