@@ -11,9 +11,17 @@ APP_DIR="/opt/zeghang"
 REPO="https://github.com/gaberun24/zeghang.git"
 DB_NAME="zeghang"
 DB_USER="zeghang"
-DB_PASS=$(openssl rand -hex 16)
-FLASK_SECRET=$(openssl rand -hex 32)
 DOMAIN="zeghang.hajasgabor.com"
+
+# Ha már van .env, olvassuk ki a meglévő jelszót és secret-et
+if [ -f "${APP_DIR}/.env" ]; then
+    echo "  Meglévő .env találva — jelszó újrahasználása"
+    DB_PASS=$(grep -oP 'DATABASE_URL=.*://[^:]+:\K[^@]+' "${APP_DIR}/.env" || true)
+    FLASK_SECRET=$(grep -oP 'FLASK_SECRET_KEY=\K.+' "${APP_DIR}/.env" || true)
+fi
+# Ha nem sikerült kiolvasni (vagy nincs .env), generálunk újat
+DB_PASS=${DB_PASS:-$(openssl rand -hex 16)}
+FLASK_SECRET=${FLASK_SECRET:-$(openssl rand -hex 32)}
 
 echo "========================================="
 echo " ZEG Hang — Telepítés indul"
@@ -41,6 +49,8 @@ fi
 echo "[3/9] PostgreSQL beállítás..."
 sudo -u postgres psql -tc "SELECT 1 FROM pg_roles WHERE rolname='${DB_USER}'" | grep -q 1 || \
     sudo -u postgres psql -c "CREATE USER ${DB_USER} WITH PASSWORD '${DB_PASS}';"
+# Mindig szinkronizáljuk a jelszót (újrafuttatás esetén)
+sudo -u postgres psql -c "ALTER USER ${DB_USER} WITH PASSWORD '${DB_PASS}';"
 
 sudo -u postgres psql -tc "SELECT 1 FROM pg_database WHERE datname='${DB_NAME}'" | grep -q 1 || \
     sudo -u postgres psql -c "CREATE DATABASE ${DB_NAME} OWNER ${DB_USER};"
@@ -57,6 +67,12 @@ echo "[4/9] Repo klónozás → ${APP_DIR}..."
 if [ -d "${APP_DIR}/.git" ]; then
     cd "$APP_DIR"
     git pull origin main
+elif [ -d "$APP_DIR" ]; then
+    # Dir létezik de nem git repo — backup .env, törlés, újraklón
+    [ -f "${APP_DIR}/.env" ] && cp "${APP_DIR}/.env" /tmp/zeghang_env_backup
+    rm -rf "$APP_DIR"
+    git clone "$REPO" "$APP_DIR"
+    [ -f /tmp/zeghang_env_backup ] && mv /tmp/zeghang_env_backup "${APP_DIR}/.env"
 else
     git clone "$REPO" "$APP_DIR"
 fi
@@ -114,6 +130,8 @@ User=${APP_USER}
 Group=${APP_USER}
 WorkingDirectory=${APP_DIR}
 Environment=PATH=${APP_DIR}/venv/bin:/usr/bin
+Environment=LANG=C.UTF-8
+Environment=LC_ALL=C.UTF-8
 ExecStart=${APP_DIR}/venv/bin/gunicorn \
     --bind 127.0.0.1:5000 \
     --workers 3 \
