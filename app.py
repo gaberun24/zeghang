@@ -571,11 +571,21 @@ def new_issue():
         if dup_id and not confirm_dup:
             dup_issue = next((i for i in existing_list if i["id"] == dup_id), None)
             dup_title = dup_issue["title"] if dup_issue else f"#{dup_id}"
+            dup_desc = dup_issue["description"][:200] if dup_issue else ""
+            # Fetch vote score and status for the duplicate
+            dup_extra = conn.execute(
+                "SELECT vote_score, status, created_at FROM issues WHERE id = %s",
+                (dup_id,)
+            ).fetchone()
             return jsonify({
                 "ok": False,
                 "duplicate": True,
                 "duplicate_id": dup_id,
                 "duplicate_title": dup_title,
+                "duplicate_desc": dup_desc,
+                "duplicate_votes": dup_extra["vote_score"] if dup_extra else 0,
+                "duplicate_status": dup_extra["status"] if dup_extra else "new",
+                "duplicate_date": dup_extra["created_at"].strftime("%Y.%m.%d") if dup_extra else "",
                 "error": f"Hasonló bejelentés már létezik: „{dup_title}". Biztosan újat szeretnél küldeni?",
             }), 409
 

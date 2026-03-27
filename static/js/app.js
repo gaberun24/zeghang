@@ -230,7 +230,7 @@ function submitIssue(e, confirmDuplicate) {
       } else if (data.duplicate) {
         // Duplicate warning — ask user to confirm
         if (btn) { btn.disabled = false; btn.textContent = 'Bejelentés küldése →'; }
-        showDuplicateWarning(data.duplicate_id, data.duplicate_title);
+        showDuplicateWarning(data);
       } else {
         if (btn) { btn.disabled = false; btn.textContent = 'Bejelentés küldése →'; }
         showToast('⚠ ' + (data.error || 'Hiba történt a küldés során.'), true);
@@ -242,22 +242,32 @@ function submitIssue(e, confirmDuplicate) {
     });
 }
 
-function showDuplicateWarning(dupId, dupTitle) {
-  // Remove existing warning if any
+function showDuplicateWarning(data) {
   var existing = document.getElementById('dupWarning');
   if (existing) existing.remove();
 
+  var statusLabels = { new: 'Új', progress: 'Vizsgálat alatt', done: 'Megoldva ✓' };
+  var statusClass = data.duplicate_status === 'done' ? '#27ae60' : (data.duplicate_status === 'progress' ? '#f39c12' : '#3498db');
+
   var warning = document.createElement('div');
   warning.id = 'dupWarning';
-  warning.style.cssText = 'background:#fff3cd; border:1.5px solid #f0c040; border-radius:8px; padding:16px; margin-bottom:1rem;';
+  warning.style.cssText = 'background:#fff3cd; border:1.5px solid #f0c040; border-radius:10px; padding:18px; margin-bottom:1rem;';
   warning.innerHTML =
-    '<div style="font-weight:600; margin-bottom:6px;">🤖 Hasonló bejelentés már létezik:</div>' +
-    '<div style="font-size:14px; margin-bottom:12px;">„<a href="/issue/' + dupId + '" target="_blank" style="color:#1B4F8A; font-weight:600;">' +
-    dupTitle + '</a>"</div>' +
-    '<div style="font-size:13px; color:#666; margin-bottom:12px;">Ha ugyanarról a problémáról van szó, szavazz a meglévőre! Ha mégis új bejelentést szeretnél, kattints a küldésre.</div>' +
-    '<div style="display:flex; gap:8px;">' +
-    '<button onclick="window.location.href=\'/issue/' + dupId + '\'" style="padding:8px 16px; border:1.5px solid #1B4F8A; background:white; color:#1B4F8A; border-radius:6px; cursor:pointer; font-size:13px; font-weight:600;">Meglévőre szavazok ↑</button>' +
-    '<button onclick="submitIssue(null, true)" style="padding:8px 16px; border:none; background:#95a5a6; color:white; border-radius:6px; cursor:pointer; font-size:13px;">Mégis küldöm →</button>' +
+    '<div style="font-weight:700; font-size:15px; margin-bottom:12px;">🤖 Hasonló bejelentés már létezik!</div>' +
+    // Mini issue card
+    '<a href="/issue/' + data.duplicate_id + '" target="_blank" style="display:block; background:white; border:1.5px solid #e0e0e0; border-radius:8px; padding:14px; text-decoration:none; color:inherit; margin-bottom:14px;">' +
+      '<div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">' +
+        '<span style="background:' + statusClass + '; color:white; font-size:11px; padding:2px 8px; border-radius:4px; font-weight:600;">' + (statusLabels[data.duplicate_status] || 'Új') + '</span>' +
+        '<span style="font-size:12px; color:#888;">📅 ' + data.duplicate_date + '</span>' +
+        '<span style="font-size:12px; color:#888; margin-left:auto;">↑ ' + data.duplicate_votes + ' szavazat</span>' +
+      '</div>' +
+      '<div style="font-weight:600; font-size:15px; margin-bottom:4px;">' + data.duplicate_title + '</div>' +
+      '<div style="font-size:13px; color:#666; line-height:1.5;">' + data.duplicate_desc + (data.duplicate_desc.length >= 200 ? '...' : '') + '</div>' +
+    '</a>' +
+    '<div style="font-size:13px; color:#666; margin-bottom:14px;">Ha ugyanarról a problémáról van szó, szavazz a meglévőre — így nagyobb súlya lesz! Ha mégis más a probléma, küldd el újként.</div>' +
+    '<div style="display:flex; gap:8px; flex-wrap:wrap;">' +
+      '<button onclick="window.location.href=\'/issue/' + data.duplicate_id + '\'" style="padding:10px 18px; border:none; background:#1B4F8A; color:white; border-radius:6px; cursor:pointer; font-size:13px; font-weight:600;">Meglévőre szavazok ↑</button>' +
+      '<button onclick="submitIssue(null, true)" style="padding:10px 18px; border:1.5px solid #ccc; background:white; color:#666; border-radius:6px; cursor:pointer; font-size:13px;">Más probléma, mégis küldöm →</button>' +
     '</div>';
 
   var formBody = document.querySelector('.form-body');
