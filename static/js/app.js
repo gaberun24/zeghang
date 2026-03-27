@@ -167,8 +167,6 @@ function aiCategorize() {
 // ── ISSUE FORM SUBMIT ──
 function submitIssue(e) {
   if (e) e.preventDefault();
-  const form = document.getElementById('issueForm');
-  if (!form) return;
 
   const title = document.getElementById('issueTitle').value.trim();
   const desc = document.getElementById('issueDesc').value.trim();
