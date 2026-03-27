@@ -95,6 +95,7 @@ class PooledConnection:
     def __init__(self):
         self._pool = _get_pool()
         self._conn = self._pool.getconn()
+        self._conn.set_client_encoding('UTF8')
         self._conn.autocommit = False
 
     def execute(self, query, params=None):
