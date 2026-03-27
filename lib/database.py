@@ -231,6 +231,21 @@ def init_db():
         except Exception:
             conn.rollback()
 
+        # Password reset tokens
+        try:
+            conn.execute("""
+                CREATE TABLE IF NOT EXISTS password_resets (
+                    id SERIAL PRIMARY KEY,
+                    user_id INT REFERENCES users(id) ON DELETE CASCADE,
+                    token VARCHAR(128) UNIQUE NOT NULL,
+                    expires_at TIMESTAMP NOT NULL,
+                    used BOOLEAN DEFAULT FALSE,
+                    created_at TIMESTAMP DEFAULT NOW()
+                )
+            """)
+        except Exception:
+            conn.rollback()
+
         # Security log
         conn.execute("""
             CREATE TABLE IF NOT EXISTS security_log (

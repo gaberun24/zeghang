@@ -33,6 +33,7 @@ from lib.ai import (
 )
 from lib.moderation import censor_text
 from lib.notifications import notify_vote, notify_comment, notify_status_change
+from lib.email import send_email
 from lib.config import VAPID_PUBLIC_KEY
 from districts import DISTRICTS, guess_district
 
@@ -494,6 +495,121 @@ def login():
 def logout():
     logout_user()
     return redirect(url_for("index"))
+
+
+@app.route("/elfelejtett-jelszo", methods=["GET", "POST"])
+def forgot_password():
+    if current_user.is_authenticated:
+        return redirect(url_for("dashboard"))
+
+    if request.method == "POST":
+        email = request.form.get("email", "").strip().lower()
+        # Always show success message (don't reveal if email exists)
+        flash("Ha ez az email cím regisztrálva van, hamarosan kapsz egy jelszó-visszaállító linket.", "success")
+
+        if email:
+            conn = get_db()
+            try:
+                user = conn.execute(
+                    "SELECT id FROM users WHERE email = %s AND is_active = TRUE",
+                    (email,)
+                ).fetchone()
+
+                if user:
+                    # Generate token
+                    token = uuid.uuid4().hex + uuid.uuid4().hex
+                    expires = datetime.now() + timedelta(hours=1)
+
+                    # Invalidate old tokens
+                    conn.execute(
+                        "UPDATE password_resets SET used = TRUE WHERE user_id = %s AND used = FALSE",
+                        (user["id"],)
+                    )
+
+                    conn.execute(
+                        "INSERT INTO password_resets (user_id, token, expires_at) VALUES (%s, %s, %s)",
+                        (user["id"], token, expires),
+                    )
+                    conn.commit()
+
+                    # Send email
+                    reset_url = request.host_url.rstrip("/") + url_for("reset_password", token=token)
+                    html = f"""
+                    <div style="font-family:Arial,sans-serif; max-width:500px; margin:0 auto; padding:2rem;">
+                        <div style="text-align:center; margin-bottom:2rem;">
+                            <div style="display:inline-block; background:#0F3460; color:white; font-weight:700; padding:8px 14px; border-radius:8px; font-size:18px;">Z!</div>
+                            <h2 style="margin-top:1rem; color:#0F3460;">Jelszó visszaállítás</h2>
+                        </div>
+                        <p>Valaki (remélhetőleg te) jelszó-visszaállítást kért erre a fiókra.</p>
+                        <p>Kattints az alábbi gombra az új jelszó beállításához:</p>
+                        <div style="text-align:center; margin:2rem 0;">
+                            <a href="{reset_url}" style="background:#4a7c59; color:white; padding:12px 32px; border-radius:8px; text-decoration:none; font-weight:600; font-size:16px;">
+                                Új jelszó beállítása
+                            </a>
+                        </div>
+                        <p style="font-size:13px; color:#888;">A link 1 órán belül lejár. Ha nem te kérted, nyugodtan hagyd figyelmen kívül ezt az emailt.</p>
+                        <hr style="border:none; border-top:1px solid #eee; margin:2rem 0;">
+                        <p style="font-size:12px; color:#aaa; text-align:center;">Zalaegerszeg Hangja — Közösségi platform</p>
+                    </div>
+                    """
+                    send_email(email, "Jelszó visszaállítás — Zalaegerszeg Hangja", html)
+                    log_security("password_reset_requested", f"email={email}", request.remote_addr)
+            except Exception:
+                conn.rollback()
+            finally:
+                conn.close()
+
+        return redirect(url_for("forgot_password"))
+
+    return render_template("forgot_password.html")
+
+
+@app.route("/jelszo-visszaallitas/<token>", methods=["GET", "POST"])
+def reset_password(token):
+    if current_user.is_authenticated:
+        return redirect(url_for("dashboard"))
+
+    conn = get_db()
+    try:
+        reset = conn.execute(
+            "SELECT * FROM password_resets WHERE token = %s AND used = FALSE AND expires_at > NOW()",
+            (token,)
+        ).fetchone()
+
+        if not reset:
+            flash("Érvénytelen vagy lejárt visszaállítási link. Kérj újat.", "error")
+            return redirect(url_for("forgot_password"))
+
+        if request.method == "POST":
+            password = request.form.get("password", "")
+            password2 = request.form.get("password2", "")
+
+            if len(password) < 8:
+                flash("A jelszónak legalább 8 karakter hosszúnak kell lennie.", "error")
+                return render_template("reset_password.html", token=token)
+
+            if password != password2:
+                flash("A két jelszó nem egyezik.", "error")
+                return render_template("reset_password.html", token=token)
+
+            pw_hash = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
+            conn.execute(
+                "UPDATE users SET password_hash = %s WHERE id = %s",
+                (pw_hash, reset["user_id"]),
+            )
+            conn.execute(
+                "UPDATE password_resets SET used = TRUE WHERE id = %s",
+                (reset["id"],)
+            )
+            conn.commit()
+
+            log_security("password_reset_ok", f"user_id={reset['user_id']}", request.remote_addr)
+            flash("Jelszó sikeresen megváltoztatva! Most már bejelentkezhetsz.", "success")
+            return redirect(url_for("login"))
+
+        return render_template("reset_password.html", token=token)
+    finally:
+        conn.close()
 
 
 # ── Routes: Settings ──
