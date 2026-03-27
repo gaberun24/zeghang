@@ -188,7 +188,6 @@
       <div class="district-card fade-in" style="animation-delay:{{ loop.index0 * 0.05 }}s">
         <div class="district-num">{{ '%02d' % d.number }}</div>
         <div class="district-rep">{{ d.representative_name }}</div>
-        <div class="district-name">{{ d.name }}</div>
         <div class="district-bar">
           <div class="district-bar-fill" style="width:{{ district_activity.get(d.number, 0) }}%"></div>
         </div>
