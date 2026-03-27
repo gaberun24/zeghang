@@ -209,6 +209,29 @@ def check_rate_limit(ip, event_type="login_fail", max_attempts=5, window_seconds
         conn.close()
 
 
+@app.before_request
+def track_page_view():
+    """Track page views for stats (skip static files and API calls)."""
+    if request.path.startswith("/static") or request.path.startswith("/api"):
+        return
+    if request.method != "GET":
+        return
+    try:
+        ip_hash = hashlib.sha256(request.remote_addr.encode()).hexdigest()[:16]
+        uid = current_user.id if hasattr(current_user, "id") and current_user.is_authenticated else None
+        conn = get_db()
+        try:
+            conn.execute(
+                "INSERT INTO page_views (path, ip_hash, user_id) VALUES (%s, %s, %s)",
+                (request.path[:255], ip_hash, uid),
+            )
+            conn.commit()
+        finally:
+            conn.close()
+    except Exception:
+        pass
+
+
 @app.after_request
 def set_security_headers(response):
     response.headers["X-Content-Type-Options"] = "nosniff"
@@ -1678,6 +1701,218 @@ def admin_comment_action(comment_id):
     finally:
         conn.close()
     return redirect(request.referrer or url_for("admin_comments"))
+
+
+# ── Admin: Stats ──
+@app.route("/admin/stats")
+@admin_required
+def admin_stats():
+    conn = get_db()
+    try:
+        # View counts
+        total_views = conn.execute("SELECT COUNT(*) AS cnt FROM page_views").fetchone()["cnt"]
+        today_views = conn.execute(
+            "SELECT COUNT(*) AS cnt FROM page_views WHERE created_at >= CURRENT_DATE"
+        ).fetchone()["cnt"]
+        week_views = conn.execute(
+            "SELECT COUNT(*) AS cnt FROM page_views WHERE created_at >= CURRENT_DATE - INTERVAL '7 days'"
+        ).fetchone()["cnt"]
+        month_views = conn.execute(
+            "SELECT COUNT(*) AS cnt FROM page_views WHERE created_at >= CURRENT_DATE - INTERVAL '30 days'"
+        ).fetchone()["cnt"]
+
+        # Daily views (last 30 days)
+        daily_views_rows = conn.execute(
+            "SELECT DATE(created_at) AS d, COUNT(*) AS cnt "
+            "FROM page_views WHERE created_at >= CURRENT_DATE - INTERVAL '30 days' "
+            "GROUP BY DATE(created_at) ORDER BY d"
+        ).fetchall()
+        daily_views = [{"date": str(r["d"]), "count": r["cnt"]} for r in daily_views_rows]
+        max_daily = max((d["count"] for d in daily_views), default=1)
+
+        # Daily registrations (last 30 days)
+        daily_reg_rows = conn.execute(
+            "SELECT DATE(created_at) AS d, COUNT(*) AS cnt "
+            "FROM users WHERE created_at >= CURRENT_DATE - INTERVAL '30 days' "
+            "GROUP BY DATE(created_at) ORDER BY d"
+        ).fetchall()
+        daily_registrations = [{"date": str(r["d"]), "count": r["cnt"]} for r in daily_reg_rows]
+        max_reg = max((d["count"] for d in daily_registrations), default=1)
+
+        # Category stats
+        total_issues = conn.execute("SELECT COUNT(*) AS cnt FROM issues").fetchone()["cnt"]
+        cat_rows = conn.execute(
+            "SELECT category, COUNT(*) AS cnt FROM issues GROUP BY category ORDER BY cnt DESC"
+        ).fetchall()
+        category_stats = [{"label": CATEGORIES.get(r["category"], r["category"]), "count": r["cnt"]} for r in cat_rows]
+
+        # Urgency stats
+        urg_colors = {"low": "#16a34a", "medium": "#d97706", "high": "#ea580c", "urgent": "#dc2626"}
+        urg_rows = conn.execute(
+            "SELECT COALESCE(ai_urgency, 'low') AS urg, COUNT(*) AS cnt FROM issues GROUP BY urg ORDER BY cnt DESC"
+        ).fetchall()
+        urgency_stats = [
+            {"key": r["urg"], "label": URGENCY_LABELS.get(r["urg"], r["urg"]),
+             "count": r["cnt"], "color": urg_colors.get(r["urg"], "#64748b")}
+            for r in urg_rows
+        ]
+
+        # Top users
+        top_users_rows = conn.execute(
+            "SELECT u.display_name AS name, d.number AS district, "
+            "u.reputation, "
+            "(SELECT COUNT(*) FROM issues WHERE user_id = u.id) AS issues, "
+            "(SELECT COUNT(*) FROM votes WHERE user_id = u.id) AS votes, "
+            "(SELECT COUNT(*) FROM comments WHERE user_id = u.id) AS comments "
+            "FROM users u LEFT JOIN districts d ON u.district_id = d.id "
+            "WHERE u.is_active = TRUE "
+            "ORDER BY u.reputation DESC LIMIT 10"
+        ).fetchall()
+        top_users = [dict(r.items()) for r in top_users_rows]
+
+        # District activity
+        district_rows = conn.execute(
+            "SELECT d.number, d.name, d.population AS residents, "
+            "COUNT(DISTINCT i.id) AS issues, "
+            "COALESCE(SUM(ABS(i.vote_score)), 0) AS votes, "
+            "(SELECT COUNT(*) FROM users WHERE district_id = d.id AND is_active = TRUE) AS active_users "
+            "FROM districts d LEFT JOIN issues i ON i.district_id = d.id "
+            "GROUP BY d.number, d.name, d.population ORDER BY d.number"
+        ).fetchall()
+        district_activity = []
+        for r in district_rows:
+            pop = r["residents"] or 1
+            part = round(r["active_users"] / pop * 100, 1) if pop > 0 else 0
+            district_activity.append({
+                "number": r["number"], "name": r["name"],
+                "residents": r["active_users"], "issues": r["issues"],
+                "votes": r["votes"], "participation": min(part, 100),
+            })
+
+        return render_template("admin/stats.html",
+            total_views=total_views, today_views=today_views,
+            week_views=week_views, month_views=month_views,
+            daily_views=daily_views, max_daily=max_daily,
+            daily_registrations=daily_registrations, max_reg=max_reg,
+            total_issues=total_issues,
+            category_stats=category_stats, urgency_stats=urgency_stats,
+            top_users=top_users, district_activity=district_activity,
+        )
+    finally:
+        conn.close()
+
+
+# ── Admin: Health ──
+@app.route("/admin/health")
+@admin_required
+def admin_health():
+    import platform
+    import sys
+    import shutil
+    import flask as flask_mod
+
+    # CPU & Memory
+    try:
+        import psutil
+        cpu_percent = psutil.cpu_percent(interval=0.5)
+        mem = psutil.virtual_memory()
+        memory = {
+            "percent": mem.percent,
+            "used_gb": round(mem.used / (1024**3), 1),
+            "total_gb": round(mem.total / (1024**3), 1),
+        }
+        disk_usage = psutil.disk_usage("/")
+        disk = {
+            "percent": round(disk_usage.percent, 1),
+            "used_gb": round(disk_usage.used / (1024**3), 1),
+            "total_gb": round(disk_usage.total / (1024**3), 1),
+        }
+        boot_time = datetime.fromtimestamp(psutil.boot_time())
+        delta = datetime.now() - boot_time
+        days = delta.days
+        hours = delta.seconds // 3600
+        uptime = f"{days}n {hours}ó" if days > 0 else f"{hours}ó"
+    except ImportError:
+        cpu_percent = 0
+        memory = {"percent": 0, "used_gb": 0, "total_gb": 0}
+        disk = {"percent": 0, "used_gb": 0, "total_gb": 0}
+        uptime = "psutil nem telepített"
+
+    # Services check
+    services = []
+    # PostgreSQL
+    try:
+        conn = get_db()
+        pg_ver = conn.execute("SELECT version()").fetchone()[0]
+        pg_version = pg_ver.split(",")[0] if pg_ver else "?"
+        conn.close()
+        services.append({"name": "PostgreSQL", "ok": True, "detail": pg_version})
+    except Exception as e:
+        pg_version = "?"
+        services.append({"name": "PostgreSQL", "ok": False, "detail": str(e)[:80]})
+
+    # OpenAI
+    try:
+        from lib.config import OPENAI_API_KEY
+        services.append({
+            "name": "OpenAI API",
+            "ok": bool(OPENAI_API_KEY),
+            "detail": "API kulcs beállítva" if OPENAI_API_KEY else "Hiányzó API kulcs",
+        })
+    except Exception:
+        services.append({"name": "OpenAI API", "ok": False, "detail": "Konfiguráció hiba"})
+
+    # Brevo
+    try:
+        from lib.config import BREVO_API_KEY
+        services.append({
+            "name": "Brevo Email",
+            "ok": bool(BREVO_API_KEY),
+            "detail": "API kulcs beállítva" if BREVO_API_KEY else "Hiányzó API kulcs",
+        })
+    except Exception:
+        services.append({"name": "Brevo Email", "ok": False, "detail": "Nincs konfigurálva"})
+
+    # Upload dir
+    upload_ok = os.path.isdir(UPLOAD_DIR)
+    total_u, used_u, free_u = shutil.disk_usage(UPLOAD_DIR) if upload_ok else (0, 0, 0)
+    services.append({
+        "name": "Feltöltések mappa",
+        "ok": upload_ok,
+        "detail": f"{UPLOAD_DIR} ({round(used_u / (1024**2), 1)} MB használt)" if upload_ok else "Mappa nem létezik",
+    })
+
+    # DB table sizes
+    db_tables = []
+    try:
+        conn = get_db()
+        tables = ["users", "issues", "votes", "comments", "districts", "page_views", "resolution_votes", "security_log"]
+        for t in tables:
+            try:
+                row_count = conn.execute(f"SELECT COUNT(*) AS cnt FROM {t}").fetchone()["cnt"]
+                size_row = conn.execute(
+                    "SELECT pg_size_pretty(pg_total_relation_size(%s)) AS s", (t,)
+                ).fetchone()
+                db_tables.append({"name": t, "rows": row_count, "size": size_row["s"]})
+            except Exception:
+                db_tables.append({"name": t, "rows": "?", "size": "?"})
+        conn.close()
+    except Exception:
+        pass
+
+    return render_template("admin/health.html",
+        cpu_percent=cpu_percent,
+        memory=memory,
+        disk=disk,
+        uptime=uptime,
+        services=services,
+        db_tables=db_tables,
+        python_version=sys.version.split()[0],
+        flask_version=flask_mod.__version__,
+        pg_version=pg_version,
+        os_info=f"{platform.system()} {platform.release()}",
+        server_time=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+    )
 
 
 # ── Init & Run ──

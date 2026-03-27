@@ -1,0 +1,146 @@
+{% extends "admin/base.html" %}
+{% set admin_page = "stats" %}
+{% block title %}Statisztikák — Admin{% endblock %}
+
+{% block content %}
+<h2 style="font-size:20px; font-weight:700; margin-bottom:1rem;">Statisztikák</h2>
+
+<!-- Összesítő -->
+<div class="stat-grid">
+  <div class="stat-card">
+    <div class="stat-num">{{ total_views }}</div>
+    <div class="stat-label">Összes oldalmegtekintés</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-num">{{ today_views }}</div>
+    <div class="stat-label">Mai látogatás</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-num">{{ week_views }}</div>
+    <div class="stat-label">Heti látogatás</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-num">{{ month_views }}</div>
+    <div class="stat-label">Havi látogatás</div>
+  </div>
+</div>
+
+<!-- Napi bontás -->
+<div class="admin-card">
+  <h3>Utolsó 30 nap — napi látogatások</h3>
+  <div style="display:flex; align-items:flex-end; gap:3px; height:150px; padding:10px 0;">
+    {% for day in daily_views %}
+    <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%;">
+      <div style="background:var(--admin-primary); width:100%; max-width:20px; border-radius:3px 3px 0 0; height:{{ (day.count / max_daily * 100) if max_daily > 0 else 0 }}%; min-height:2px;" title="{{ day.date }}: {{ day.count }}"></div>
+      {% if loop.index % 5 == 0 %}
+      <div style="font-size:9px; color:var(--admin-muted); margin-top:4px; transform:rotate(-45deg); white-space:nowrap;">{{ day.date[-5:] }}</div>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<!-- Regisztrációk -->
+<div class="admin-card">
+  <h3>Regisztrációk — utolsó 30 nap</h3>
+  <div style="display:flex; align-items:flex-end; gap:3px; height:120px; padding:10px 0;">
+    {% for day in daily_registrations %}
+    <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%;">
+      <div style="background:var(--admin-success); width:100%; max-width:20px; border-radius:3px 3px 0 0; height:{{ (day.count / max_reg * 100) if max_reg > 0 else 0 }}%; min-height:2px;" title="{{ day.date }}: {{ day.count }}"></div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<!-- Bejelentések kategória szerint -->
+<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+  <div class="admin-card">
+    <h3>Bejelentések kategória szerint</h3>
+    <table class="admin-table">
+      <tbody>
+        {% for cat in category_stats %}
+        <tr>
+          <td><strong>{{ cat.label }}</strong></td>
+          <td style="text-align:right;">{{ cat.count }}</td>
+          <td style="width:120px;">
+            <div style="background:#e2e8f0; border-radius:4px; height:8px; overflow:hidden;">
+              <div style="background:var(--admin-primary); height:100%; width:{{ (cat.count / total_issues * 100) if total_issues > 0 else 0 }}%; border-radius:4px;"></div>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="admin-card">
+    <h3>Bejelentések sürgősség szerint</h3>
+    <table class="admin-table">
+      <tbody>
+        {% for urg in urgency_stats %}
+        <tr>
+          <td><span class="badge badge-{{ urg.key }}">{{ urg.label }}</span></td>
+          <td style="text-align:right;">{{ urg.count }}</td>
+          <td style="width:120px;">
+            <div style="background:#e2e8f0; border-radius:4px; height:8px; overflow:hidden;">
+              <div style="background:{{ urg.color }}; height:100%; width:{{ (urg.count / total_issues * 100) if total_issues > 0 else 0 }}%; border-radius:4px;"></div>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Top felhasználók -->
+<div class="admin-card">
+  <h3>Legaktívabb felhasználók</h3>
+  <table class="admin-table">
+    <thead>
+      <tr><th>#</th><th>Név</th><th>Körzet</th><th>Bejelentések</th><th>Szavazatok</th><th>Hozzászólások</th><th>Reputáció</th></tr>
+    </thead>
+    <tbody>
+      {% for u in top_users %}
+      <tr>
+        <td>{{ loop.index }}</td>
+        <td><strong>{{ u.name }}</strong></td>
+        <td>{{ '%02d' % u.district if u.district else '—' }}</td>
+        <td>{{ u.issues }}</td>
+        <td>{{ u.votes }}</td>
+        <td>{{ u.comments }}</td>
+        <td><strong>{{ u.reputation }}</strong></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<!-- Körzeti aktivitás -->
+<div class="admin-card">
+  <h3>Körzeti aktivitás</h3>
+  <table class="admin-table">
+    <thead>
+      <tr><th>Körzet</th><th>Lakók</th><th>Bejelentések</th><th>Szavazatok</th><th>Részvétel %</th></tr>
+    </thead>
+    <tbody>
+      {% for d in district_activity %}
+      <tr>
+        <td><strong>{{ '%02d' % d.number }}. — {{ d.name or '' }}</strong></td>
+        <td>{{ d.residents }}</td>
+        <td>{{ d.issues }}</td>
+        <td>{{ d.votes }}</td>
+        <td>
+          <div style="display:flex; align-items:center; gap:6px;">
+            <div style="background:#e2e8f0; border-radius:4px; height:8px; width:80px; overflow:hidden;">
+              <div style="background:var(--admin-success); height:100%; width:{{ d.participation }}%; border-radius:4px;"></div>
+            </div>
+            <span style="font-size:12px;">{{ d.participation }}%</span>
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

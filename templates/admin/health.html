@@ -1,0 +1,88 @@
+{% extends "admin/base.html" %}
+{% set admin_page = "health" %}
+{% block title %}Rendszer állapot — Admin{% endblock %}
+
+{% block content %}
+<h2 style="font-size:20px; font-weight:700; margin-bottom:1rem;">Rendszer állapot</h2>
+
+<div class="stat-grid">
+  <div class="stat-card">
+    <div class="stat-num {{ 'danger' if cpu_percent > 80 else 'warning' if cpu_percent > 50 else 'success' }}">{{ cpu_percent }}%</div>
+    <div class="stat-label">CPU használat</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-num {{ 'danger' if memory.percent > 85 else 'warning' if memory.percent > 60 else 'success' }}">{{ memory.percent }}%</div>
+    <div class="stat-label">Memória ({{ memory.used_gb }} / {{ memory.total_gb }} GB)</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-num {{ 'danger' if disk.percent > 90 else 'warning' if disk.percent > 70 else 'success' }}">{{ disk.percent }}%</div>
+    <div class="stat-label">Tárhely ({{ disk.used_gb }} / {{ disk.total_gb }} GB)</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-num">{{ uptime }}</div>
+    <div class="stat-label">Uptime</div>
+  </div>
+</div>
+
+<!-- Szolgáltatások -->
+<div class="admin-card">
+  <h3>Szolgáltatások</h3>
+  <table class="admin-table">
+    <thead>
+      <tr><th>Szolgáltatás</th><th>Állapot</th><th>Részletek</th></tr>
+    </thead>
+    <tbody>
+      {% for svc in services %}
+      <tr>
+        <td><strong>{{ svc.name }}</strong></td>
+        <td>
+          {% if svc.ok %}
+            <span class="badge badge-done">Működik</span>
+          {% else %}
+            <span class="badge badge-hidden">Hiba</span>
+          {% endif %}
+        </td>
+        <td style="font-size:12px; color:var(--admin-muted);">{{ svc.detail }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<!-- Adatbázis -->
+<div class="admin-card">
+  <h3>Adatbázis</h3>
+  <table class="admin-table">
+    <thead>
+      <tr><th>Tábla</th><th>Sorok</th><th>Méret</th></tr>
+    </thead>
+    <tbody>
+      {% for t in db_tables %}
+      <tr>
+        <td><strong>{{ t.name }}</strong></td>
+        <td>{{ t.rows }}</td>
+        <td>{{ t.size }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<!-- Python / rendszer info -->
+<div class="admin-card">
+  <h3>Környezet</h3>
+  <table class="admin-table">
+    <tbody>
+      <tr><td style="width:200px;"><strong>Python</strong></td><td>{{ python_version }}</td></tr>
+      <tr><td><strong>Flask</strong></td><td>{{ flask_version }}</td></tr>
+      <tr><td><strong>PostgreSQL</strong></td><td>{{ pg_version }}</td></tr>
+      <tr><td><strong>OS</strong></td><td>{{ os_info }}</td></tr>
+      <tr><td><strong>Szerver idő</strong></td><td>{{ server_time }}</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div style="text-align:center; margin-top:1rem;">
+  <a href="{{ url_for('admin_health') }}" class="btn-sm btn-action" style="padding:8px 20px;">Frissítés</a>
+</div>
+{% endblock %}

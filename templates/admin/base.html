@@ -127,6 +127,8 @@
     <a href="{{ url_for('admin_issues') }}" class="{{ 'active' if admin_page == 'issues' else '' }}">Bejelentések</a>
     <a href="{{ url_for('admin_comments') }}" class="{{ 'active' if admin_page == 'comments' else '' }}">Hozzászólások</a>
     <a href="{{ url_for('admin_users') }}" class="{{ 'active' if admin_page == 'users' else '' }}">Felhasználók</a>
+    <a href="{{ url_for('admin_stats') }}" class="{{ 'active' if admin_page == 'stats' else '' }}">Statisztikák</a>
+    <a href="{{ url_for('admin_health') }}" class="{{ 'active' if admin_page == 'health' else '' }}">Rendszer</a>
   </div>
 
   <div class="admin-content">

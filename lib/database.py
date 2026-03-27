@@ -257,6 +257,16 @@ def init_db():
             )
         """)
 
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS page_views (
+                id SERIAL PRIMARY KEY,
+                path VARCHAR(255),
+                ip_hash VARCHAR(64),
+                user_id INT,
+                created_at TIMESTAMP DEFAULT NOW()
+            )
+        """)
+
         # Migrations — add columns if missing
         for col_sql in [
             "ALTER TABLE issues ADD COLUMN IF NOT EXISTS lat DOUBLE PRECISION",
@@ -289,6 +299,8 @@ def init_db():
             "CREATE INDEX IF NOT EXISTS idx_votes_user ON votes(user_id)",
             "CREATE INDEX IF NOT EXISTS idx_comments_issue ON comments(issue_id)",
             "CREATE INDEX IF NOT EXISTS idx_security_log_ip ON security_log(ip_address, created_at)",
+            "CREATE INDEX IF NOT EXISTS idx_page_views_created ON page_views(created_at DESC)",
+            "CREATE INDEX IF NOT EXISTS idx_page_views_path ON page_views(path)",
         ]:
             conn.execute(idx_sql)
 
