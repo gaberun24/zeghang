@@ -1,0 +1,101 @@
+{% extends "app_base.html" %}
+{% block title %}{{ issue.title }} — ZEG Hang{% endblock %}
+
+{% block content %}
+<div style="max-width:800px;">
+  <!-- Back link -->
+  <a href="{{ url_for('dashboard') }}" style="display:inline-flex; align-items:center; gap:6px; color:var(--text-muted); text-decoration:none; font-size:14px; margin-bottom:1.5rem;">
+    ← Vissza a listához
+  </a>
+
+  <!-- Issue card -->
+  <div style="background:var(--white); border-radius:var(--radius-lg); padding:2rem; box-shadow:var(--shadow-md); margin-bottom:2rem;">
+    <!-- Top row -->
+    <div style="display:flex; align-items:center; gap:8px; margin-bottom:1rem; flex-wrap:wrap;">
+      <span class="issue-tag tag-{{ issue.category }}">{{ category_labels.get(issue.category, 'Egyéb') }}</span>
+      {% if issue.status == 'new' %}
+      <span class="issue-status status-new">Új</span>
+      {% elif issue.status == 'progress' %}
+      <span class="issue-status status-progress">Vizsgálat alatt</span>
+      {% elif issue.status == 'done' %}
+      <span class="issue-status status-done">Megoldva ✓</span>
+      {% endif %}
+      {% if issue.ai_urgency %}
+      <span class="ai-badge">🤖 AI: {{ urgency_labels.get(issue.ai_urgency, '') }}</span>
+      {% endif %}
+      <span class="issue-district-badge" style="margin-left:auto;">{{ '%02d' % issue.district_number }}. körzet</span>
+    </div>
+
+    <!-- Title -->
+    <h1 style="font-family:'Playfair Display',serif; font-size:28px; font-weight:700; margin-bottom:0.75rem; line-height:1.3;">
+      {{ issue.title }}
+    </h1>
+
+    <!-- Meta -->
+    <div style="display:flex; gap:1.5rem; font-size:13px; color:var(--text-muted); margin-bottom:1.5rem;">
+      <span>📅 {{ issue.created_at.strftime('%Y.%m.%d %H:%M') }}</span>
+      <span>👤 {{ issue.author_name }}</span>
+      {% if issue.location %}
+      <span>📍 {{ issue.location }}</span>
+      {% endif %}
+    </div>
+
+    <!-- Description -->
+    <div style="font-size:15px; line-height:1.8; color:var(--text-mid); margin-bottom:1.5rem; white-space:pre-wrap;">{{ issue.description }}</div>
+
+    {% if issue.ai_duplicate_of %}
+    <div style="background:var(--orange-bg); border:1px solid rgba(212,133,10,0.2); border-radius:var(--radius-sm); padding:10px 14px; font-size:13px; color:var(--orange); margin-bottom:1.5rem;">
+      🤖 Az AI hasonló bejelentést talált: <a href="{{ url_for('issue_detail', issue_id=issue.ai_duplicate_of) }}" style="color:var(--orange); font-weight:600;">#{{ issue.ai_duplicate_of }}</a>
+    </div>
+    {% endif %}
+
+    <!-- Photos -->
+    {% if photos %}
+    <div style="display:flex; gap:0.75rem; flex-wrap:wrap; margin-bottom:1.5rem;">
+      {% for photo in photos %}
+      <img src="{{ url_for('uploaded_file', filename=photo.filename) }}" alt="Fotó"
+           style="max-width:200px; max-height:200px; border-radius:var(--radius-sm); object-fit:cover; cursor:pointer;"
+           onclick="window.open(this.src)">
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Vote row -->
+    <div style="display:flex; align-items:center; gap:1rem; padding-top:1rem; border-top:1px solid var(--cream-dark);">
+      <div class="vote-col" data-issue-id="{{ issue.id }}" style="flex-direction:row; gap:8px;">
+        <button class="vote-btn {{ 'upvoted' if user_vote == 1 }}" onclick="vote(this, 1)">▲</button>
+        <span class="vote-count" style="font-size:20px;">{{ issue.vote_score }}</span>
+        <button class="vote-btn {{ 'downvoted' if user_vote == -1 }}" onclick="vote(this, -1)">▼</button>
+      </div>
+      <span style="font-size:13px; color:var(--text-muted);">{{ issue.vote_score }} szavazat</span>
+    </div>
+  </div>
+
+  <!-- Comments -->
+  <div style="background:var(--white); border-radius:var(--radius-lg); padding:2rem; box-shadow:var(--shadow-sm);">
+    <h2 style="font-family:'Playfair Display',serif; font-size:20px; font-weight:700; margin-bottom:1.5rem;">
+      💬 Hozzászólások ({{ comments|length }})
+    </h2>
+
+    {% for comment in comments %}
+    <div style="padding:1rem 0; border-bottom:1px solid var(--cream-dark);">
+      <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+        <span style="font-size:13px; font-weight:600; color:var(--text-dark);">{{ comment.author_name }}</span>
+        <span style="font-size:12px; color:var(--text-muted);">{{ comment.time_ago }}</span>
+      </div>
+      <div style="font-size:14px; color:var(--text-mid); line-height:1.7; white-space:pre-wrap;">{{ comment.content }}</div>
+    </div>
+    {% else %}
+    <div style="text-align:center; padding:2rem; color:var(--text-muted); font-size:14px;">
+      Még nincs hozzászólás. Légy az első!
+    </div>
+    {% endfor %}
+
+    <!-- New comment form -->
+    <form onsubmit="submitComment(event)" data-issue-id="{{ issue.id }}" style="margin-top:1.5rem;">
+      <textarea placeholder="Írd ide a hozzászólásodat..." style="width:100%; min-height:80px; padding:10px 14px; border:1.5px solid var(--cream-dark); border-radius:var(--radius-sm); font-family:'Inter',sans-serif; font-size:14px; resize:vertical; background:var(--cream);"></textarea>
+      <button type="submit" class="btn btn-primary" style="margin-top:0.75rem;">Hozzászólás küldése</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block title %}Regisztráció — ZEG Hang{% endblock %}
+
+{% block footer %}{% endblock %}
+
+{% block content %}
+<div class="auth-page">
+  <div class="auth-card">
+    <div class="auth-logo">
+      <div class="auth-logo-mark">ZH</div>
+      <h2>Regisztráció</h2>
+      <p>Csatlakozz a körzeted közösségéhez!</p>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="flash-messages">
+      {% for category, message in messages %}
+      <div class="flash flash-{{ category }}">{{ message }}</div>
+      {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
+
+    <form class="auth-form" method="POST" action="{{ url_for('register') }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+      <div class="field">
+        <label>Email cím</label>
+        <input type="email" name="email" required placeholder="pelda@email.hu" value="{{ request.form.get('email', '') }}">
+      </div>
+
+      <div class="field">
+        <label>Jelszó <span>— min. 8 karakter</span></label>
+        <input type="password" name="password" required placeholder="••••••••" minlength="8">
+      </div>
+
+      <div class="field">
+        <label>Jelszó újra</label>
+        <input type="password" name="password2" required placeholder="••••••••" minlength="8">
+      </div>
+
+      <div class="field">
+        <label>Megjelenítési név <span>— opcionális, egyébként "Körzeti lakos"</span></label>
+        <input type="text" name="display_name" placeholder="pl. Kovács Péter" value="{{ request.form.get('display_name', '') }}">
+      </div>
+
+      <div class="field">
+        <label>Zalaegerszegi lakcím <span>— utca és házszám</span></label>
+        <input type="text" name="address_street" id="addressStreet" required
+               placeholder="pl. Balatoni út 15."
+               value="{{ request.form.get('address_street', '') }}"
+               oninput="checkDistrict()">
+        <div class="field-hint" id="districtHint"></div>
+      </div>
+
+      <div class="field">
+        <label>Irányítószám</label>
+        <input type="text" name="address_zip" placeholder="8900" value="{{ request.form.get('address_zip', '8900') }}">
+      </div>
+
+      <div class="field">
+        <label>Körzet <span>— automatikusan felismerjük, de módosítható</span></label>
+        <select name="district_id" id="districtSelect" required>
+          <option value="">Válassz körzetet...</option>
+          {% for d in districts %}
+          <option value="{{ d.number }}" {{ 'selected' if request.form.get('district_id') == d.number|string }}>
+            {{ '%02d' % d.number }}. — {{ d.name }} ({{ d.representative_name }})
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <button type="submit" class="btn-submit">Regisztráció →</button>
+    </form>
+
+    <div class="auth-links">
+      Már van fiókod? <a href="{{ url_for('login') }}">Jelentkezz be</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

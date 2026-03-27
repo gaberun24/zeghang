@@ -1,0 +1,206 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-content">
+    <div class="hero-left">
+      <div class="hero-badge">Zalaegerszeg · 50.000 lakos</div>
+      <h1 class="hero-title">
+        A városod<br><em>hallgat rád.</em>
+      </h1>
+      <p class="hero-subtitle">
+        Jelezd a problémát, szavazz a körzeted ügyeire, kövesd a megoldást.
+        Anonim. Átlátható. A tiéd.
+      </p>
+      <div class="hero-cta">
+        <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg">Regisztráció →</a>
+        <a href="{{ url_for('how_it_works') }}" class="btn btn-outline btn-lg">Hogyan működik?</a>
+      </div>
+      <div class="hero-stats">
+        <div class="hero-stat">
+          <span class="hero-stat-num">{{ total_issues }}</span>
+          <span class="hero-stat-label">Bejelentés</span>
+        </div>
+        <div class="hero-stat">
+          <span class="hero-stat-num">{{ solved_issues }}</span>
+          <span class="hero-stat-label">Megoldva</span>
+        </div>
+        <div class="hero-stat">
+          <span class="hero-stat-num">12</span>
+          <span class="hero-stat-label">Körzet</span>
+        </div>
+        <div class="hero-stat">
+          <span class="hero-stat-num">{{ total_users }}</span>
+          <span class="hero-stat-label">Felhasználó</span>
+        </div>
+      </div>
+    </div>
+    <div class="hero-right">
+      <div class="app-mockup">
+        <div class="mockup-header">
+          <span class="mockup-dot" style="background:#FF6B6B"></span>
+          <span class="mockup-dot" style="background:#FFD93D"></span>
+          <span class="mockup-dot" style="background:#6BCB77"></span>
+          <span class="mockup-title">Problémák · Körzeti lista</span>
+        </div>
+        <div class="mockup-body">
+          {% for issue in recent_issues[:3] %}
+          <div class="issue-card fade-in" style="animation-delay:{{ loop.index0 * 0.1 }}s">
+            <div class="issue-card-top">
+              <span class="issue-card-cat cat-{{ issue.category }}">{{ category_labels.get(issue.category, 'Egyéb') }}</span>
+              <span class="issue-card-votes">↑ {{ issue.vote_score }}</span>
+            </div>
+            <div class="issue-card-title">{{ issue.title }}</div>
+            <div class="issue-card-bar">
+              <div class="issue-card-bar-fill" style="width:{{ [issue.vote_score * 2, 100]|min }}%"></div>
+            </div>
+          </div>
+          {% else %}
+          <div class="issue-card fade-in">
+            <div class="issue-card-top">
+              <span class="issue-card-cat cat-safety">Biztonság</span>
+              <span class="issue-card-votes">↑ 212</span>
+            </div>
+            <div class="issue-card-title">Zebra hiányzik a Balatoni úton</div>
+            <div class="issue-card-bar"><div class="issue-card-bar-fill" style="width:45%"></div></div>
+          </div>
+          <div class="issue-card fade-in" style="animation-delay:0.1s">
+            <div class="issue-card-top">
+              <span class="issue-card-cat cat-road">Közút</span>
+              <span class="issue-card-votes">↑ 143</span>
+            </div>
+            <div class="issue-card-title">Járdaburkolat felújítás a Landorhegyi utcán</div>
+            <div class="issue-card-bar"><div class="issue-card-bar-fill" style="width:32%"></div></div>
+          </div>
+          <div class="issue-card fade-in" style="animation-delay:0.2s">
+            <div class="issue-card-top">
+              <span class="issue-card-cat cat-park">Park</span>
+              <span class="issue-card-votes">↑ 89</span>
+            </div>
+            <div class="issue-card-title">Landorhegyi park játszótere elöregedett</div>
+            <div class="issue-card-bar"><div class="issue-card-bar-fill" style="width:20%"></div></div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="hero-wave">
+    <svg viewBox="0 0 1440 100" preserveAspectRatio="none">
+      <path d="M0,40 C360,100 720,0 1440,60 L1440,100 L0,100Z" fill="var(--cream)"/>
+    </svg>
+  </div>
+</section>
+
+<!-- HOGYAN MŰKÖDIK -->
+<section id="hogyan" class="how-section" style="max-width:1200px; margin:0 auto; padding:6rem 2rem;">
+  <div style="text-align:center; margin-bottom:4rem;">
+    <div class="section-label">Működés</div>
+    <h2 class="section-title">Három lépés,<br>semmi bonyodalom.</h2>
+    <p class="section-sub">Regisztrálj lakcímeddel, jelezd a problémát, szavazz — a rendszer elvégzi a többit.</p>
+  </div>
+  <div class="steps-grid">
+    <div class="step fade-in">
+      <div class="step-num">01</div>
+      <h3 class="step-title">Regisztrálj lakcímmel</h3>
+      <p class="step-desc">Írd be a zalaegerszegi lakcímedet — a rendszer automatikusan felismeri a körzetedet. A lakcímed nem lesz publikus, csak a körzeted.</p>
+    </div>
+    <div class="step fade-in" style="animation-delay:0.1s">
+      <div class="step-num">02</div>
+      <h3 class="step-title">Írd le a problémát</h3>
+      <p class="step-desc">Adj címet, írj leírást, csatolj fotót. Az AI segít kategorizálni és duplikátumot szűrni — de a végső döntés a tiéd.</p>
+    </div>
+    <div class="step fade-in" style="animation-delay:0.2s">
+      <div class="step-num">03</div>
+      <h3 class="step-title">Szavazz, kövesd</h3>
+      <p class="step-desc">Szavazz a körzeted problémáira. Minél több szavazat, annál feljebb kerül a listán. Kövesd, ahogy a bejelentésed megoldásra kerül.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ADATVÉDELEM & FAIRNESS -->
+<section id="adatvedelem" class="trust-section">
+  <div style="max-width:1200px; margin:0 auto; padding:6rem 2rem;">
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:4rem; align-items:center;">
+      <div>
+        <div class="trust-visual">
+          <div class="trust-card">
+            <div class="trust-icon">🔒</div>
+            <div class="trust-card-title">Anonim szavazás</div>
+            <div class="trust-card-desc">Senki nem tudja ki szavazott mire — még a képviselők sem.</div>
+          </div>
+          <div class="trust-card">
+            <div class="trust-icon">⚖️</div>
+            <div class="trust-card-title">Körzeti arányosítás</div>
+            <div class="trust-card-desc">Minden körzet egyenlő hangon szól — a nagyobbak nem nyomják el a kisebbeket.</div>
+          </div>
+          <div class="trust-card">
+            <div class="trust-icon">🤖</div>
+            <div class="trust-card-title">AI duplikáció-szűrés</div>
+            <div class="trust-card-desc">Az AI felismeri a hasonló bejelentéseket és összekapcsolja őket.</div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="section-label">Adatvédelem & fairness</div>
+        <h2 class="section-title">Senki nem tudja<br>ki szavazott mire.</h2>
+        <p class="section-sub" style="margin-bottom:2.5rem;">A rendszer úgy épül fel, hogy az igazságosság és az anonimitás egymást erősíti, nem gyengíti.</p>
+        <ul style="list-style:none; padding:0;">
+          <li style="padding:8px 0 8px 28px; position:relative; font-size:15px; color:var(--text-mid);">
+            <span style="position:absolute; left:0; color:var(--meadow); font-weight:700;">✓</span>
+            Körzeti arányosítás — minden körzet egyenlő hangon szól
+          </li>
+          <li style="padding:8px 0 8px 28px; position:relative; font-size:15px; color:var(--text-mid);">
+            <span style="position:absolute; left:0; color:var(--meadow); font-weight:700;">✓</span>
+            AI duplikáció-szűrés — hasonló bejelentések összevonása
+          </li>
+          <li style="padding:8px 0 8px 28px; position:relative; font-size:15px; color:var(--text-mid);">
+            <span style="position:absolute; left:0; color:var(--meadow); font-weight:700;">✓</span>
+            Képviselők értesítése — a körzeti toplista mindig friss
+          </li>
+        </ul>
+        <a href="{{ url_for('how_it_works') }}" class="btn btn-primary" style="margin-top:2rem;">Részletek →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- KÖRZETEK -->
+<section id="korzetletes" class="districts-section">
+  <div style="max-width:1200px; margin:0 auto; padding:6rem 2rem;">
+    <div style="text-align:center; margin-bottom:3rem;">
+      <div class="section-label">Körzetek</div>
+      <h2 class="section-title" style="color:white;">Mind a 12 körzet<br>egyenlő hangon.</h2>
+      <p class="section-sub">Zalaegerszeg 12 egyéni választókerülete — mindegyiknek saját prioritáslistája és képviselője.</p>
+    </div>
+    <div class="districts-grid">
+      {% for d in districts %}
+      <div class="district-card fade-in" style="animation-delay:{{ loop.index0 * 0.05 }}s">
+        <div class="district-num">{{ '%02d' % d.number }}</div>
+        <div class="district-rep">{{ d.representative_name }}</div>
+        <div class="district-name">{{ d.name }}</div>
+        <div class="district-bar">
+          <div class="district-bar-fill" style="width:{{ district_activity.get(d.number, 0) }}%"></div>
+        </div>
+        <div style="font-size:11px; color:rgba(255,255,255,0.5); margin-top:4px;">
+          {{ district_issues.get(d.number, 0) }} aktív ügy
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+  <div class="cta-inner">
+    <div class="section-label" style="color:var(--hill-light);">Civil kezdeményezés</div>
+    <h2 class="section-title">Te is hallassad a hangod.</h2>
+    <div class="cta-buttons">
+      <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg">Regisztráció →</a>
+      <a href="{{ url_for('how_it_works') }}" class="btn btn-outline btn-lg">Hogyan működik?</a>
+    </div>
+  </div>
+</section>
+{% endblock %}

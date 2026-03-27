@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="csrf-token" content="{{ csrf_token() }}">
+  <title>{% block title %}ZEG Hang — Dashboard{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  {% block head %}{% endblock %}
+</head>
+<body>
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <a href="{{ url_for('index') }}" class="nav-logo">
+      <div class="nav-logo-mark">ZH</div>
+      <div>
+        <div class="nav-name">ZEG Hang</div>
+      </div>
+    </a>
+    <div style="display:flex; align-items:center; gap:1rem;">
+      <div class="topbar-district">
+        Körzet: <strong>{{ '%02d' % current_user.district.number if current_user.district else '?' }}. körzet</strong>
+      </div>
+      <div class="topbar-avatar" title="{{ current_user.display_name or current_user.email }}">
+        {{ (current_user.display_name or current_user.email)[:2]|upper }}
+      </div>
+      <a href="{{ url_for('logout') }}" style="color:var(--hill-pale); font-size:13px; text-decoration:none;">Kilépés</a>
+    </div>
+  </div>
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <!-- Representative card -->
+    {% if current_user.district %}
+    <div class="sb-section">
+      <div class="rep-card">
+        <div class="rep-district-badge">📍 {{ '%02d' % current_user.district.number }}. körzet</div>
+        <div class="rep-name">{{ current_user.district.representative_name }}</div>
+        {% if current_user.district.representative_party %}
+        <div class="rep-party">{{ current_user.district.representative_party }}</div>
+        {% endif %}
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Stats -->
+    <div class="sb-section">
+      <div class="sb-label">Körzeti statisztika</div>
+      <div class="sb-stat-grid">
+        <div class="sb-stat">
+          <div class="sb-stat-num">{{ stats.active }}</div>
+          <div class="sb-stat-label">Aktív probléma</div>
+        </div>
+        <div class="sb-stat">
+          <div class="sb-stat-num">{{ stats.solved_30d }}</div>
+          <div class="sb-stat-label">Megoldva (30 nap)</div>
+        </div>
+        <div class="sb-stat">
+          <div class="sb-stat-num">{{ stats.participation }}%</div>
+          <div class="sb-stat-label">Részvétel</div>
+        </div>
+        <div class="sb-stat">
+          <div class="sb-stat-num">{{ stats.avg_response }}</div>
+          <div class="sb-stat-label">Átl. válaszidő (nap)</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="sb-section">
+      <div class="sb-label">Navigáció</div>
+      <ul class="sb-nav">
+        <li><a href="{{ url_for('dashboard') }}" class="{{ 'active' if active_page == 'dashboard' }}">
+          <span class="sb-nav-icon">📋</span> Problémák
+          {% if stats.active %}<span class="sb-nav-badge">{{ stats.active }}</span>{% endif %}
+        </a></li>
+        <li><a href="{{ url_for('dashboard', tab='mine') }}" class="{{ 'active' if active_page == 'my_issues' }}">
+          <span class="sb-nav-icon">📝</span> Saját bejelentéseim
+        </a></li>
+        <li><a href="{{ url_for('how_it_works') }}">
+          <span class="sb-nav-icon">❓</span> Hogyan működik
+        </a></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div class="main">
+    {% block content %}{% endblock %}
+  </div>
+
+  <!-- Toast notification -->
+  <div class="toast" id="toast"></div>
+
+  <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

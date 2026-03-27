@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="csrf-token" content="{{ csrf_token() }}">
+  <title>{% block title %}ZEG Hang — Zalaegerszeg Közösségi Platform{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  {% block head %}{% endblock %}
+</head>
+<body>
+  <!-- Navigation -->
+  <nav>
+    <a href="{{ url_for('index') }}" class="nav-logo">
+      <div class="nav-logo-mark">ZH</div>
+      <div>
+        <div class="nav-name">ZEG Hang</div>
+        <div class="nav-tagline">Zalaegerszeg közösségi platformja</div>
+      </div>
+    </a>
+    <ul class="nav-links">
+      <li><a href="{{ url_for('how_it_works') }}">Hogyan működik</a></li>
+      <li><a href="{{ url_for('index') }}#korzetletes">Körzetek</a></li>
+      <li><a href="{{ url_for('index') }}#adatvedelem">Adatvédelem</a></li>
+      {% if current_user.is_authenticated %}
+        <li><a href="{{ url_for('dashboard') }}" class="btn btn-primary">Dashboard</a></li>
+      {% else %}
+        <li><a href="{{ url_for('login') }}" class="btn btn-outline">Bejelentkezés</a></li>
+        <li><a href="{{ url_for('register') }}" class="btn btn-primary">Regisztráció</a></li>
+      {% endif %}
+    </ul>
+  </nav>
+
+  {% block content %}{% endblock %}
+
+  <!-- Footer -->
+  {% block footer %}
+  <footer style="background: var(--forest); padding: 2rem; text-align: center;">
+    <div class="footer-logo" style="font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700; color: white; margin-bottom: 0.5rem;">ZEG Hang</div>
+    <p style="font-size: 13px; color: var(--hill-pale);">Független civil platform · Zalaegerszeg · 2026</p>
+    <ul style="list-style: none; display: flex; justify-content: center; gap: 2rem; margin-top: 1rem;">
+      <li><a href="{{ url_for('how_it_works') }}" style="color: var(--hill-pale); text-decoration: none; font-size: 13px;">Hogyan működik</a></li>
+      <li><a href="{{ url_for('index') }}#adatvedelem" style="color: var(--hill-pale); text-decoration: none; font-size: 13px;">Adatvédelem</a></li>
+    </ul>
+  </footer>
+  {% endblock %}
+
+  <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,192 @@
+{% extends "app_base.html" %}
+{% block title %}Problémák — ZEG Hang{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<div class="main-header">
+  <div>
+    <h1 class="main-title">
+      {% if tab == 'city' %}Problémák · Egész város
+      {% elif tab == 'mine' %}Saját bejelentéseim
+      {% else %}Problémák · {{ '%02d' % current_user.district.number }}. körzet
+      {% endif %}
+    </h1>
+    <div class="main-subtitle">
+      {% if tab == 'mine' %}A te bejelentéseid és szavazataid
+      {% else %}Szavazz, jelezd a problémát, kövesd a megoldást
+      {% endif %}
+    </div>
+  </div>
+  <button class="new-issue-btn" onclick="openForm()">✚ Új bejelentés</button>
+</div>
+
+<!-- Tabs -->
+<div class="tabs">
+  <button class="tab {{ 'active' if tab == 'district' }}" data-url="{{ url_for('dashboard') }}" onclick="switchTab(this)">Körzetem</button>
+  <button class="tab {{ 'active' if tab == 'city' }}" data-url="{{ url_for('dashboard', tab='city') }}" onclick="switchTab(this)">Egész város</button>
+  <button class="tab {{ 'active' if tab == 'mine' }}" data-url="{{ url_for('dashboard', tab='mine') }}" onclick="switchTab(this)">Saját bejelentéseim</button>
+</div>
+
+<!-- Filter bar -->
+<div class="filter-bar">
+  <div style="display:flex; gap:8px; flex-wrap:wrap;">
+    <button class="filter-pill {{ 'active' if not category_filter }}" data-category="all" onclick="toggleFilter(this)">Mind</button>
+    <button class="filter-pill {{ 'active' if category_filter == 'road' }}" data-category="road" onclick="toggleFilter(this)">🛣️ Közút</button>
+    <button class="filter-pill {{ 'active' if category_filter == 'park' }}" data-category="park" onclick="toggleFilter(this)">🌳 Park</button>
+    <button class="filter-pill {{ 'active' if category_filter == 'safety' }}" data-category="safety" onclick="toggleFilter(this)">🛡️ Biztonság</button>
+    <button class="filter-pill {{ 'active' if category_filter == 'infrastructure' }}" data-category="infrastructure" onclick="toggleFilter(this)">🏗️ Infrastruktúra</button>
+    <button class="filter-pill {{ 'active' if category_filter == 'transport' }}" data-category="transport" onclick="toggleFilter(this)">🚌 Közlekedés</button>
+  </div>
+  <select class="sort-select" onchange="applySort(this)">
+    <option value="votes" {{ 'selected' if sort == 'votes' }}>Legtöbb szavazat</option>
+    <option value="newest" {{ 'selected' if sort == 'newest' }}>Legújabb</option>
+    <option value="urgency" {{ 'selected' if sort == 'urgency' }}>Sürgősség (AI)</option>
+  </select>
+</div>
+
+<!-- Issues list -->
+<div class="issue-list">
+  {% for issue in issues %}
+  <div class="issue fade-in" style="animation-delay:{{ loop.index0 * 0.05 }}s" data-category="{{ issue.category }}">
+    <div class="vote-col" data-issue-id="{{ issue.id }}">
+      <button class="vote-btn {{ 'upvoted' if issue.user_vote == 1 }}" onclick="vote(this, 1)">▲</button>
+      <span class="vote-count">{{ issue.vote_score }}</span>
+      <button class="vote-btn {{ 'downvoted' if issue.user_vote == -1 }}" onclick="vote(this, -1)">▼</button>
+    </div>
+    <a href="{{ url_for('issue_detail', issue_id=issue.id) }}" class="issue-content" style="text-decoration:none; color:inherit;">
+      <div class="issue-content-top">
+        <span class="issue-tag tag-{{ issue.category }}">{{ category_labels.get(issue.category, 'Egyéb') }}</span>
+        {% if issue.status == 'new' %}
+        <span class="issue-status status-new">Új</span>
+        {% elif issue.status == 'progress' %}
+        <span class="issue-status status-progress">Vizsgálat alatt</span>
+        {% elif issue.status == 'done' %}
+        <span class="issue-status status-done">Megoldva ✓</span>
+        {% endif %}
+      </div>
+      <div class="issue-h">{{ issue.title }}</div>
+      <div class="issue-desc">{{ issue.description[:200] }}{% if issue.description|length > 200 %}...{% endif %}</div>
+      <div class="issue-footer">
+        <span class="issue-footer-item"><span class="issue-district-badge">{{ '%02d' % issue.district_number }}. körzet</span></span>
+        <span class="issue-footer-item">💬 {{ issue.comment_count }} hozzászólás</span>
+        <span class="issue-footer-item">📅 {{ issue.time_ago }}</span>
+        {% if issue.ai_urgency %}
+        <span class="issue-footer-item">🤖 <span class="ai-badge">AI: {{ urgency_labels.get(issue.ai_urgency, '') }}</span></span>
+        {% endif %}
+      </div>
+      {% if issue.district_participation is not none %}
+      <div class="issue-progress">
+        <div class="issue-prog-bar">
+          <div class="issue-prog-fill fill-{{ 'green' if issue.district_participation > 50 else ('orange' if issue.district_participation > 25 else 'blue') }}" style="width:{{ issue.district_participation }}%"></div>
+        </div>
+        <span class="issue-prog-label">{{ issue.district_participation }}% körzeti részvétel</span>
+      </div>
+      {% endif %}
+    </a>
+  </div>
+  {% else %}
+  <div style="text-align:center; padding:4rem 2rem; color:var(--text-muted);">
+    <div style="font-size:48px; margin-bottom:1rem;">📭</div>
+    <p style="font-size:16px;">Még nincs bejelentés{% if tab == 'mine' %} tőled{% endif %}.</p>
+    <button class="btn btn-primary" onclick="openForm()" style="margin-top:1rem;">✚ Legyél az első!</button>
+  </div>
+  {% endfor %}
+</div>
+
+{% if issues %}
+<!-- Bottom panels -->
+<div class="panel-row">
+  <!-- Trending citywide -->
+  <div class="panel">
+    <div class="panel-header">
+      <span class="panel-title">🔥 Városszintű toplista</span>
+    </div>
+    <div class="panel-body">
+      {% for t in trending %}
+      <div class="trending-item">
+        <span class="trending-rank">{{ loop.index }}</span>
+        <div class="trending-info">
+          <div class="trending-title">{{ t.title }}</div>
+          <div class="trending-meta">{{ '%02d' % t.district_number }}. körzet</div>
+        </div>
+        <span class="trending-votes">↑ {{ t.vote_score }}</span>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- District activity -->
+  <div class="panel">
+    <div class="panel-header">
+      <span class="panel-title">📊 Körzeti aktivitás</span>
+    </div>
+    <div class="panel-body">
+      <div class="district-mini-grid">
+        {% for da in district_activity_list %}
+        <div class="district-mini {{ 'style=background:var(--green-bg)' if da.number == current_user.district.number }}">
+          <div class="district-mini-num" {{ 'style=color:var(--meadow)' if da.number == current_user.district.number }}>{{ '%02d' % da.number }}</div>
+          <div class="district-mini-count" {{ 'style=color:var(--meadow);font-weight:700' if da.number == current_user.district.number }}>{{ da.active }} aktív{{ ' ←' if da.number == current_user.district.number }}</div>
+          <div class="district-mini-bar"><div class="district-mini-fill" style="width:{{ da.percent }}%"></div></div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+<!-- NEW ISSUE FORM OVERLAY -->
+<div class="form-overlay" id="formOverlay">
+  <div class="form-card">
+    <div class="form-header">
+      <h2>✚ Új probléma bejelentése</h2>
+      <button class="form-close" onclick="closeForm()">✕</button>
+    </div>
+    <div class="form-body">
+      <input type="hidden" id="categoryInput" value="other">
+
+      <div class="field">
+        <label>Cím <span>— röviden, a lényeg</span></label>
+        <input type="text" placeholder="pl. Hiányzó zebra a Balatoni úton" id="issueTitle" oninput="aiCategorize()">
+      </div>
+
+      <div class="field">
+        <label>Leírás</label>
+        <textarea placeholder="Részletes leírás: hol, mi a probléma, miért sürgős, kit érint..." id="issueDesc" style="width:100%; min-height:100px; padding:10px 14px; border:1.5px solid var(--cream-dark); border-radius:var(--radius-sm); font-family:'Inter',sans-serif; font-size:14px; resize:vertical; background:var(--cream);"></textarea>
+      </div>
+
+      <div class="field">
+        <label>Kategória <span class="ai-badge" id="aiSuggest" style="display:none;">🤖 AI javaslat</span></label>
+        <div class="cat-chips">
+          <span class="cat-chip" data-category="road" onclick="selectCat(this)">🛣️ Közút</span>
+          <span class="cat-chip" data-category="park" onclick="selectCat(this)">🌳 Park / Zöldterület</span>
+          <span class="cat-chip" data-category="safety" onclick="selectCat(this)">🛡️ Biztonság</span>
+          <span class="cat-chip" data-category="infrastructure" onclick="selectCat(this)">🏗️ Infrastruktúra</span>
+          <span class="cat-chip" data-category="transport" onclick="selectCat(this)">🚌 Közlekedés</span>
+          <span class="cat-chip" data-category="other" onclick="selectCat(this)">💡 Egyéb</span>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Helyszín <span>— utca/tér neve (opcionális)</span></label>
+        <input type="text" id="issueLocation" placeholder="pl. Balatoni út / Olimpia utca sarok">
+        <div class="field-hint">📍 Automatikusan a {{ '%02d' % current_user.district.number }}. körzetbe kerül a bejelentés</div>
+      </div>
+
+      <div class="field">
+        <label>Fotó <span>— opcionális, de sokat segít</span></label>
+        <div class="photo-upload" onclick="document.getElementById('photoInput').click()">
+          <div class="photo-upload-icon">📸</div>
+          Húzd ide a fotót vagy kattints a tallózáshoz
+          <input type="file" id="photoInput" accept="image/*" style="display:none;" multiple>
+        </div>
+        <div class="field-hint">🤖 Az AI a fotóból is segít kategorizálni</div>
+      </div>
+    </div>
+    <div class="form-actions">
+      <button class="btn-cancel" onclick="closeForm()">Mégsem</button>
+      <button class="btn-submit" onclick="submitIssue()">Bejelentés küldése →</button>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Bejelentkezés — ZEG Hang{% endblock %}
+
+{% block footer %}{% endblock %}
+
+{% block content %}
+<div class="auth-page">
+  <div class="auth-card">
+    <div class="auth-logo">
+      <div class="auth-logo-mark">ZH</div>
+      <h2>Bejelentkezés</h2>
+      <p>Üdv újra! Lépj be a körzeted ügyeinek kezeléséhez.</p>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="flash-messages">
+      {% for category, message in messages %}
+      <div class="flash flash-{{ category }}">{{ message }}</div>
+      {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
+
+    <form class="auth-form" method="POST" action="{{ url_for('login') }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+      <div class="field">
+        <label>Email cím</label>
+        <input type="email" name="email" required placeholder="pelda@email.hu" value="{{ request.form.get('email', '') }}">
+      </div>
+
+      <div class="field">
+        <label>Jelszó</label>
+        <input type="password" name="password" required placeholder="••••••••">
+      </div>
+
+      <button type="submit" class="btn-submit">Bejelentkezés →</button>
+    </form>
+
+    <div class="auth-links">
+      Még nincs fiókod? <a href="{{ url_for('register') }}">Regisztrálj itt</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

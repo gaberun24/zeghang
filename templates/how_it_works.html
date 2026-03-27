@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+{% block title %}Hogyan működik — ZEG Hang{% endblock %}
+
+{% block content %}
+<div class="how-page">
+  <!-- Hero -->
+  <div class="how-hero">
+    <h1>Hogyan működik<br>a ZEG Hang?</h1>
+    <p>Teljes átláthatóság — a rendszer működésétől az adatvédelemig, mindent elmagyarázunk.</p>
+  </div>
+
+  <!-- 1. A rendszer lényege -->
+  <div class="how-section">
+    <h2><span class="icon">🏛️</span> A rendszer lényege</h2>
+    <p>A ZEG Hang egy független civil platform, amelyet zalaegerszegi lakosok számára hoztunk létre. A cél egyszerű: <strong>összekötni a lakókat a közterületi problémákkal és a választott képviselőikkel</strong>.</p>
+    <p style="margin-top:1rem;">A platform nem tartozik egyetlen párthoz vagy politikai szervezethez sem. Mindenki számára nyitott, aki Zalaegerszegen lakik.</p>
+    <div class="how-highlight">
+      A ZEG Hang nem helyettesíti az önkormányzati ügyintézést — kiegészíti. A cél a közterületi problémák összegyűjtése, priorizálása és átláthatóvá tétele.
+    </div>
+  </div>
+
+  <!-- 2. Lépésről lépésre -->
+  <div class="how-section">
+    <h2><span class="icon">👣</span> Lépésről lépésre</h2>
+    <ul>
+      <li><strong>Regisztráció lakcímmel</strong> — Add meg a zalaegerszegi lakcímedet. A rendszer automatikusan felismeri, melyik körzetben laksz (12 egyéni választókerület egyikébe kerülsz). A pontos lakcímed nem publikus — csak a körzeted.</li>
+      <li><strong>Bejelentés írása</strong> — Írd le a problémát: adj címet, részletes leírást, válassz kategóriát. Csatolhatsz fotót is. Az AI segít a kategorizálásban, de a végső döntés a tiéd.</li>
+      <li><strong>AI feldolgozás</strong> — A mesterséges intelligencia automatikusan elemzi a bejelentést: kategóriát javasol, sürgősséget becsül, és megnézi, van-e már hasonló bejelentés a rendszerben.</li>
+      <li><strong>Szavazás</strong> — Szavazz a körzeted és a város problémáira. Minél több szavazatot kap egy bejelentés, annál feljebb kerül a prioritási listán.</li>
+      <li><strong>Körzeti toplista</strong> — Minden körzet saját toplistával rendelkezik. A képviselők (és mindenki más) itt látják, melyik problémák a legfontosabbak a lakóknak.</li>
+      <li><strong>Megoldás követése</strong> — A bejelentések státusza mindenki számára látható: Új → Vizsgálat alatt → Megoldva.</li>
+    </ul>
+  </div>
+
+  <!-- 3. AI átláthatóság -->
+  <div class="how-section">
+    <h2><span class="icon">🤖</span> AI átláthatóság</h2>
+    <p>A platform GPT-4o-mini modellt használ a bejelentések feldolgozásához. Fontos: <strong>az AI soha nem dönt — csak javasol</strong>.</p>
+
+    <h3 style="font-size:16px; font-weight:600; margin:1.5rem 0 0.75rem; color:var(--text-dark);">Kategória javaslat</h3>
+    <p>Az AI a bejelentés címe és leírása alapján javasol kategóriát (Közút, Park, Biztonság, Infrastruktúra, Közlekedés, Egyéb). A felhasználó bármikor felülírhatja.</p>
+
+    <h3 style="font-size:16px; font-weight:600; margin:1.5rem 0 0.75rem; color:var(--text-dark);">Sürgősség értékelés</h3>
+    <p>Az AI négy szinten értékeli a bejelentés sürgősségét:</p>
+    <ul>
+      <li><strong>Alacsony</strong> — esztétikai vagy kényelmi probléma</li>
+      <li><strong>Közepes</strong> — funkcionális probléma, amely több embert érint</li>
+      <li><strong>Magas</strong> — közvetlen akadály vagy veszélyforrás</li>
+      <li><strong>Sürgős</strong> — azonnali balesetveszély vagy közegészségügyi kockázat</li>
+    </ul>
+
+    <h3 style="font-size:16px; font-weight:600; margin:1.5rem 0 0.75rem; color:var(--text-dark);">Duplikáció szűrés</h3>
+    <p>Az AI megvizsgálja, hogy az új bejelentés hasonlít-e egy már meglévő nyitott bejelentésre. Ha talál egyezést, jelzi, de <strong>nem blokkolja</strong> az új bejelentést — összekötést javasol.</p>
+
+    <div class="how-highlight">
+      Az AI feldolgozás átlátható: minden bejelentésnél látható, hogy az AI milyen kategóriát és sürgősséget javasolt, és ha duplikátumot talált.
+    </div>
+  </div>
+
+  <!-- 4. Szavazás és anonimitás -->
+  <div class="how-section">
+    <h2><span class="icon">🗳️</span> Szavazás és anonimitás</h2>
+    <ul>
+      <li><strong>Egy felhasználó = egy szavazat per bejelentés</strong> — felszavazás (támogatom) vagy leszavazás lehetséges. A szavazat bármikor módosítható.</li>
+      <li><strong>A szavazatok anonimek</strong> — senki (képviselők sem) nem látja, ki szavazott mire. A rendszer tárolja a szavazó azonosítóját (a dupla szavazás megelőzéséhez), de ez az adat soha nem jelenik meg.</li>
+      <li><strong>Körzeti részvételi %</strong> — az issue-knél látható, a körzeti lakók hány százaléka szavazott. Ez csak aggregált szám — egyéni szavazat nem következtethető ki belőle.</li>
+    </ul>
+  </div>
+
+  <!-- 5. Körzeti arányosítás -->
+  <div class="how-section">
+    <h2><span class="icon">⚖️</span> Körzeti arányosítás</h2>
+    <p>Zalaegerszeg 12 egyéni választókerületre oszlik. A platform biztosítja, hogy <strong>minden körzet egyenlő súllyal jelenik meg</strong>:</p>
+    <ul>
+      <li>Minden körzet saját toplistával rendelkezik</li>
+      <li>A városszintű toplista a körzeti támogatottságot is figyelembe veszi</li>
+      <li>Nem a legtöbb lakosú körzet dominál — a részvételi arány számít</li>
+    </ul>
+    <div class="how-highlight">
+      A cél: ha egy kisebb körzet lakóinak 80%-a fontosnak tart egy problémát, az ugyanolyan súllyal jelenjen meg, mint egy nagyobb körzet 80%-os támogatása.
+    </div>
+  </div>
+
+  <!-- 6. Képviselők és nyilvánosság -->
+  <div class="how-section">
+    <h2><span class="icon">👁️</span> Képviselők és nyilvánosság</h2>
+    <p>A ZEG Hang platformon <strong>nincs külön képviselői felület</strong>. A rendszer teljesen transzparens:</p>
+    <ul>
+      <li>A képviselők ugyanazt a felületet látják, mint bárki más</li>
+      <li>A körzeti toplista publikus — bárki megnézheti, melyik problémák a legfontosabbak</li>
+      <li>A bejelentések státusza (Új → Vizsgálat alatt → Megoldva) mindenki számára látható</li>
+      <li>A képviselők nevét és elérhetőségét feltüntetjük a körzeti oldalakon</li>
+    </ul>
+    <div class="how-highlight">
+      A platform célja nem a számonkérés, hanem az információ-áramlás. Ha egy körzet lakói egyértelműen prioritásként kezelnek egy problémát, az a képviselő számára is egyértelmű visszajelzés.
+    </div>
+  </div>
+
+  <!-- 7. Adatvédelem -->
+  <div class="how-section">
+    <h2><span class="icon">🔒</span> Adatvédelem</h2>
+    <p>A ZEG Hang a GDPR előírásainak megfelelően kezeli az adatokat:</p>
+
+    <h3 style="font-size:16px; font-weight:600; margin:1.5rem 0 0.75rem; color:var(--text-dark);">Mit tárolunk</h3>
+    <ul>
+      <li><strong>Email cím</strong> — a bejelentkezéshez (soha nem jelenik meg publikusan)</li>
+      <li><strong>Jelszó</strong> — bcrypt algoritmussal hash-elve (a nyers jelszót nem tároljuk)</li>
+      <li><strong>Lakcím</strong> — a körzet-hozzárendeléshez (a pontos cím nem publikus, csak a körzet száma)</li>
+      <li><strong>Bejelentések és szavazatok</strong> — a platform működéséhez szükséges</li>
+    </ul>
+
+    <h3 style="font-size:16px; font-weight:600; margin:1.5rem 0 0.75rem; color:var(--text-dark);">Mit NEM tárolunk / osztunk meg</h3>
+    <ul>
+      <li>A szavazatok soha nem köthetőek nyilvánosan felhasználóhoz</li>
+      <li>A pontos lakcím soha nem jelenik meg publikusan</li>
+      <li>Nem adunk át adatot harmadik félnek (pártoknak, cégeknek, stb.)</li>
+    </ul>
+
+    <h3 style="font-size:16px; font-weight:600; margin:1.5rem 0 0.75rem; color:var(--text-dark);">Jogaid</h3>
+    <ul>
+      <li><strong>Hozzáférés</strong> — bármikor lekérheted az adataidat</li>
+      <li><strong>Törlés</strong> — bármikor törölheted a fiókodat és minden hozzá tartozó adatot</li>
+      <li><strong>Módosítás</strong> — megjelenítési neved és lakcímed bármikor módosítható</li>
+    </ul>
+  </div>
+
+  <!-- CTA -->
+  <div style="text-align:center; padding:4rem 2rem; background:var(--cream-dark);">
+    <h2 style="font-family:'Playfair Display',serif; font-size:28px; font-weight:700; margin-bottom:1rem;">Kérdésed van?</h2>
+    <p style="color:var(--text-muted); margin-bottom:2rem;">Írj nekünk, szívesen válaszolunk.</p>
+    <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg">Regisztrálj és próbáld ki →</a>
+  </div>
+</div>
+{% endblock %}
