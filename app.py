@@ -3,6 +3,7 @@ ZEG Hang — Zalaegerszeg Közösségi Platform
 Flask application with all routes.
 """
 
+import hashlib
 import os
 import uuid
 from datetime import datetime, timedelta
@@ -330,10 +331,15 @@ def register():
             # Hash password
             pw_hash = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
 
+            # Hash address (irreversible — only district_id is needed after this)
+            address_hash = hashlib.sha256(
+                (address_street.lower() + ":" + address_zip).encode()
+            ).hexdigest()
+
             conn.execute(
                 "INSERT INTO users (email, password_hash, display_name, address_street, address_zip, district_id) "
                 "VALUES (%s, %s, %s, %s, %s, %s)",
-                (email, pw_hash, display_name, address_street, address_zip, district["id"]),
+                (email, pw_hash, display_name, address_hash, "", district["id"]),
             )
             conn.commit()
 
