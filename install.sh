@@ -146,8 +146,36 @@ RestartSec=5
 WantedBy=multi-user.target
 SVCEOF
 
-# Install gunicorn
-sudo -u "$APP_USER" "${APP_DIR}/venv/bin/pip" install gunicorn -q
+# Install gunicorn + pywebpush
+sudo -u "$APP_USER" "${APP_DIR}/venv/bin/pip" install gunicorn pywebpush -q
+
+# ── VAPID keys for push notifications ──
+if grep -q "VAPID_PUBLIC_KEY" "${APP_DIR}/.env" 2>/dev/null; then
+    echo "  VAPID kulcsok már léteznek .env-ben"
+else
+    echo "  VAPID kulcsok generálása..."
+    VAPID_KEYS=$(sudo -u "$APP_USER" "${APP_DIR}/venv/bin/python3" -c "
+from py_vapid import Vapid
+import json
+v = Vapid()
+v.generate_keys()
+print(json.dumps({'public': v.public_key.public_numbers().encode_point().hex(), 'private': v.private_pem.decode().strip()}))
+" 2>/dev/null || echo "")
+    if [ -n "$VAPID_KEYS" ] && [ "$VAPID_KEYS" != "" ]; then
+        VAPID_PUB=$(echo "$VAPID_KEYS" | python3 -c "import sys,json; print(json.load(sys.stdin)['public'])")
+        VAPID_PRIV=$(echo "$VAPID_KEYS" | python3 -c "import sys,json; print(json.load(sys.stdin)['private'])")
+        cat >> "${APP_DIR}/.env" <<VAPIDEOF
+
+# Web Push (VAPID) — automatikusan generálva
+VAPID_PUBLIC_KEY=${VAPID_PUB}
+VAPID_PRIVATE_KEY=${VAPID_PRIV}
+VAPID_EMAIL=admin@zeghang.hu
+VAPIDEOF
+        echo "  VAPID kulcsok hozzáadva a .env-hez"
+    else
+        echo "  VAPID generálás sikertelen — manuálisan kell beállítani"
+    fi
+fi
 
 systemctl daemon-reload
 systemctl enable zeghang
