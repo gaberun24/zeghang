@@ -298,3 +298,26 @@ function checkDistrict() {
     })
     .catch(() => {});
 }
+
+// ── COOKIE CONSENT ──
+function acceptCookies() {
+  localStorage.setItem('zh_cookies', '1');
+  var el = document.getElementById('cookieBanner');
+  if (el) el.style.display = 'none';
+}
+
+// ── DISCLAIMER ──
+function dismissDisclaimer() {
+  sessionStorage.setItem('zh_disclaimer', '1');
+  var el = document.getElementById('disclaimerBanner');
+  if (el) el.style.display = 'none';
+}
+
+// Show/hide banners on load
+document.addEventListener('DOMContentLoaded', function() {
+  var cookie = document.getElementById('cookieBanner');
+  if (cookie && localStorage.getItem('zh_cookies')) cookie.style.display = 'none';
+
+  var disc = document.getElementById('disclaimerBanner');
+  if (disc && sessionStorage.getItem('zh_disclaimer')) disc.style.display = 'none';
+});

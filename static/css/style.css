@@ -1797,6 +1797,85 @@
 .toast.show { display: flex; align-items: center; gap: 8px; }
 .toast.toast-error { background: #c0392b; }
 
+/* ── COOKIE BANNER ── */
+.cookie-banner {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--forest);
+  color: white;
+  padding: 1rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  z-index: 9999;
+  font-size: 13px;
+  box-shadow: 0 -2px 12px rgba(0,0,0,0.2);
+}
+.cookie-banner p { margin: 0; max-width: 600px; line-height: 1.5; color: var(--hill-pale); }
+.cookie-btn {
+  background: var(--meadow);
+  color: white;
+  border: none;
+  padding: 8px 20px;
+  border-radius: var(--radius);
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.cookie-btn:hover { opacity: 0.9; }
+
+/* ── DISCLAIMER BANNER ── */
+.disclaimer-banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: #c0392b;
+  color: white;
+  padding: 0.8rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  z-index: 9999;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+}
+.disclaimer-icon {
+  width: 32px;
+  height: 32px;
+  background: white;
+  color: #c0392b;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+.disclaimer-text { font-size: 13px; line-height: 1.4; max-width: 600px; }
+.disclaimer-text strong { font-weight: 700; }
+.disclaimer-btn {
+  background: rgba(255,255,255,0.2);
+  color: white;
+  border: 1px solid rgba(255,255,255,0.4);
+  padding: 8px 20px;
+  border-radius: var(--radius);
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.disclaimer-btn:hover { background: rgba(255,255,255,0.3); }
+
+@media (max-width: 768px) {
+  .cookie-banner, .disclaimer-banner { flex-direction: column; text-align: center; gap: 0.75rem; padding: 1rem; }
+}
+
 /* ── AUTH PAGES ── */
 .auth-page {
   min-height: 100vh;

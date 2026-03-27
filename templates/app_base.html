@@ -97,6 +97,22 @@
   <!-- Toast notification -->
   <div class="toast" id="toast"></div>
 
+  <!-- Cookie consent -->
+  <div class="cookie-banner" id="cookieBanner">
+    <p>Ez az oldal kizárólag működéshez szükséges cookie-kat használ (munkamenet). Nem használunk tracking cookie-kat, analitikát vagy harmadik féltől származó sütiket.</p>
+    <button class="cookie-btn" onclick="acceptCookies()">Rendben</button>
+  </div>
+
+  <!-- Disclaimer banner -->
+  <div class="disclaimer-banner" id="disclaimerBanner">
+    <div class="disclaimer-icon">!</div>
+    <div class="disclaimer-text">
+      <strong>Ez NEM hivatalos bejelentő és NEM segélyhívó!</strong><br>
+      Vészhelyzet (gázszivárgás, tűz, baleset) esetén hívd a <strong>112</strong>-t. Ez egy független civil platform közterületi problémák jelzésére.
+    </div>
+    <button class="disclaimer-btn" onclick="dismissDisclaimer()">Megértettem</button>
+  </div>
+
   <script src="{{ url_for('static', filename='js/app.js') }}"></script>
   {% block scripts %}{% endblock %}
 </body>
