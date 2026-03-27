@@ -1772,12 +1772,12 @@ def admin_stats():
 
         # District activity
         district_rows = conn.execute(
-            "SELECT d.number, d.name, d.population AS residents, "
+            "SELECT d.id, d.number, d.name, d.population AS residents, "
             "COUNT(DISTINCT i.id) AS issues, "
             "COALESCE(SUM(ABS(i.vote_score)), 0) AS votes, "
             "(SELECT COUNT(*) FROM users WHERE district_id = d.id AND is_active = TRUE) AS active_users "
             "FROM districts d LEFT JOIN issues i ON i.district_id = d.id "
-            "GROUP BY d.number, d.name, d.population ORDER BY d.number"
+            "GROUP BY d.id, d.number, d.name, d.population ORDER BY d.number"
         ).fetchall()
         district_activity = []
         for r in district_rows:
