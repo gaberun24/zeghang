@@ -165,7 +165,7 @@ function aiCategorize() {
 }
 
 // ── ISSUE FORM SUBMIT ──
-function submitIssue(e) {
+function submitIssue(e, confirmDuplicate) {
   if (e) e.preventDefault();
 
   const title = document.getElementById('issueTitle').value.trim();
@@ -189,6 +189,11 @@ function submitIssue(e) {
   formData.append('description', desc);
   formData.append('category', category || 'other');
   formData.append('location', location);
+
+  // If user confirmed duplicate, pass flag
+  if (confirmDuplicate) {
+    formData.append('confirm_duplicate', 'true');
+  }
 
   // Add map coordinates if set
   var latEl = document.getElementById('issueLat');
@@ -222,6 +227,10 @@ function submitIssue(e) {
         closeForm();
         showToast('✓ Bejelentés elküldve — megjelenik a körzeti listán');
         setTimeout(() => window.location.reload(), 1500);
+      } else if (data.duplicate) {
+        // Duplicate warning — ask user to confirm
+        if (btn) { btn.disabled = false; btn.textContent = 'Bejelentés küldése →'; }
+        showDuplicateWarning(data.duplicate_id, data.duplicate_title);
       } else {
         if (btn) { btn.disabled = false; btn.textContent = 'Bejelentés küldése →'; }
         showToast('⚠ ' + (data.error || 'Hiba történt a küldés során.'), true);
@@ -231,6 +240,29 @@ function submitIssue(e) {
       if (btn) { btn.disabled = false; btn.textContent = 'Bejelentés küldése →'; }
       alert('Hiba történt a küldés során.');
     });
+}
+
+function showDuplicateWarning(dupId, dupTitle) {
+  // Remove existing warning if any
+  var existing = document.getElementById('dupWarning');
+  if (existing) existing.remove();
+
+  var warning = document.createElement('div');
+  warning.id = 'dupWarning';
+  warning.style.cssText = 'background:#fff3cd; border:1.5px solid #f0c040; border-radius:8px; padding:16px; margin-bottom:1rem;';
+  warning.innerHTML =
+    '<div style="font-weight:600; margin-bottom:6px;">🤖 Hasonló bejelentés már létezik:</div>' +
+    '<div style="font-size:14px; margin-bottom:12px;">„<a href="/issue/' + dupId + '" target="_blank" style="color:#1B4F8A; font-weight:600;">' +
+    dupTitle + '</a>"</div>' +
+    '<div style="font-size:13px; color:#666; margin-bottom:12px;">Ha ugyanarról a problémáról van szó, szavazz a meglévőre! Ha mégis új bejelentést szeretnél, kattints a küldésre.</div>' +
+    '<div style="display:flex; gap:8px;">' +
+    '<button onclick="window.location.href=\'/issue/' + dupId + '\'" style="padding:8px 16px; border:1.5px solid #1B4F8A; background:white; color:#1B4F8A; border-radius:6px; cursor:pointer; font-size:13px; font-weight:600;">Meglévőre szavazok ↑</button>' +
+    '<button onclick="submitIssue(null, true)" style="padding:8px 16px; border:none; background:#95a5a6; color:white; border-radius:6px; cursor:pointer; font-size:13px;">Mégis küldöm →</button>' +
+    '</div>';
+
+  var formBody = document.querySelector('.form-body');
+  if (formBody) formBody.insertBefore(warning, formBody.firstChild);
+  warning.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
 // ── TOAST ──

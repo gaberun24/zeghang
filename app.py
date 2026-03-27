@@ -566,6 +566,19 @@ def new_issue():
         existing_list = [{"id": r["id"], "title": r["title"], "description": r["description"]} for r in existing]
         dup_id = check_duplicates(title, description, existing_list)
 
+        # Warn user about duplicate before saving (unless they confirmed)
+        confirm_dup = request.form.get("confirm_duplicate") == "true"
+        if dup_id and not confirm_dup:
+            dup_issue = next((i for i in existing_list if i["id"] == dup_id), None)
+            dup_title = dup_issue["title"] if dup_issue else f"#{dup_id}"
+            return jsonify({
+                "ok": False,
+                "duplicate": True,
+                "duplicate_id": dup_id,
+                "duplicate_title": dup_title,
+                "error": f"Hasonló bejelentés már létezik: „{dup_title}". Biztosan újat szeretnél küldeni?",
+            }), 409
+
         # Insert issue
         cur = conn.execute(
             "INSERT INTO issues (title, description, category, location, district_id, user_id, "
