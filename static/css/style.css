@@ -456,6 +456,8 @@
     max-width: 1200px;
     margin: 0 auto;
     width: 100%;
+    position: relative;
+    z-index: 2;
   }
 
   .hero-left {
@@ -546,6 +548,7 @@
     position: relative;
     width: 100%;
     margin-top: auto;
+    z-index: 2;
   }
 
   .hero-wave svg {
@@ -558,6 +561,76 @@
     flex: 0 0 420px;
     position: relative;
   }
+
+  /* ── CELESTIAL BODY (sun/moon animation) ── */
+  .celestial-body {
+    position: absolute;
+    z-index: 1;
+    pointer-events: none;
+    transition: left 60s linear, bottom 60s linear;
+  }
+
+  .celestial-glow {
+    position: absolute;
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  .celestial-icon {
+    position: relative;
+    font-size: 48px;
+    line-height: 1;
+    filter: drop-shadow(0 0 20px rgba(255, 200, 50, 0.6));
+    z-index: 2;
+  }
+
+  .celestial-body.is-sun .celestial-glow {
+    background: radial-gradient(circle, rgba(255, 200, 50, 0.3) 0%, transparent 70%);
+  }
+
+  .celestial-body.is-moon .celestial-glow {
+    background: radial-gradient(circle, rgba(200, 220, 255, 0.2) 0%, transparent 70%);
+  }
+
+  .celestial-body.is-moon .celestial-icon {
+    filter: drop-shadow(0 0 15px rgba(200, 220, 255, 0.5));
+  }
+
+  /* ── STARS ── */
+  .hero-stars {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 2s ease;
+  }
+
+  .hero-stars.visible {
+    opacity: 1;
+  }
+
+  .star {
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    background: white;
+    border-radius: 50%;
+    animation: twinkle 3s ease-in-out infinite alternate;
+  }
+
+  @keyframes twinkle {
+    0% { opacity: 0.3; }
+    100% { opacity: 1; }
+  }
+
 
   /* Mockup card */
   .app-mockup {
@@ -2775,4 +2848,6 @@
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
   }
+  .celestial-icon { font-size: 32px; }
+  .celestial-glow { width: 80px; height: 80px; }
 }

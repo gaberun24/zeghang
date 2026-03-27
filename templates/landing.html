@@ -86,6 +86,11 @@
       </div>
     </div>
   </div>
+  <div class="hero-stars" id="heroStars"></div>
+  <div class="celestial-body" id="celestialBody">
+    <div class="celestial-glow"></div>
+    <div class="celestial-icon" id="celestialIcon"></div>
+  </div>
   <div class="hero-wave">
     <svg viewBox="0 0 1440 200" preserveAspectRatio="none" style="display:block; width:100%; height:auto;">
       <!-- Hátsó domb — világoskék -->
@@ -318,6 +323,256 @@
         }
       }).addTo(map);
     });
+})();
+</script>
+<script>
+(function() {
+  // ── ZALAEGERSZEG COORDINATES ──
+  var ZEG_LAT = 46.845;
+  var ZEG_LNG = 16.845;
+
+  // ── SUNRISE/SUNSET CALCULATOR (simplified solar algorithm) ──
+  function getSunTimes(date) {
+    var rad = Math.PI / 180;
+    var dayOfYear = Math.floor((date - new Date(date.getFullYear(), 0, 0)) / 86400000);
+    // Solar declination
+    var declination = -23.45 * Math.cos(rad * 360 / 365 * (dayOfYear + 10));
+    // Hour angle for sunrise/sunset (civil twilight: -0.833 degrees)
+    var latRad = ZEG_LAT * rad;
+    var declRad = declination * rad;
+    var cosH = (Math.sin(-0.833 * rad) - Math.sin(latRad) * Math.sin(declRad)) /
+               (Math.cos(latRad) * Math.cos(declRad));
+    cosH = Math.max(-1, Math.min(1, cosH));
+    var hourAngle = Math.acos(cosH) / rad;
+    // Solar noon (approximate, adjusted for longitude)
+    // Zalaegerszeg is at 16.845°E, UTC+1 (CET) / UTC+2 (CEST)
+    var isDST = date.getTimezoneOffset() < -60;
+    var tzOffset = isDST ? 2 : 1;
+    var solarNoon = 12 - (ZEG_LNG / 15 - tzOffset);
+    // Equation of time correction (simplified)
+    var B = 360 / 365 * (dayOfYear - 81) * rad;
+    var eot = 9.87 * Math.sin(2 * B) - 7.53 * Math.cos(B) - 1.5 * Math.sin(B);
+    solarNoon -= eot / 60;
+    var sunrise = solarNoon - hourAngle / 15;
+    var sunset = solarNoon + hourAngle / 15;
+    return { sunrise: sunrise, sunset: sunset, solarNoon: solarNoon };
+  }
+
+  // ── MOON PHASE CALCULATOR ──
+  // Returns 0-1 where 0=new moon, 0.5=full moon, 1=new moon again
+  function getMoonPhase(date) {
+    // Known new moon: Jan 6, 2000 18:14 UTC
+    var knownNew = new Date(2000, 0, 6, 18, 14, 0).getTime();
+    var lunarCycle = 29.53058770576; // days
+    var daysSince = (date.getTime() - knownNew) / 86400000;
+    var phase = (daysSince % lunarCycle) / lunarCycle;
+    if (phase < 0) phase += 1;
+    return phase;
+  }
+
+  // Moon phase emoji based on phase value (0-1)
+  function getMoonEmoji(phase) {
+    // 8 phases
+    if (phase < 0.0625) return '\uD83C\uDF11';      // new moon
+    if (phase < 0.1875) return '\uD83C\uDF12';      // waxing crescent
+    if (phase < 0.3125) return '\uD83C\uDF13';      // first quarter
+    if (phase < 0.4375) return '\uD83C\uDF14';      // waxing gibbous
+    if (phase < 0.5625) return '\uD83C\uDF15';      // full moon
+    if (phase < 0.6875) return '\uD83C\uDF16';      // waning gibbous
+    if (phase < 0.8125) return '\uD83C\uDF17';      // last quarter
+    if (phase < 0.9375) return '\uD83C\uDF18';      // waning crescent
+    return '\uD83C\uDF11';                            // new moon
+  }
+
+  // ── COLOR INTERPOLATION HELPER ──
+  function lerpColor(a, b, t) {
+    t = Math.max(0, Math.min(1, t));
+    var ah = parseInt(a.replace('#',''), 16);
+    var bh = parseInt(b.replace('#',''), 16);
+    var ar = (ah >> 16) & 0xff, ag = (ah >> 8) & 0xff, ab = ah & 0xff;
+    var br = (bh >> 16) & 0xff, bg = (bh >> 8) & 0xff, bb = bh & 0xff;
+    var rr = Math.round(ar + t * (br - ar));
+    var rg = Math.round(ag + t * (bg - ag));
+    var rb = Math.round(ab + t * (bb - ab));
+    return '#' + ((1 << 24) + (rr << 16) + (rg << 8) + rb).toString(16).slice(1);
+  }
+
+  // ── GENERATE STARS ──
+  function generateStars() {
+    var container = document.getElementById('heroStars');
+    if (!container || container.children.length > 0) return;
+    for (var i = 0; i < 50; i++) {
+      var star = document.createElement('div');
+      star.className = 'star';
+      star.style.left = Math.random() * 100 + '%';
+      star.style.top = Math.random() * 70 + '%';
+      star.style.animationDelay = (Math.random() * 3) + 's';
+      var size = (Math.random() * 2 + 1);
+      star.style.width = star.style.height = size + 'px';
+      container.appendChild(star);
+    }
+  }
+  generateStars();
+
+  // ── UPDATE CELESTIAL BODY ──
+  function updateCelestial() {
+    var now = new Date();
+    var hour = now.getHours() + now.getMinutes() / 60;
+
+    var body = document.getElementById('celestialBody');
+    var icon = document.getElementById('celestialIcon');
+    var glow = body ? body.querySelector('.celestial-glow') : null;
+    var hero = document.querySelector('.hero');
+    if (!body || !icon || !hero) return;
+
+    // Get real sunrise/sunset for Zalaegerszeg today
+    var sun = getSunTimes(now);
+    var sunrise = sun.sunrise;  // e.g. 5.8 = 5:48
+    var sunset = sun.sunset;    // e.g. 19.3 = 19:18
+    var isDay = hour >= sunrise && hour < sunset;
+
+    // Twilight zones (1 hour before sunrise, 1 hour after sunset)
+    var dawnStart = sunrise - 1;
+    var duskEnd = sunset + 1;
+
+    // Calculate arc position
+    var progress;
+    if (isDay) {
+      progress = (hour - sunrise) / (sunset - sunrise);
+    } else {
+      // Night arc: sunset → midnight → sunrise
+      var nightDuration = 24 - (sunset - sunrise);
+      if (hour >= sunset) {
+        progress = (hour - sunset) / nightDuration;
+      } else {
+        progress = (hour + 24 - sunset) / nightDuration;
+      }
+    }
+    progress = Math.max(0, Math.min(1, progress));
+
+    // Arc: right (90%) to left (10%), parabolic height
+    var x = 90 - progress * 80;
+    var arcHeight = Math.sin(progress * Math.PI);
+    var y = 15 + arcHeight * 50;
+
+    body.style.left = x + '%';
+    body.style.bottom = y + '%';
+    body.style.transform = 'translate(-50%, 50%)';
+
+    // Moon phase
+    var moonPhase = getMoonPhase(now);
+    var moonEmoji = getMoonEmoji(moonPhase);
+
+    // Set sun or moon icon
+    if (isDay) {
+      body.className = 'celestial-body is-sun';
+      icon.textContent = '\u2600\uFE0F';
+      // Bigger glow near horizon (sunrise/sunset)
+      var horizonProximity = 1 - Math.min(arcHeight * 3, 1);
+      if (glow) {
+        var glowSize = 120 + horizonProximity * 60;
+        glow.style.width = glowSize + 'px';
+        glow.style.height = glowSize + 'px';
+        // Warm glow near horizon
+        var warmth = horizonProximity;
+        glow.style.background = 'radial-gradient(circle, rgba(255,' + Math.round(200 - warmth * 80) + ',' + Math.round(50 + warmth * 30) + ',' + (0.3 + warmth * 0.2) + ') 0%, transparent 70%)';
+      }
+    } else {
+      body.className = 'celestial-body is-moon';
+      icon.textContent = moonEmoji;
+      // Moon glow intensity based on phase (full moon = brightest)
+      var fullness = 1 - Math.abs(moonPhase - 0.5) * 2; // 0 at new, 1 at full
+      if (glow) {
+        var glowSize = 80 + fullness * 60;
+        glow.style.width = glowSize + 'px';
+        glow.style.height = glowSize + 'px';
+        glow.style.background = 'radial-gradient(circle, rgba(200,220,255,' + (0.05 + fullness * 0.25) + ') 0%, transparent 70%)';
+      }
+    }
+
+    // Stars visibility — fade in during twilight
+    var stars = document.getElementById('heroStars');
+    if (stars) {
+      if (hour >= duskEnd || hour < dawnStart) {
+        stars.classList.add('visible');
+      } else if (hour >= sunset || hour < sunrise) {
+        stars.classList.add('visible');
+        stars.style.opacity = '0.6';
+      } else {
+        stars.classList.remove('visible');
+        stars.style.opacity = '';
+      }
+    }
+
+    // Background gradient based on real sunrise/sunset
+    var gradient;
+    if (hour >= dawnStart && hour < sunrise) {
+      // Pre-dawn twilight
+      var t = (hour - dawnStart) / (sunrise - dawnStart);
+      gradient = 'linear-gradient(180deg, ' +
+        lerpColor('#0a0e1a', '#1a2a4a', t) + ' 0%, ' +
+        lerpColor('#0f1a2e', '#2a3a5c', t) + ' 40%, ' +
+        lerpColor('#0a1628', '#e87040', t * 0.7) + ' 85%, ' +
+        lerpColor('#0a1628', '#f4a93b', t * 0.5) + ' 100%)';
+    } else if (hour >= sunrise && hour < sunrise + 1.5) {
+      // Sunrise glow
+      var t = (hour - sunrise) / 1.5;
+      gradient = 'linear-gradient(180deg, ' +
+        lerpColor('#1a2a4a', '#0F3460', t) + ' 0%, ' +
+        lerpColor('#2a3a5c', '#1B4F8A', t) + ' 40%, ' +
+        lerpColor('#e87040', '#1B4F8A', t) + ' 85%, ' +
+        lerpColor('#f4a93b', '#1B4F8A', t) + ' 100%)';
+    } else if (hour >= sunrise + 1.5 && hour < sunset - 2) {
+      // Daytime — steady blue (original)
+      gradient = 'linear-gradient(180deg, #0F3460 0%, #1B4F8A 100%)';
+    } else if (hour >= sunset - 2 && hour < sunset) {
+      // Sunset approach
+      var t = (hour - (sunset - 2)) / 2;
+      gradient = 'linear-gradient(180deg, ' +
+        lerpColor('#0F3460', '#1a1a3e', t * 0.5) + ' 0%, ' +
+        lerpColor('#1B4F8A', '#8e3a5e', t) + ' 40%, ' +
+        lerpColor('#1B4F8A', '#d45030', t) + ' 70%, ' +
+        lerpColor('#1B4F8A', '#e88030', t) + ' 100%)';
+    } else if (hour >= sunset && hour < duskEnd) {
+      // Post-sunset dusk
+      var t = (hour - sunset) / (duskEnd - sunset);
+      gradient = 'linear-gradient(180deg, ' +
+        lerpColor('#1a1a3e', '#0a0e1a', t) + ' 0%, ' +
+        lerpColor('#8e3a5e', '#0f1a2e', t) + ' 40%, ' +
+        lerpColor('#d45030', '#0a1628', t) + ' 70%, ' +
+        lerpColor('#e88030', '#0a1628', t) + ' 100%)';
+    } else {
+      // Night
+      gradient = 'linear-gradient(180deg, #0a0e1a 0%, #0f1a2e 50%, #0a1628 100%)';
+    }
+    hero.style.background = gradient;
+
+    // Hill color changes
+    var hillLight = document.querySelector('.hero-wave path:nth-child(1)');
+    var hillMeadow = document.querySelector('.hero-wave path:nth-child(2)');
+
+    if (hour >= sunset - 2 && hour < duskEnd) {
+      // Sunset warm hills
+      var t = Math.min((hour - (sunset - 2)) / 2, 1);
+      if (hillLight) hillLight.setAttribute('fill', lerpColor('#6BAED6', '#c98a5e', t));
+      if (hillMeadow) hillMeadow.setAttribute('fill', lerpColor('#4A7C3F', '#8a6030', t));
+    } else if (hour >= dawnStart && hour < sunrise + 0.5) {
+      // Dawn warm hills
+      var t = (hour - dawnStart) / (sunrise + 0.5 - dawnStart);
+      if (hillLight) hillLight.setAttribute('fill', lerpColor('#2a4a6e', '#c98a5e', t * 0.6));
+      if (hillMeadow) hillMeadow.setAttribute('fill', lerpColor('#1a3525', '#6a5020', t * 0.5));
+    } else if (!isDay) {
+      if (hillLight) hillLight.setAttribute('fill', '#2a4a6e');
+      if (hillMeadow) hillMeadow.setAttribute('fill', '#1a3525');
+    } else {
+      if (hillLight) hillLight.setAttribute('fill', 'var(--hill-light)');
+      if (hillMeadow) hillMeadow.setAttribute('fill', 'var(--meadow)');
+    }
+  }
+
+  // Run immediately and every minute
+  updateCelestial();
+  setInterval(updateCelestial, 60000);
 })();
 </script>
 {% endblock %}
