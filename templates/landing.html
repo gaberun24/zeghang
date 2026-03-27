@@ -200,6 +200,36 @@
   </div>
 </section>
 
+<!-- MOBIL APP BANNER -->
+<section style="background:linear-gradient(135deg, #0F3460 0%, #1a4a8a 100%); padding:4rem 2rem;">
+  <div style="max-width:900px; margin:0 auto; display:flex; align-items:center; gap:3rem; flex-wrap:wrap;">
+    <div style="flex:0 0 auto; text-align:center;">
+      <div style="width:100px; height:100px; background:rgba(255,255,255,0.15); border-radius:24px; display:flex; align-items:center; justify-content:center; margin:0 auto;">
+        <img src="{{ url_for('static', filename='icon-192.png') }}" alt="Z!" style="width:80px; height:80px; border-radius:16px;">
+      </div>
+    </div>
+    <div style="flex:1; min-width:250px;">
+      <div style="font-size:12px; text-transform:uppercase; letter-spacing:2px; color:rgba(255,255,255,0.6); margin-bottom:0.5rem;">Mobilalkalmazás</div>
+      <h2 style="font-family:'Playfair Display',serif; font-size:26px; font-weight:700; color:white; margin-bottom:0.75rem; line-height:1.3;">
+        Telepítsd a Z! appot a telefonodra!
+      </h2>
+      <p style="color:rgba(255,255,255,0.8); font-size:15px; line-height:1.6; margin-bottom:1.5rem;">
+        Nem kell letölteni — egyenesen a böngészőből telepítheted. Teljes képernyős alkalmazásként fut, push értesítésekkel.
+      </p>
+      <div style="display:flex; gap:1rem; flex-wrap:wrap;">
+        <a href="{{ url_for('user_guide') }}#telepites" class="btn btn-primary btn-lg" style="background:var(--meadow);">
+          📱 Telepítési útmutató →
+        </a>
+      </div>
+      <div style="display:flex; gap:2rem; margin-top:1.25rem; font-size:13px; color:rgba(255,255,255,0.5);">
+        <span>✓ Android (Chrome)</span>
+        <span>✓ iPhone (Safari)</span>
+        <span>✓ Ingyenes</span>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- CTA -->
 <section class="cta-section">
   <div class="cta-inner">
