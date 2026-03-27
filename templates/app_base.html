@@ -78,6 +78,29 @@
       </div>
     </div>
 
+    <!-- Reputation -->
+    <div class="sb-section">
+      <div class="sb-label">Reputáció</div>
+      <div class="rep-score-card">
+        <div class="rep-score-icon">{{ current_user.rep_level_icon }}</div>
+        <div class="rep-score-info">
+          <div class="rep-score-level">{{ current_user.rep_level_name }}</div>
+          <div class="rep-score-pts">{{ current_user.reputation }} pont</div>
+        </div>
+      </div>
+      {% if current_user.next_level_info %}
+      {% set next_name, pts_needed = current_user.next_level_info %}
+      <div class="rep-progress">
+        <div class="rep-progress-bar">
+          <div class="rep-progress-fill" style="width:{{ ((current_user.reputation * 100) / (current_user.reputation + pts_needed))|int }}%"></div>
+        </div>
+        <div class="rep-progress-label">Még {{ pts_needed }} pont a „{{ next_name }}" szinthez</div>
+      </div>
+      {% else %}
+      <div class="rep-progress-label" style="margin-top:6px;">🏆 Maximális szint elérve!</div>
+      {% endif %}
+    </div>
+
     <!-- Navigation -->
     <div class="sb-section">
       <div class="sb-label">Navigáció</div>

@@ -1002,6 +1002,73 @@
   color: white;
 }
 
+/* Reputation card */
+.rep-score-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: linear-gradient(135deg, rgba(138,184,112,0.15), rgba(27,79,138,0.1));
+  border: 1px solid rgba(138,184,112,0.2);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+}
+
+.rep-score-icon {
+  font-size: 28px;
+  line-height: 1;
+}
+
+.rep-score-info {
+  flex: 1;
+}
+
+.rep-score-level {
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--hill-light);
+}
+
+.rep-score-pts {
+  font-size: 12px;
+  color: var(--hill-pale);
+}
+
+.rep-progress {
+  margin-top: 8px;
+}
+
+.rep-progress-bar {
+  height: 6px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.rep-progress-fill {
+  height: 100%;
+  background: var(--meadow);
+  border-radius: 3px;
+  transition: width 0.5s ease;
+}
+
+.rep-progress-label {
+  font-size: 11px;
+  color: var(--hill-pale);
+  margin-top: 4px;
+}
+
+.rep-badge-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 11px;
+  color: var(--text-muted);
+  background: var(--cream);
+  border-radius: 100px;
+  padding: 1px 8px;
+  margin-left: 6px;
+}
+
 /* Sidebar stats */
 .sb-stat-grid {
   display: grid;

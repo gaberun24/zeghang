@@ -70,6 +70,25 @@ class DistrictInfo:
         self.representative_party = row.get("representative_party", "")
 
 
+REPUTATION_LEVELS = [
+    (0, "Újonc", "🌱"),
+    (10, "Figyelő", "👀"),
+    (30, "Aktív polgár", "🏘️"),
+    (75, "Közösségi hang", "📢"),
+    (150, "Körzeti hős", "🦸"),
+    (300, "Városi legenda", "🏆"),
+]
+
+
+def get_reputation_level(points):
+    """Return (name, icon) for a given reputation score."""
+    level_name, level_icon = REPUTATION_LEVELS[0][1], REPUTATION_LEVELS[0][2]
+    for threshold, name, icon in REPUTATION_LEVELS:
+        if points >= threshold:
+            level_name, level_icon = name, icon
+    return level_name, level_icon
+
+
 class User(UserMixin):
     def __init__(self, row, district_row=None):
         self.id = row["id"]
@@ -77,7 +96,28 @@ class User(UserMixin):
         self.display_name = row.get("display_name") or "Körzeti lakos"
         self.district_id = row["district_id"]
         self.is_admin = row.get("is_admin", False)
+        self.reputation = row.get("reputation", 0) or 0
         self.district = DistrictInfo(district_row) if district_row else None
+
+    @property
+    def rep_level(self):
+        return get_reputation_level(self.reputation)
+
+    @property
+    def rep_level_name(self):
+        return self.rep_level[0]
+
+    @property
+    def rep_level_icon(self):
+        return self.rep_level[1]
+
+    @property
+    def next_level_info(self):
+        """Return (next_name, points_needed) or None if max level."""
+        for threshold, name, icon in REPUTATION_LEVELS:
+            if self.reputation < threshold:
+                return name, threshold - self.reputation
+        return None
 
 
 def admin_required(f):
@@ -97,7 +137,15 @@ def load_user(user_id):
     try:
         row = conn.execute(
             "SELECT u.*, d.id AS d_id, d.number, d.name AS d_name, "
-            "d.representative_name, d.representative_party "
+            "d.representative_name, d.representative_party, "
+            "COALESCE(("
+            "  SELECT SUM(CASE WHEN v.direction = 1 THEN 2 WHEN v.direction = -1 THEN -1 ELSE 0 END) "
+            "  FROM votes v JOIN issues i ON v.issue_id = i.id WHERE i.user_id = u.id"
+            "), 0) + COALESCE(("
+            "  SELECT COUNT(*) FROM comments c WHERE c.user_id = u.id AND c.is_hidden = FALSE"
+            "), 0) + COALESCE(("
+            "  SELECT COUNT(*) * 5 FROM issues i WHERE i.user_id = u.id AND i.status = 'done'"
+            "), 0) AS reputation "
             "FROM users u LEFT JOIN districts d ON u.district_id = d.id "
             "WHERE u.id = %s AND u.is_active = TRUE",
             (int(user_id),)
@@ -631,7 +679,15 @@ def issue_detail(issue_id):
     try:
         issue = conn.execute(
             "SELECT i.*, d.number AS district_number, "
-            "COALESCE(u.display_name, 'Körzeti lakos') AS author_name "
+            "COALESCE(u.display_name, 'Körzeti lakos') AS author_name, "
+            "COALESCE(("
+            "  SELECT SUM(CASE WHEN v2.direction = 1 THEN 2 WHEN v2.direction = -1 THEN -1 ELSE 0 END) "
+            "  FROM votes v2 JOIN issues i2 ON v2.issue_id = i2.id WHERE i2.user_id = u.id"
+            "), 0) + COALESCE(("
+            "  SELECT COUNT(*) FROM comments c2 WHERE c2.user_id = u.id AND c2.is_hidden = FALSE"
+            "), 0) + COALESCE(("
+            "  SELECT COUNT(*) * 5 FROM issues i3 WHERE i3.user_id = u.id AND i3.status = 'done'"
+            "), 0) AS author_reputation "
             "FROM issues i "
             "JOIN districts d ON i.district_id = d.id "
             "JOIN users u ON i.user_id = u.id "
@@ -652,14 +708,27 @@ def issue_detail(issue_id):
 
         # Comments (hide moderated ones for non-admins)
         comments_raw = conn.execute(
-            "SELECT c.*, COALESCE(u.display_name, 'Körzeti lakos') AS author_name "
+            "SELECT c.*, COALESCE(u.display_name, 'Körzeti lakos') AS author_name, "
+            "COALESCE(("
+            "  SELECT SUM(CASE WHEN v2.direction = 1 THEN 2 WHEN v2.direction = -1 THEN -1 ELSE 0 END) "
+            "  FROM votes v2 JOIN issues i2 ON v2.issue_id = i2.id WHERE i2.user_id = u.id"
+            "), 0) + COALESCE(("
+            "  SELECT COUNT(*) FROM comments c2 WHERE c2.user_id = u.id AND c2.is_hidden = FALSE"
+            "), 0) + COALESCE(("
+            "  SELECT COUNT(*) * 5 FROM issues i3 WHERE i3.user_id = u.id AND i3.status = 'done'"
+            "), 0) AS author_reputation "
             "FROM comments c JOIN users u ON c.user_id = u.id "
             "WHERE c.issue_id = %s AND c.is_hidden = FALSE ORDER BY c.created_at ASC",
             (issue_id,)
         ).fetchall()
         comments = []
         for c in comments_raw:
-            comment = type("Comment", (), dict(c.items()))
+            props = dict(c.items())
+            rep = props.get("author_reputation", 0) or 0
+            rep_name, rep_icon = get_reputation_level(rep)
+            props["rep_level_name"] = rep_name
+            props["rep_level_icon"] = rep_icon
+            comment = type("Comment", (), props)
             comment.time_ago = time_ago(c["created_at"])
             comments.append(comment)
 
@@ -670,6 +739,9 @@ def issue_detail(issue_id):
 
         stats = get_district_stats(current_user.district_id)
 
+        author_rep = issue["author_reputation"] or 0
+        author_rep_name, author_rep_icon = get_reputation_level(author_rep)
+
         return render_template("issue_detail.html",
             issue=issue,
             user_vote=user_vote,
@@ -679,6 +751,8 @@ def issue_detail(issue_id):
             urgency_labels=URGENCY_LABELS,
             stats=stats,
             active_page="dashboard",
+            author_rep_name=author_rep_name,
+            author_rep_icon=author_rep_icon,
         )
     finally:
         conn.close()
