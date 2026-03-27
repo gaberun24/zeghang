@@ -39,17 +39,12 @@ Utolsó frissítés: 2026. március 27.
 | Funkció | Prioritás | Megjegyzés |
 |---------|-----------|------------|
 | Facebook auto-posztolás | 🔵 Alacsony | Napi összefoglaló poszt automatikusan |
-| Regisztrációs checkbox igazítás | 🟡 Közepes | Mobilon elcsúszik az "Elfogadom" checkbox |
-| Cookie banner stílus javítás | 🟡 Közepes | Mobilon formázatlanul jelenik meg |
 | Statisztika export (CSV) | 🔵 Alacsony | Admin funkció |
 | Több nyelv támogatás | 🔵 Alacsony | Jelenleg csak magyar |
 
 ## Ismert problémák
 
-| Probléma | Súlyosság | Megjegyzés |
-|----------|-----------|------------|
-| Cookie banner mobilon nincs formázva | Kozmetikai | CSS javítás szükséges |
-| Regisztrációs "Elfogadom" checkbox mobilon elcsúszik | Kozmetikai | Flex igazítás kell |
+Jelenleg nincs ismert probléma.
 
 ## Szerver
 
