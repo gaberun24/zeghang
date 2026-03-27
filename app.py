@@ -804,7 +804,7 @@ def new_issue():
                 "duplicate_votes": dup_extra["vote_score"] if dup_extra else 0,
                 "duplicate_status": dup_extra["status"] if dup_extra else "new",
                 "duplicate_date": dup_extra["created_at"].strftime("%Y.%m.%d") if dup_extra else "",
-                "error": f"Hasonló bejelentés már létezik: „{dup_title}". Biztosan újat szeretnél küldeni?",
+                "error": "Hasonlo bejelentes mar letezik: " + dup_title + ". Biztosan ujat szeretnel kuldeni?",
             }), 409
 
         # Insert issue
