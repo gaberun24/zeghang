@@ -254,7 +254,7 @@ def init_db():
                                        representative_email, representative_phone)
                 VALUES (%s, %s, %s, %s, %s, %s)
                 ON CONFLICT (number) DO NOTHING
-            """, (d["number"], d["name"], d["representative_name"],
+            """, (d["number"], d.get("name", ""), d["representative_name"],
                   d["representative_party"], d.get("representative_email", ""),
                   d.get("representative_phone", "")))
 
