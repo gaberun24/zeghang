@@ -247,25 +247,31 @@ def init_db():
             conn.rollback()
 
         # Security log
-        conn.execute("""
-            CREATE TABLE IF NOT EXISTS security_log (
-                id SERIAL PRIMARY KEY,
-                event_type VARCHAR(50),
-                ip_address VARCHAR(50),
-                details TEXT,
-                created_at TIMESTAMP DEFAULT NOW()
-            )
-        """)
+        try:
+            conn.execute("""
+                CREATE TABLE IF NOT EXISTS security_log (
+                    id SERIAL PRIMARY KEY,
+                    event_type VARCHAR(50),
+                    ip_address VARCHAR(50),
+                    details TEXT,
+                    created_at TIMESTAMP DEFAULT NOW()
+                )
+            """)
+        except Exception:
+            conn.rollback()
 
-        conn.execute("""
-            CREATE TABLE IF NOT EXISTS page_views (
-                id SERIAL PRIMARY KEY,
-                path VARCHAR(255),
-                ip_hash VARCHAR(64),
-                user_id INT,
-                created_at TIMESTAMP DEFAULT NOW()
-            )
-        """)
+        try:
+            conn.execute("""
+                CREATE TABLE IF NOT EXISTS page_views (
+                    id SERIAL PRIMARY KEY,
+                    path VARCHAR(255),
+                    ip_hash VARCHAR(64),
+                    user_id INT,
+                    created_at TIMESTAMP DEFAULT NOW()
+                )
+            """)
+        except Exception:
+            conn.rollback()
 
         # Migrations — add columns if missing
         for col_sql in [
