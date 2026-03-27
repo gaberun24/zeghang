@@ -224,7 +224,7 @@ function submitIssue(e) {
         setTimeout(() => window.location.reload(), 1500);
       } else {
         if (btn) { btn.disabled = false; btn.textContent = 'Bejelentés küldése →'; }
-        alert(data.error || 'Hiba történt a küldés során.');
+        showToast('⚠ ' + (data.error || 'Hiba történt a küldés során.'), true);
       }
     })
     .catch(() => {
@@ -234,12 +234,13 @@ function submitIssue(e) {
 }
 
 // ── TOAST ──
-function showToast(message) {
+function showToast(message, isError) {
   const toast = document.getElementById('toast');
   if (!toast) return;
   toast.textContent = message;
+  toast.classList.toggle('toast-error', !!isError);
   toast.classList.add('show');
-  setTimeout(() => toast.classList.remove('show'), 3500);
+  setTimeout(() => { toast.classList.remove('show'); toast.classList.remove('toast-error'); }, isError ? 5000 : 3500);
 }
 
 // ── COMMENT FORM ──

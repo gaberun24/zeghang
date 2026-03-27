@@ -39,19 +39,41 @@ def categorize_issue(title: str, description: str = "") -> dict:
     Falls back to {"category": "other", "urgency": "low"} on error.
     """
     if not OPENAI_API_KEY:
-        return {"category": "other", "urgency": "low", "reason": "AI nem elérhető"}
+        return {"category": "other", "urgency": "low", "reason": "AI nem elérhető", "rejected": False}
 
     prompt = f"""Egy zalaegerszegi közösségi platformra érkezett bejelentés.
-Kategorizáld és értékeld a sürgősségét.
+Kategorizáld, értékeld a sürgősségét, és döntsd el, hogy ÉRVÉNYES közterületi probléma-e.
+
+ÉRVÉNYES bejelentések: közterületi, infrastrukturális problémák amelyek a város közösségét érintik.
+Pl: úthibák, hiányzó zebra, elromlott közvilágítás, parkfenntartás, szemét, veszélyes fa, stb.
+
+NEM ÉRVÉNYES bejelentések (rejected = true):
+- Magánéleti panaszok (zajos szomszéd, háztartási viták)
+- Üzleti panaszok (bolt nem adott blokkot, rossz kiszolgálás)
+- Személyes sérelmek, rágalmazás, mocskolódás
+- Politikai kampány, pártpropaganda
+- Nem Zalaegerszeghez kapcsolódó ügyek
+- Értelmetlen, spam jellegű tartalom
 
 Cím: {title}
 Leírás: {description}
 
 Válaszolj CSAK JSON-ban, semmi más:
 {{
+  "rejected": false,
+  "rejection_reason": null,
   "category": "road|park|safety|infrastructure|transport|other",
   "urgency": "low|medium|high|urgent",
   "reason": "rövid indoklás magyarul (max 1 mondat)"
+}}
+
+Ha a bejelentés NEM érvényes:
+{{
+  "rejected": true,
+  "rejection_reason": "rövid, udvarias indoklás magyarul hogy miért nem fogadható el — utalj az ÁSZF közösségi alapelveire",
+  "category": "other",
+  "urgency": "low",
+  "reason": null
 }}"""
 
     try:
@@ -71,9 +93,10 @@ Válaszolj CSAK JSON-ban, semmi más:
             result["category"] = "other"
         if result.get("urgency") not in URGENCY_LABELS:
             result["urgency"] = "low"
+        result.setdefault("rejected", False)
         return result
     except Exception:
-        return {"category": "other", "urgency": "low", "reason": "AI feldolgozási hiba"}
+        return {"category": "other", "urgency": "low", "reason": "AI feldolgozási hiba", "rejected": False}
 
 
 def check_duplicates(title: str, description: str, existing_issues: list) -> int | None:

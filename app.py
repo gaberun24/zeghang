@@ -531,6 +531,12 @@ def new_issue():
     try:
         # AI processing
         ai_result = categorize_issue(title, description)
+
+        # Content moderation — reject invalid submissions
+        if ai_result.get("rejected"):
+            reason = ai_result.get("rejection_reason", "A bejelentés nem közterületi probléma.")
+            return jsonify({"ok": False, "error": reason}), 400
+
         ai_urgency = ai_result.get("urgency", "low")
         ai_cat = ai_result.get("category", category)
 
