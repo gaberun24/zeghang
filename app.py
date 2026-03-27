@@ -1417,6 +1417,14 @@ def api_ai_categorize():
     return jsonify({"category": category})
 
 
+@app.route("/api/streets")
+def api_streets():
+    """Return unique street names for autocomplete."""
+    from districts import STREETS
+    names = sorted(set(f"{e['nev']} {e['tipus']}" for e in STREETS))
+    return jsonify(names)
+
+
 @app.route("/api/map-issues")
 def api_map_issues():
     """GeoJSON for map markers — public for landing, filtered for dashboard."""

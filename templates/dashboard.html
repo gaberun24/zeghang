@@ -170,9 +170,10 @@
         </div>
       </div>
 
-      <div class="field">
+      <div class="field" style="position:relative;">
         <label>Helyszín <span>— utca/tér neve (opcionális)</span></label>
-        <input type="text" id="issueLocation" placeholder="pl. Balatoni út / Olimpia utca sarok">
+        <input type="text" id="issueLocation" placeholder="pl. Balatoni út" autocomplete="off" oninput="streetAutocomplete(this.value)">
+        <div id="streetSuggestions" style="display:none; position:absolute; left:0; right:0; top:100%; background:white; border:1px solid var(--cream-dark); border-top:none; border-radius:0 0 var(--radius-sm) var(--radius-sm); max-height:180px; overflow-y:auto; z-index:100; box-shadow:var(--shadow-md);"></div>
         <div class="field-hint">📍 Automatikusan a {{ '%02d' % current_user.district.number }}. körzetbe kerül a bejelentés</div>
       </div>
 

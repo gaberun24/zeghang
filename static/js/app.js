@@ -357,6 +357,63 @@ function resolutionVote(issueId, vote) {
     .catch(() => showToast('\u26a0 Hiba történt.', true));
 }
 
+// ── STREET AUTOCOMPLETE ──
+var _streetList = null;
+
+function streetAutocomplete(val) {
+  var box = document.getElementById('streetSuggestions');
+  if (!box) return;
+
+  if (!val || val.length < 2) {
+    box.style.display = 'none';
+    return;
+  }
+
+  // Load street list once
+  if (!_streetList) {
+    fetch('/api/streets')
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        _streetList = data;
+        streetAutocomplete(val);
+      });
+    return;
+  }
+
+  var query = val.toLowerCase();
+  var matches = _streetList.filter(function(s) {
+    return s.toLowerCase().indexOf(query) !== -1;
+  }).slice(0, 8);
+
+  if (matches.length === 0) {
+    box.style.display = 'none';
+    return;
+  }
+
+  box.innerHTML = matches.map(function(s) {
+    return '<div style="padding:8px 12px; cursor:pointer; font-size:14px; border-bottom:1px solid #f0f0f0;" '
+      + 'onmousedown="selectStreet(this)" data-street="' + s + '">'
+      + s.replace(new RegExp('(' + query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi'), '<strong>$1</strong>')
+      + '</div>';
+  }).join('');
+  box.style.display = 'block';
+}
+
+function selectStreet(el) {
+  var input = document.getElementById('issueLocation');
+  if (input) input.value = el.dataset.street;
+  var box = document.getElementById('streetSuggestions');
+  if (box) box.style.display = 'none';
+}
+
+// Close suggestions on outside click
+document.addEventListener('click', function(e) {
+  var box = document.getElementById('streetSuggestions');
+  if (box && !box.contains(e.target) && e.target.id !== 'issueLocation') {
+    box.style.display = 'none';
+  }
+});
+
 // ── DISTRICT AUTO-DETECT (registration) ──
 function checkDistrict() {
   const streetInput = document.getElementById('addressStreet');
