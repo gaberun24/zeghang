@@ -115,6 +115,9 @@
         <li><a href="{{ url_for('how_it_works') }}">
           <span class="sb-nav-icon">❓</span> Hogyan működik
         </a></li>
+        <li><a href="{{ url_for('user_settings') }}" class="{{ 'active' if active_page == 'settings' }}">
+          <span class="sb-nav-icon">⚙️</span> Beállítások
+        </a></li>
       </ul>
     </div>
   </div>
@@ -144,6 +147,11 @@
   </div>
 
   <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+  <script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/static/sw.js').catch(function() {});
+  }
+  </script>
   {% block scripts %}{% endblock %}
 </body>
 </html>

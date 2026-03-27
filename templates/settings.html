@@ -1,0 +1,276 @@
+{% extends "app_base.html" %}
+{% block title %}Beállítások — Zalaegerszeg Hangja{% endblock %}
+
+{% block content %}
+<div style="max-width:700px;">
+  <h1 style="font-family:'Playfair Display',serif; font-size:28px; font-weight:700; margin-bottom:0.5rem;">
+    ⚙️ Beállítások
+  </h1>
+  <p style="font-size:14px; color:var(--text-muted); margin-bottom:2rem;">
+    Profil, értesítések, lakcím módosítás
+  </p>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+  <div style="margin-bottom:1.5rem;">
+    {% for category, message in messages %}
+    <div class="flash flash-{{ category }}">{{ message }}</div>
+    {% endfor %}
+  </div>
+  {% endif %}
+  {% endwith %}
+
+  <!-- Display name -->
+  <div class="settings-card">
+    <h2 class="settings-card-title">👤 Megjelenítési név</h2>
+    <form method="POST" action="{{ url_for('user_settings') }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input type="hidden" name="action" value="display_name">
+      <div class="field">
+        <input type="text" name="display_name" value="{{ current_user.display_name }}"
+               placeholder="pl. Kovács Péter" maxlength="100"
+               style="width:100%; padding:10px 14px; border:1.5px solid var(--cream-dark); border-radius:var(--radius-sm); font-size:14px;">
+      </div>
+      <button type="submit" class="btn btn-primary" style="margin-top:0.5rem;">Mentés</button>
+    </form>
+  </div>
+
+  <!-- Notifications -->
+  <div class="settings-card">
+    <h2 class="settings-card-title">🔔 Értesítések</h2>
+    <p style="font-size:13px; color:var(--text-muted); margin-bottom:1rem;">
+      Válaszd ki, miről szeretnél értesítést kapni.
+    </p>
+    <form method="POST" action="{{ url_for('user_settings') }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input type="hidden" name="action" value="notifications">
+
+      <label class="settings-toggle">
+        <input type="checkbox" name="notify_votes" {{ 'checked' if user_row.notify_votes != False }}>
+        <span class="settings-toggle-slider"></span>
+        <span class="settings-toggle-label">
+          <strong>Szavazatok</strong>
+          <span>Ha valaki szavaz a bejelentésedre</span>
+        </span>
+      </label>
+
+      <label class="settings-toggle">
+        <input type="checkbox" name="notify_comments" {{ 'checked' if user_row.notify_comments != False }}>
+        <span class="settings-toggle-slider"></span>
+        <span class="settings-toggle-label">
+          <strong>Hozzászólások</strong>
+          <span>Ha valaki kommentel a bejelentésedre</span>
+        </span>
+      </label>
+
+      <label class="settings-toggle">
+        <input type="checkbox" name="notify_status" {{ 'checked' if user_row.notify_status != False }}>
+        <span class="settings-toggle-slider"></span>
+        <span class="settings-toggle-label">
+          <strong>Státuszváltozás</strong>
+          <span>Ha a bejelentésed státusza változik (vizsgálat alatt, megoldva)</span>
+        </span>
+      </label>
+
+      <button type="submit" class="btn btn-primary" style="margin-top:1rem;">Beállítások mentése</button>
+    </form>
+
+    <!-- Push notification toggle -->
+    <div style="margin-top:1.5rem; padding-top:1.5rem; border-top:1px solid var(--cream-dark);">
+      <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;">
+        <div>
+          <strong style="font-size:14px;">📲 Push értesítések</strong>
+          <p style="font-size:12px; color:var(--text-muted); margin-top:2px;">Értesítés akkor is, ha nem vagy az oldalon</p>
+        </div>
+        <button id="pushToggleBtn" class="btn btn-outline" onclick="togglePushNotifications()" style="font-size:13px;">
+          Bekapcsolás
+        </button>
+      </div>
+      <div id="pushStatus" style="font-size:12px; color:var(--text-muted); margin-top:6px;"></div>
+    </div>
+  </div>
+
+  <!-- Address change -->
+  <div class="settings-card">
+    <h2 class="settings-card-title">📍 Lakcím módosítás</h2>
+    <p style="font-size:13px; color:var(--text-muted); margin-bottom:1rem;">
+      Jelenlegi körzet: <strong>{{ '%02d' % current_user.district.number }}. körzet</strong>
+      {% if current_user.district %} — {{ current_user.district.name }}{% endif %}
+    </p>
+
+    {% if can_change_address %}
+    <div style="background:#fff3cd; border:1px solid #f0c040; border-radius:var(--radius-sm); padding:10px 14px; font-size:13px; margin-bottom:1rem;">
+      ⚠️ <strong>Figyelem:</strong> Lakcímet évente csak egyszer módosíthatsz. A módosítás után a bejelentéseid az új körzetbe kerülnek.
+    </div>
+    <form method="POST" action="{{ url_for('user_settings') }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input type="hidden" name="action" value="change_address">
+      <div class="field">
+        <label>Új zalaegerszegi lakcím <span>— utca és házszám</span></label>
+        <input type="text" name="address_street" required placeholder="pl. Balatoni út 15."
+               id="addressStreet" oninput="checkDistrict()"
+               style="width:100%; padding:10px 14px; border:1.5px solid var(--cream-dark); border-radius:var(--radius-sm); font-size:14px;">
+        <div class="field-hint" id="districtHint"></div>
+      </div>
+      <div class="field">
+        <label>Új körzet</label>
+        <select name="district_id" id="districtSelect" required
+                style="width:100%; padding:10px 14px; border:1.5px solid var(--cream-dark); border-radius:var(--radius-sm); font-size:14px; background:white;">
+          <option value="">Válassz körzetet...</option>
+          {% for d in districts %}
+          <option value="{{ d.number }}">
+            {{ '%02d' % d.number }}. — {{ d.name }} ({{ d.representative_name }})
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+      <button type="submit" class="btn btn-primary" onclick="return confirm('Biztosan módosítod a lakcímed? Ez évente csak egyszer lehetséges!')">
+        Lakcím módosítása
+      </button>
+    </form>
+    {% else %}
+    <div style="background:var(--cream); border-radius:var(--radius-sm); padding:14px; font-size:14px; color:var(--text-mid);">
+      🔒 Legutóbb módosítottad a lakcímed. Következő módosítás lehetséges:
+      <strong>{{ days_until_change }} nap múlva</strong>.
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Password change -->
+  <div class="settings-card">
+    <h2 class="settings-card-title">🔑 Jelszó módosítás</h2>
+    <form method="POST" action="{{ url_for('user_settings') }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input type="hidden" name="action" value="change_password">
+      <div class="field">
+        <label>Jelenlegi jelszó</label>
+        <input type="password" name="old_password" required
+               style="width:100%; padding:10px 14px; border:1.5px solid var(--cream-dark); border-radius:var(--radius-sm); font-size:14px;">
+      </div>
+      <div class="field">
+        <label>Új jelszó <span>— min. 8 karakter</span></label>
+        <input type="password" name="new_password" required minlength="8"
+               style="width:100%; padding:10px 14px; border:1.5px solid var(--cream-dark); border-radius:var(--radius-sm); font-size:14px;">
+      </div>
+      <div class="field">
+        <label>Új jelszó újra</label>
+        <input type="password" name="new_password2" required minlength="8"
+               style="width:100%; padding:10px 14px; border:1.5px solid var(--cream-dark); border-radius:var(--radius-sm); font-size:14px;">
+      </div>
+      <button type="submit" class="btn btn-primary">Jelszó módosítása</button>
+    </form>
+  </div>
+
+  <!-- Reputation info -->
+  <div class="settings-card">
+    <h2 class="settings-card-title">{{ current_user.rep_level_icon }} Reputáció — {{ current_user.rep_level_name }}</h2>
+    <p style="font-size:14px; color:var(--text-mid); margin-bottom:1rem;">
+      Összpontszám: <strong>{{ current_user.reputation }} pont</strong>
+    </p>
+    <div style="font-size:13px; color:var(--text-muted); line-height:1.8;">
+      <strong>Hogyan szerezhetsz pontot:</strong><br>
+      ↑ +2 pont — ha valaki felszavaz a bejelentésedre<br>
+      ↓ -1 pont — ha valaki leszavaz<br>
+      💬 +1 pont — minden hozzászólásodért<br>
+      ✅ +5 pont — ha a bejelentésed megoldásra kerül
+    </div>
+    <div style="margin-top:1rem; font-size:13px; color:var(--text-muted);">
+      <strong>Szintek:</strong>
+      🌱 Újonc (0) →
+      👀 Figyelő (10) →
+      🏘️ Aktív polgár (30) →
+      📢 Közösségi hang (75) →
+      🦸 Körzeti hős (150) →
+      🏆 Városi legenda (300)
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Push notification management
+function togglePushNotifications() {
+  if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+    document.getElementById('pushStatus').textContent = 'A böngésződ nem támogatja a push értesítéseket.';
+    return;
+  }
+
+  navigator.serviceWorker.ready.then(function(reg) {
+    reg.pushManager.getSubscription().then(function(sub) {
+      if (sub) {
+        // Unsubscribe
+        sub.unsubscribe().then(function() {
+          fetch('/api/push-unsubscribe', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCsrf() },
+          });
+          updatePushUI(false);
+        });
+      } else {
+        // Subscribe
+        Notification.requestPermission().then(function(permission) {
+          if (permission === 'granted') {
+            reg.pushManager.subscribe({
+              userVisibleOnly: true,
+              applicationServerKey: urlBase64ToUint8Array('{{ vapid_public_key|default("") }}'),
+            }).then(function(sub) {
+              fetch('/api/push-subscribe', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCsrf() },
+                body: JSON.stringify({ subscription: sub.toJSON() }),
+              });
+              updatePushUI(true);
+            }).catch(function() {
+              document.getElementById('pushStatus').textContent = 'Nem sikerült feliratkozni. Próbáld újra később.';
+            });
+          } else {
+            document.getElementById('pushStatus').textContent = 'Az értesítéseket a böngészőben engedélyezned kell.';
+          }
+        });
+      }
+    });
+  });
+}
+
+function updatePushUI(subscribed) {
+  var btn = document.getElementById('pushToggleBtn');
+  var status = document.getElementById('pushStatus');
+  if (subscribed) {
+    btn.textContent = 'Kikapcsolás';
+    btn.classList.remove('btn-outline');
+    btn.classList.add('btn-primary');
+    status.textContent = '✓ Push értesítések aktívak';
+  } else {
+    btn.textContent = 'Bekapcsolás';
+    btn.classList.remove('btn-primary');
+    btn.classList.add('btn-outline');
+    status.textContent = '';
+  }
+}
+
+function urlBase64ToUint8Array(base64String) {
+  if (!base64String) return new Uint8Array();
+  var padding = '='.repeat((4 - base64String.length % 4) % 4);
+  var base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+  var rawData = window.atob(base64);
+  var outputArray = new Uint8Array(rawData.length);
+  for (var i = 0; i < rawData.length; ++i) outputArray[i] = rawData.charCodeAt(i);
+  return outputArray;
+}
+
+// Check current push state on load
+document.addEventListener('DOMContentLoaded', function() {
+  if ('serviceWorker' in navigator && 'PushManager' in window) {
+    navigator.serviceWorker.ready.then(function(reg) {
+      reg.pushManager.getSubscription().then(function(sub) {
+        updatePushUI(!!sub);
+      });
+    });
+  } else {
+    document.getElementById('pushStatus').textContent = 'A böngésződ nem támogatja a push értesítéseket.';
+    document.getElementById('pushToggleBtn').disabled = true;
+  }
+});
+</script>
+{% endblock %}

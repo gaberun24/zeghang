@@ -20,3 +20,8 @@ OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
 # Upload
 UPLOAD_DIR = os.getenv("UPLOAD_DIR", "static/uploads")
 MAX_UPLOAD_MB = int(os.getenv("MAX_UPLOAD_MB", "20"))
+
+# Web Push (VAPID)
+VAPID_PUBLIC_KEY = os.getenv("VAPID_PUBLIC_KEY", "")
+VAPID_PRIVATE_KEY = os.getenv("VAPID_PRIVATE_KEY", "")
+VAPID_EMAIL = os.getenv("VAPID_EMAIL", "admin@zeghang.hu")

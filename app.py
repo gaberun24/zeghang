@@ -32,6 +32,8 @@ from lib.ai import (
     CATEGORIES, URGENCY_LABELS,
 )
 from lib.moderation import censor_text
+from lib.notifications import notify_vote, notify_comment, notify_status_change
+from lib.config import VAPID_PUBLIC_KEY
 from districts import DISTRICTS, guess_district
 
 # ── App setup ──
@@ -97,6 +99,11 @@ class User(UserMixin):
         self.district_id = row["district_id"]
         self.is_admin = row.get("is_admin", False)
         self.reputation = row.get("reputation", 0) or 0
+        self.address_changed_at = row.get("address_changed_at")
+        self.notify_votes = row.get("notify_votes", True) if row.get("notify_votes") is not None else True
+        self.notify_comments = row.get("notify_comments", True) if row.get("notify_comments") is not None else True
+        self.notify_status = row.get("notify_status", True) if row.get("notify_status") is not None else True
+        self.push_subscription = row.get("push_subscription")
         self.district = DistrictInfo(district_row) if district_row else None
 
     @property
@@ -484,6 +491,169 @@ def logout():
     return redirect(url_for("index"))
 
 
+# ── Routes: Settings ──
+@app.route("/settings", methods=["GET", "POST"])
+@login_required
+def user_settings():
+    conn = get_db()
+    try:
+        if request.method == "POST":
+            action = request.form.get("action")
+
+            if action == "notifications":
+                notify_votes = request.form.get("notify_votes") == "on"
+                notify_comments = request.form.get("notify_comments") == "on"
+                notify_status = request.form.get("notify_status") == "on"
+                conn.execute(
+                    "UPDATE users SET notify_votes = %s, notify_comments = %s, notify_status = %s "
+                    "WHERE id = %s",
+                    (notify_votes, notify_comments, notify_status, current_user.id),
+                )
+                conn.commit()
+                flash("Értesítési beállítások mentve.", "success")
+
+            elif action == "display_name":
+                new_name = request.form.get("display_name", "").strip()
+                if new_name and len(new_name) <= 100:
+                    conn.execute(
+                        "UPDATE users SET display_name = %s WHERE id = %s",
+                        (new_name, current_user.id),
+                    )
+                    conn.commit()
+                    flash("Megjelenítési név frissítve.", "success")
+
+            elif action == "change_address":
+                new_street = request.form.get("address_street", "").strip()
+                new_district = request.form.get("district_id", "")
+                if not new_street or not new_district:
+                    flash("Kérlek add meg az új címet és körzetet.", "error")
+                    return redirect(url_for("user_settings"))
+
+                # Check if address was changed in the last year
+                user_row = conn.execute(
+                    "SELECT address_changed_at FROM users WHERE id = %s",
+                    (current_user.id,),
+                ).fetchone()
+                last_change = user_row["address_changed_at"] if user_row else None
+                if last_change and (datetime.now() - last_change).days < 365:
+                    days_left = 365 - (datetime.now() - last_change).days
+                    flash(f"Címet évente csak egyszer módosíthatod. Következő lehetőség: {days_left} nap múlva.", "error")
+                    return redirect(url_for("user_settings"))
+
+                # Find district
+                district = conn.execute(
+                    "SELECT id FROM districts WHERE number = %s", (int(new_district),)
+                ).fetchone()
+                if not district:
+                    flash("Érvénytelen körzet.", "error")
+                    return redirect(url_for("user_settings"))
+
+                address_hash = hashlib.sha256(new_street.lower().encode()).hexdigest()
+                conn.execute(
+                    "UPDATE users SET address_street = %s, district_id = %s, address_changed_at = NOW() "
+                    "WHERE id = %s",
+                    (address_hash, district["id"], current_user.id),
+                )
+                conn.commit()
+                log_security("address_change", f"user={current_user.id}", request.remote_addr)
+                flash("Lakcím és körzet sikeresen módosítva.", "success")
+
+            elif action == "change_password":
+                old_pw = request.form.get("old_password", "")
+                new_pw = request.form.get("new_password", "")
+                new_pw2 = request.form.get("new_password2", "")
+                if not old_pw or not new_pw:
+                    flash("Kérlek töltsd ki a jelszó mezőket.", "error")
+                    return redirect(url_for("user_settings"))
+                if new_pw != new_pw2:
+                    flash("Az új jelszavak nem egyeznek.", "error")
+                    return redirect(url_for("user_settings"))
+                if len(new_pw) < 8:
+                    flash("Az új jelszó legalább 8 karakter legyen.", "error")
+                    return redirect(url_for("user_settings"))
+
+                user_row = conn.execute(
+                    "SELECT password_hash FROM users WHERE id = %s", (current_user.id,)
+                ).fetchone()
+                if not bcrypt.checkpw(old_pw.encode(), user_row["password_hash"].encode()):
+                    flash("A jelenlegi jelszó nem helyes.", "error")
+                    return redirect(url_for("user_settings"))
+
+                new_hash = bcrypt.hashpw(new_pw.encode(), bcrypt.gensalt()).decode()
+                conn.execute(
+                    "UPDATE users SET password_hash = %s WHERE id = %s",
+                    (new_hash, current_user.id),
+                )
+                conn.commit()
+                flash("Jelszó sikeresen megváltoztatva.", "success")
+
+            return redirect(url_for("user_settings"))
+
+        # GET — load user data
+        user_row = conn.execute(
+            "SELECT display_name, address_changed_at, notify_votes, notify_comments, notify_status "
+            "FROM users WHERE id = %s",
+            (current_user.id,),
+        ).fetchone()
+
+        can_change_address = True
+        days_until_change = 0
+        if user_row["address_changed_at"]:
+            days_since = (datetime.now() - user_row["address_changed_at"]).days
+            if days_since < 365:
+                can_change_address = False
+                days_until_change = 365 - days_since
+
+        stats = get_district_stats(current_user.district_id)
+
+        return render_template("settings.html",
+            user_row=user_row,
+            can_change_address=can_change_address,
+            days_until_change=days_until_change,
+            districts=DISTRICTS,
+            stats=stats,
+            active_page="settings",
+            vapid_public_key=VAPID_PUBLIC_KEY,
+        )
+    finally:
+        conn.close()
+
+
+@app.route("/api/push-subscribe", methods=["POST"])
+@login_required
+def push_subscribe():
+    data = request.get_json()
+    subscription = data.get("subscription")
+    if not subscription:
+        return jsonify({"ok": False}), 400
+    conn = get_db()
+    try:
+        import json
+        conn.execute(
+            "UPDATE users SET push_subscription = %s WHERE id = %s",
+            (json.dumps(subscription), current_user.id),
+        )
+        conn.commit()
+        return jsonify({"ok": True})
+    finally:
+        conn.close()
+
+
+@app.route("/api/push-unsubscribe", methods=["POST"])
+@login_required
+def push_unsubscribe():
+    conn = get_db()
+    try:
+        conn.execute(
+            "UPDATE users SET push_subscription = NULL WHERE id = %s",
+            (current_user.id,),
+        )
+        conn.commit()
+        return jsonify({"ok": True})
+    finally:
+        conn.close()
+
+
 # ── Routes: Dashboard ──
 @app.route("/dashboard")
 @login_required
@@ -803,6 +973,13 @@ def vote_issue(issue_id):
         )
         conn.commit()
 
+        # Send push notification (async-safe, non-blocking)
+        if user_vote != 0:
+            try:
+                notify_vote(issue_id, current_user.display_name, direction)
+            except Exception:
+                pass
+
         return jsonify({"ok": True, "vote_score": new_score, "user_vote": user_vote})
     except Exception:
         conn.rollback()
@@ -830,6 +1007,12 @@ def add_comment(issue_id):
             (issue_id,),
         )
         conn.commit()
+
+        try:
+            notify_comment(issue_id, current_user.display_name)
+        except Exception:
+            pass
+
         return jsonify({"ok": True})
     except Exception:
         conn.rollback()
@@ -1000,13 +1183,17 @@ def admin_issue_action(issue_id):
             conn.execute("UPDATE issues SET is_hidden = TRUE WHERE id = %s", (issue_id,))
         elif action == "unhide":
             conn.execute("UPDATE issues SET is_hidden = FALSE WHERE id = %s", (issue_id,))
-        elif action in ("new", "in_progress", "done"):
+        elif action in ("new", "progress", "done"):
             update = "UPDATE issues SET status = %s, updated_at = NOW()"
             params = [action, issue_id]
             if action == "done":
                 update += ", resolved_at = NOW()"
             update += " WHERE id = %s"
             conn.execute(update, params)
+            try:
+                notify_status_change(issue_id, action)
+            except Exception:
+                pass
         elif action == "delete":
             conn.execute("DELETE FROM issues WHERE id = %s", (issue_id,))
         conn.commit()

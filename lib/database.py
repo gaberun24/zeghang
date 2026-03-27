@@ -236,6 +236,11 @@ def init_db():
             "ALTER TABLE users ADD COLUMN IF NOT EXISTS is_banned BOOLEAN DEFAULT FALSE",
             "ALTER TABLE issues ADD COLUMN IF NOT EXISTS is_hidden BOOLEAN DEFAULT FALSE",
             "ALTER TABLE comments ADD COLUMN IF NOT EXISTS is_hidden BOOLEAN DEFAULT FALSE",
+            "ALTER TABLE users ADD COLUMN IF NOT EXISTS address_changed_at TIMESTAMP",
+            "ALTER TABLE users ADD COLUMN IF NOT EXISTS notify_votes BOOLEAN DEFAULT TRUE",
+            "ALTER TABLE users ADD COLUMN IF NOT EXISTS notify_comments BOOLEAN DEFAULT TRUE",
+            "ALTER TABLE users ADD COLUMN IF NOT EXISTS notify_status BOOLEAN DEFAULT TRUE",
+            "ALTER TABLE users ADD COLUMN IF NOT EXISTS push_subscription TEXT",
         ]:
             conn.execute(col_sql)
 
