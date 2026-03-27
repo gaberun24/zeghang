@@ -137,7 +137,8 @@ def init_db():
                 representative_name VARCHAR(200),
                 representative_party VARCHAR(100),
                 representative_email VARCHAR(200),
-                representative_phone VARCHAR(50)
+                representative_phone VARCHAR(50),
+                population INT DEFAULT 0
             )
         """)
 
@@ -230,6 +231,7 @@ def init_db():
         for col_sql in [
             "ALTER TABLE issues ADD COLUMN IF NOT EXISTS lat DOUBLE PRECISION",
             "ALTER TABLE issues ADD COLUMN IF NOT EXISTS lng DOUBLE PRECISION",
+            "ALTER TABLE districts ADD COLUMN IF NOT EXISTS population INT DEFAULT 0",
         ]:
             conn.execute(col_sql)
 
@@ -251,12 +253,15 @@ def init_db():
         for d in DISTRICTS:
             conn.execute("""
                 INSERT INTO districts (number, name, representative_name, representative_party,
-                                       representative_email, representative_phone)
-                VALUES (%s, %s, %s, %s, %s, %s)
-                ON CONFLICT (number) DO NOTHING
+                                       representative_email, representative_phone, population)
+                VALUES (%s, %s, %s, %s, %s, %s, %s)
+                ON CONFLICT (number) DO UPDATE SET
+                    representative_name = EXCLUDED.representative_name,
+                    representative_party = EXCLUDED.representative_party,
+                    population = EXCLUDED.population
             """, (d["number"], d.get("name", ""), d["representative_name"],
                   d["representative_party"], d.get("representative_email", ""),
-                  d.get("representative_phone", "")))
+                  d.get("representative_phone", ""), d.get("voters", 0)))
 
         conn.commit()
     except Exception:

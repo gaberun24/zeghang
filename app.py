@@ -414,12 +414,17 @@ def dashboard():
     sort = request.args.get("sort", "votes")
     category_filter = request.args.get("category")
 
-    # Sort SQL
-    sort_sql = "i.vote_score DESC"
+    # Sort SQL — weighted vote score: vote_score * (median_pop / district_pop)
+    # This equalizes districts so larger ones don't dominate
+    weighted_score = (
+        "i.vote_score * (SELECT PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY population) "
+        "FROM districts WHERE population > 0) / GREATEST(d.population, 1)"
+    )
+    sort_sql = f"{weighted_score} DESC"
     if sort == "newest":
         sort_sql = "i.created_at DESC"
     elif sort == "urgency":
-        sort_sql = "CASE i.ai_urgency WHEN 'urgent' THEN 0 WHEN 'high' THEN 1 WHEN 'medium' THEN 2 ELSE 3 END, i.vote_score DESC"
+        sort_sql = f"CASE i.ai_urgency WHEN 'urgent' THEN 0 WHEN 'high' THEN 1 WHEN 'medium' THEN 2 ELSE 3 END, {weighted_score} DESC"
 
     conn = get_db()
     try:
@@ -451,11 +456,13 @@ def dashboard():
 
         enriched = enrich_issues(issues, current_user.id)
 
-        # Trending (top 4 city-wide)
+        # Trending (top 4 city-wide, weighted by population)
         trending = conn.execute(
             "SELECT i.title, i.vote_score, d.number AS district_number FROM issues i "
             "JOIN districts d ON i.district_id = d.id "
-            "WHERE i.status != 'done' ORDER BY i.vote_score DESC LIMIT 4"
+            "WHERE i.status != 'done' ORDER BY i.vote_score * "
+            "(SELECT PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY population) "
+            "FROM districts WHERE population > 0) / GREATEST(d.population, 1) DESC LIMIT 4"
         ).fetchall()
 
         # District activity for bottom panel
