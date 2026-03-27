@@ -192,6 +192,12 @@ function submitIssue(e) {
   formData.append('category', category || 'other');
   formData.append('location', location);
 
+  // Add map coordinates if set
+  var latEl = document.getElementById('issueLat');
+  var lngEl = document.getElementById('issueLng');
+  if (latEl && latEl.value) formData.append('lat', latEl.value);
+  if (lngEl && lngEl.value) formData.append('lng', lngEl.value);
+
   // Add photos if any
   const photoInput = document.getElementById('photoInput');
   if (photoInput && photoInput.files) {

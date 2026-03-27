@@ -170,6 +170,8 @@ def init_db():
                 ai_urgency VARCHAR(20),
                 ai_category_suggestion VARCHAR(50),
                 ai_duplicate_of INT REFERENCES issues(id),
+                lat DOUBLE PRECISION,
+                lng DOUBLE PRECISION,
                 vote_score INT DEFAULT 0,
                 comment_count INT DEFAULT 0,
                 created_at TIMESTAMP DEFAULT NOW(),
@@ -223,6 +225,13 @@ def init_db():
                 created_at TIMESTAMP DEFAULT NOW()
             )
         """)
+
+        # Migrations — add columns if missing
+        for col_sql in [
+            "ALTER TABLE issues ADD COLUMN IF NOT EXISTS lat DOUBLE PRECISION",
+            "ALTER TABLE issues ADD COLUMN IF NOT EXISTS lng DOUBLE PRECISION",
+        ]:
+            conn.execute(col_sql)
 
         # Indexes
         for idx_sql in [

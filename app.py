@@ -497,6 +497,8 @@ def new_issue():
     description = request.form.get("description", "").strip()
     category = request.form.get("category", "other")
     location = request.form.get("location", "").strip() or None
+    lat = request.form.get("lat", type=float)
+    lng = request.form.get("lng", type=float)
 
     if not title or not description:
         return jsonify({"ok": False, "error": "Cím és leírás megadása kötelező."}), 400
@@ -523,10 +525,10 @@ def new_issue():
         # Insert issue
         cur = conn.execute(
             "INSERT INTO issues (title, description, category, location, district_id, user_id, "
-            "ai_urgency, ai_category_suggestion, ai_duplicate_of) "
-            "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING id",
+            "ai_urgency, ai_category_suggestion, ai_duplicate_of, lat, lng) "
+            "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING id",
             (title, description, category, location, current_user.district_id,
-             current_user.id, ai_urgency, ai_cat, dup_id),
+             current_user.id, ai_urgency, ai_cat, dup_id, lat, lng),
         )
         issue_row = cur.fetchone()
         issue_id = issue_row["id"]
@@ -703,6 +705,46 @@ def api_ai_categorize():
     title = data.get("title", "")
     category = quick_categorize(title)
     return jsonify({"category": category})
+
+
+@app.route("/api/map-issues")
+def api_map_issues():
+    """GeoJSON for map markers — public for landing, filtered for dashboard."""
+    district = request.args.get("district", type=int)
+    conn = get_db()
+    try:
+        if district:
+            rows = conn.execute(
+                "SELECT i.id, i.title, i.category, i.vote_score, i.status, i.lat, i.lng, "
+                "d.number AS district_number "
+                "FROM issues i JOIN districts d ON i.district_id = d.id "
+                "WHERE i.lat IS NOT NULL AND i.lng IS NOT NULL AND d.number = %s "
+                "ORDER BY i.vote_score DESC LIMIT 200",
+                (district,)
+            ).fetchall()
+        else:
+            rows = conn.execute(
+                "SELECT i.id, i.title, i.category, i.vote_score, i.status, i.lat, i.lng, "
+                "d.number AS district_number "
+                "FROM issues i JOIN districts d ON i.district_id = d.id "
+                "WHERE i.lat IS NOT NULL AND i.lng IS NOT NULL "
+                "ORDER BY i.vote_score DESC LIMIT 200"
+            ).fetchall()
+
+        features = []
+        for r in rows:
+            features.append({
+                "type": "Feature",
+                "geometry": {"type": "Point", "coordinates": [r["lng"], r["lat"]]},
+                "properties": {
+                    "id": r["id"], "title": r["title"], "category": r["category"],
+                    "votes": r["vote_score"], "status": r["status"],
+                    "district": r["district_number"],
+                },
+            })
+        return jsonify({"type": "FeatureCollection", "features": features})
+    finally:
+        conn.close()
 
 
 @app.route("/api/check-district")

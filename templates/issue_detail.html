@@ -60,8 +60,14 @@
     </div>
     {% endif %}
 
+    <!-- Map -->
+    {% if issue.lat and issue.lng %}
+    <div id="issueMap" style="width:100%; height:250px; border-radius:var(--radius-sm); margin-bottom:1.5rem;"
+         data-lat="{{ issue.lat }}" data-lng="{{ issue.lng }}"></div>
+    {% endif %}
+
     <!-- Vote row -->
-    <div style="display:flex; align-items:center; gap:1rem; padding-top:1rem; border-top:1px solid var(--cream-dark);">
+    <div style="display:flex; align-items:center; gap:1rem; padding-top:1rem; border-top:1px solid var(--cream-dark);"
       <div class="vote-col" data-issue-id="{{ issue.id }}" style="flex-direction:row; gap:8px;">
         <button class="vote-btn {{ 'upvoted' if user_vote == 1 }}" onclick="vote(this, 1)">▲</button>
         <span class="vote-count" style="font-size:20px;">{{ issue.vote_score }}</span>
@@ -98,4 +104,22 @@
     </form>
   </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function() {
+  var mapEl = document.getElementById('issueMap');
+  if (!mapEl) return;
+  var lat = parseFloat(mapEl.dataset.lat);
+  var lng = parseFloat(mapEl.dataset.lng);
+  if (!lat || !lng) return;
+
+  var map = L.map('issueMap', { scrollWheelZoom: false }).setView([lat, lng], 16);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; OpenStreetMap', maxZoom: 18,
+  }).addTo(map);
+  L.marker([lat, lng]).addTo(map);
+})();
+</script>
 {% endblock %}
