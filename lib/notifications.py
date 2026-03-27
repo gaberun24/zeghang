@@ -70,7 +70,7 @@ def notify_vote(issue_id, voter_name, direction):
         send_push(
             issue["user_id"],
             f"{arrow} Szavazat a bejelentésedre",
-            f"{voter_name} szavazott: „{issue['title'][:60]}"",
+            f"{voter_name} szavazott: \u201e{issue['title'][:60]}\u201d",
             f"/issue/{issue_id}",
         )
     finally:
@@ -96,7 +96,7 @@ def notify_comment(issue_id, commenter_name):
         send_push(
             issue["user_id"],
             "💬 Új hozzászólás",
-            f"{commenter_name}: „{issue['title'][:60]}"",
+            f"{commenter_name}: \u201e{issue['title'][:60]}\u201d",
             f"/issue/{issue_id}",
         )
     finally:
@@ -124,7 +124,7 @@ def notify_status_change(issue_id, new_status):
         send_push(
             issue["user_id"],
             f"📋 Státuszváltozás: {label}",
-            f"„{issue['title'][:60]}" — {label}",
+            f"\u201e{issue['title'][:60]}\u201d \u2014 {label}",
             f"/issue/{issue_id}",
         )
     finally:
