@@ -26,6 +26,7 @@ from werkzeug.utils import secure_filename
 
 from lib.config import (
     FLASK_SECRET_KEY, FLASK_DEBUG, UPLOAD_DIR, MAX_UPLOAD_MB,
+    ADMIN_ALERT_EMAIL,
 )
 from lib.database import get_db, init_db
 from lib.ai import (
@@ -207,6 +208,50 @@ def check_rate_limit(ip, event_type="login_fail", max_attempts=5, window_seconds
         return row["cnt"] >= max_attempts
     finally:
         conn.close()
+
+
+# ── Security alert emails ──
+SECURITY_EVENT_LABELS = {
+    "login_fail": "Sikertelen bejelentkezés",
+    "login_ok": "Sikeres bejelentkezés",
+    "register_ok": "Regisztráció",
+    "password_reset_attempt": "Jelszó-visszaállítási próba",
+    "password_reset_requested": "Jelszó-visszaállítás kérés",
+    "password_reset_ok": "Jelszó visszaállítva",
+    "address_change": "Címmódosítás",
+    "shadowban": "Shadowban aktiválás",
+    "content_rejected": "Tartalom elutasítva",
+    "rate_limited": "Rate limit elérve",
+}
+
+_alert_throttle = {}  # {event_type: last_sent_datetime}
+_ALERT_COOLDOWN = timedelta(minutes=10)
+
+
+def send_security_alert(event_type, details="", ip=""):
+    """Send email alert for suspicious security events (throttled)."""
+    if not ADMIN_ALERT_EMAIL:
+        return
+    now = datetime.now()
+    last_sent = _alert_throttle.get(event_type)
+    if last_sent and (now - last_sent) < _ALERT_COOLDOWN:
+        return
+    _alert_throttle[event_type] = now
+
+    label = SECURITY_EVENT_LABELS.get(event_type, event_type)
+    subject = f"\u26a0 Z! Biztonsági figyelmeztetés: {label}"
+    html_body = (
+        f"<h2>Biztonsági figyelmeztetés</h2>"
+        f"<p><strong>Esemény:</strong> {label}</p>"
+        f"<p><strong>IP cím:</strong> {ip}</p>"
+        f"<p><strong>Részletek:</strong> {details}</p>"
+        f"<p><strong>Időpont:</strong> {now.strftime('%Y-%m-%d %H:%M:%S')}</p>"
+        f'<p style="color:#999; font-size:12px;">Ez egy automatikus értesítés a Zalaegerszeg Hangja platformról.</p>'
+    )
+    try:
+        send_email(ADMIN_ALERT_EMAIL, subject, html_body)
+    except Exception:
+        pass
 
 
 @app.before_request
@@ -498,6 +543,8 @@ def login():
     if request.method == "POST":
         ip = request.remote_addr
         if check_rate_limit(ip):
+            log_security("rate_limited", f"ip={ip} event=login_fail", ip)
+            send_security_alert("rate_limited", f"ip={ip} event=login_fail", ip)
             flash("Túl sok sikertelen próbálkozás. Próbáld újra 5 perc múlva.", "error")
             return render_template("login.html")
 
@@ -548,6 +595,8 @@ def forgot_password():
     if request.method == "POST":
         ip = request.remote_addr
         if check_rate_limit(ip, event_type="password_reset_attempt", max_attempts=3, window_seconds=600):
+            log_security("rate_limited", f"ip={ip} event=password_reset_attempt", ip)
+            send_security_alert("rate_limited", f"ip={ip} event=password_reset_attempt", ip)
             flash("Túl sok próbálkozás. Kérjük, várj 10 percet.", "error")
             return render_template("forgot_password.html")
         log_security("password_reset_attempt", f"ip={ip}", ip)
@@ -976,6 +1025,8 @@ def new_issue():
         # Content moderation — reject invalid submissions
         if ai_result.get("rejected"):
             reason = ai_result.get("rejection_reason", "A bejelentés nem közterületi probléma.")
+            log_security("content_rejected", f"user={current_user.id} reason={reason}", request.remote_addr)
+            send_security_alert("content_rejected", f"user={current_user.id} reason={reason}", request.remote_addr)
             return jsonify({"ok": False, "error": reason}), 400
 
         ai_urgency = ai_result.get("urgency", "low")
@@ -1277,6 +1328,9 @@ def vote_issue(issue_id):
                 "UPDATE users SET is_shadowbanned = %s WHERE id = %s AND is_admin = FALSE",
                 (should_shadowban, issue_author["user_id"]),
             )
+            if should_shadowban:
+                log_security("shadowban", f"user_id={issue_author['user_id']} rep={rep}", request.remote_addr)
+                send_security_alert("shadowban", f"user_id={issue_author['user_id']} rep={rep}", request.remote_addr)
 
         conn.commit()
 
@@ -1913,6 +1967,53 @@ def admin_health():
         os_info=f"{platform.system()} {platform.release()}",
         server_time=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
     )
+
+
+# ── Admin: Security Log ──
+@app.route("/admin/security")
+@admin_required
+def admin_security():
+    page = request.args.get("page", 1, type=int)
+    event_filter = request.args.get("type", "")
+    per_page = 50
+    conn = get_db()
+    try:
+        where = ""
+        params = []
+        if event_filter:
+            where = "WHERE event_type = %s"
+            params = [event_filter]
+
+        total = conn.execute(
+            f"SELECT COUNT(*) AS cnt FROM security_log {where}", params
+        ).fetchone()["cnt"]
+
+        events = conn.execute(
+            f"SELECT * FROM security_log {where} ORDER BY created_at DESC LIMIT %s OFFSET %s",
+            params + [per_page, (page - 1) * per_page],
+        ).fetchall()
+
+        today_fails = conn.execute(
+            "SELECT COUNT(*) AS cnt FROM security_log WHERE event_type = 'login_fail' AND created_at >= CURRENT_DATE"
+        ).fetchone()["cnt"]
+
+        unique_fail_ips = conn.execute(
+            "SELECT COUNT(DISTINCT ip_address) AS cnt FROM security_log WHERE event_type = 'login_fail' AND created_at >= CURRENT_DATE"
+        ).fetchone()["cnt"]
+
+        event_types = conn.execute(
+            "SELECT event_type, COUNT(*) AS cnt FROM security_log GROUP BY event_type ORDER BY cnt DESC"
+        ).fetchall()
+
+        return render_template("admin/security.html",
+            events=events, total=total, page=page, per_page=per_page,
+            pages=(total + per_page - 1) // per_page,
+            today_fails=today_fails, unique_fail_ips=unique_fail_ips,
+            event_types=event_types, current_filter=event_filter,
+            event_labels=SECURITY_EVENT_LABELS,
+        )
+    finally:
+        conn.close()
 
 
 # ── Init & Run ──

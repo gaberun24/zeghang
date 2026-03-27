@@ -1,0 +1,99 @@
+{% extends "admin/base.html" %}
+{% set admin_page = "security" %}
+{% block title %}Biztonsági napló — Admin{% endblock %}
+
+{% block content %}
+<h2 style="font-size:20px; font-weight:700; margin-bottom:1rem;">Biztonsági napló</h2>
+
+<!-- Stats -->
+<div class="stat-grid">
+  <div class="stat-card">
+    <div class="stat-num danger">{{ today_fails }}</div>
+    <div class="stat-label">Sikertelen bejelentkezés ma</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-num warning">{{ unique_fail_ips }}</div>
+    <div class="stat-label">Egyedi IP sikertelen</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-num">{{ total }}</div>
+    <div class="stat-label">Összes esemény{% if current_filter %} (szűrve){% endif %}</div>
+  </div>
+</div>
+
+<!-- Filters -->
+<div class="filter-bar">
+  <a href="{{ url_for('admin_security') }}" class="filter-link {{ 'active' if not current_filter else '' }}">Mind</a>
+  {% for et in event_types %}
+  <a href="{{ url_for('admin_security', type=et.event_type) }}" class="filter-link {{ 'active' if current_filter == et.event_type else '' }}">
+    {{ event_labels.get(et.event_type, et.event_type) }} ({{ et.cnt }})
+  </a>
+  {% endfor %}
+</div>
+
+<!-- Table -->
+<div class="admin-card" style="padding:0; overflow-x:auto;">
+  <table class="admin-table">
+    <thead>
+      <tr>
+        <th>Dátum</th>
+        <th>Típus</th>
+        <th>IP cím</th>
+        <th>Részletek</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for e in events %}
+      <tr>
+        <td style="white-space:nowrap; font-size:12px;">{{ e.created_at.strftime('%Y.%m.%d. %H:%M:%S') }}</td>
+        <td>
+          {% set etype = e.event_type %}
+          {% if etype == 'login_fail' %}
+            <span class="badge" style="background:#fef2f2; color:#dc2626;">Sikertelen bejelentkezés</span>
+          {% elif etype == 'login_ok' %}
+            <span class="badge" style="background:#f0fdf4; color:#16a34a;">Sikeres bejelentkezés</span>
+          {% elif etype == 'register_ok' %}
+            <span class="badge" style="background:#dbeafe; color:#1d4ed8;">Regisztráció</span>
+          {% elif etype == 'password_reset_attempt' %}
+            <span class="badge" style="background:#fff7ed; color:#c2410c;">Jelszó-visszaállítási próba</span>
+          {% elif etype == 'password_reset_requested' %}
+            <span class="badge" style="background:#fff7ed; color:#c2410c;">Jelszó-visszaállítás kérés</span>
+          {% elif etype == 'password_reset_ok' %}
+            <span class="badge" style="background:#fff7ed; color:#c2410c;">Jelszó visszaállítva</span>
+          {% elif etype == 'address_change' %}
+            <span class="badge" style="background:#fefce8; color:#854d0e;">Címmódosítás</span>
+          {% elif etype == 'shadowban' %}
+            <span class="badge" style="background:#fef2f2; color:#dc2626;">Shadowban aktiválás</span>
+          {% elif etype == 'content_rejected' %}
+            <span class="badge" style="background:#fef2f2; color:#dc2626;">Tartalom elutasítva</span>
+          {% elif etype == 'rate_limited' %}
+            <span class="badge" style="background:#fef2f2; color:#dc2626;">Rate limit elérve</span>
+          {% else %}
+            <span class="badge" style="background:#f1f5f9; color:#64748b;">{{ etype }}</span>
+          {% endif %}
+        </td>
+        <td style="font-family:monospace; font-size:12px;">{{ e.ip_address or '—' }}</td>
+        <td class="truncate" title="{{ e.details or '' }}">{{ e.details or '—' }}</td>
+      </tr>
+      {% endfor %}
+      {% if not events %}
+      <tr><td colspan="4" style="text-align:center; padding:2rem; color:var(--admin-muted);">Nincs találat.</td></tr>
+      {% endif %}
+    </tbody>
+  </table>
+</div>
+
+<!-- Pagination -->
+{% if pages > 1 %}
+<div style="display:flex; justify-content:center; gap:0.5rem; margin-top:1rem;">
+  {% if page > 1 %}
+  <a href="{{ url_for('admin_security', page=page-1, type=current_filter) }}" class="btn-sm btn-action">&laquo; Előző</a>
+  {% endif %}
+  <span style="padding:4px 10px; font-size:13px; color:var(--admin-muted);">{{ page }} / {{ pages }}</span>
+  {% if page < pages %}
+  <a href="{{ url_for('admin_security', page=page+1, type=current_filter) }}" class="btn-sm btn-action">Következő &raquo;</a>
+  {% endif %}
+</div>
+{% endif %}
+
+{% endblock %}

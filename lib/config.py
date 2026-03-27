@@ -30,3 +30,6 @@ BREVO_SENDER_NAME = os.getenv("BREVO_SENDER_NAME", "Zalaegerszeg Hangja")
 VAPID_PUBLIC_KEY = os.getenv("VAPID_PUBLIC_KEY", "")
 VAPID_PRIVATE_KEY = os.getenv("VAPID_PRIVATE_KEY", "")
 VAPID_EMAIL = os.getenv("VAPID_EMAIL", "admin@zeghang.hu")
+
+# Admin alerts
+ADMIN_ALERT_EMAIL = os.getenv("ADMIN_ALERT_EMAIL", "")
