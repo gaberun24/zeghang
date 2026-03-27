@@ -6,50 +6,178 @@
       "properties": {
         "district": 1,
         "representative": "Domján István",
-        "population": 3785,
-        "streets": 75
+        "population": 3785
       },
       "geometry": {
-        "type": "Polygon",
+        "type": "Point",
         "coordinates": [
-          [
-            [
-              16.783363444817542,
-              46.86716095061205
-            ],
-            [
-              16.786465559078493,
-              46.839409322814994
-            ],
-            [
-              16.79499822710418,
-              46.83652412314513
-            ],
-            [
-              16.810323082693984,
-              46.83773393087098
-            ],
-            [
-              16.836717025367605,
-              46.844837627237325
-            ],
-            [
-              16.834850686254644,
-              46.85754940712698
-            ],
-            [
-              16.805701670585208,
-              46.867069059999594
-            ],
-            [
-              16.786084322776574,
-              46.868498937511156
-            ],
-            [
-              16.783363444817542,
-              46.86716095061205
-            ]
-          ]
+          16.802406931818183,
+          46.85452784375
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "district": 2,
+        "representative": "Németh Gábor",
+        "population": 3599
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          16.83776549019608,
+          46.86406270245099
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "district": 3,
+        "representative": "Dr. Káldi Dávid",
+        "population": 3532
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          16.842033192920354,
+          46.841605497345135
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "district": 4,
+        "representative": "Böjte Sándor Zsolt",
+        "population": 3293
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          16.85010278221154,
+          46.845434791826925
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "district": 5,
+        "representative": "Gecse Péter",
+        "population": 4318
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          16.856342817266185,
+          46.823166309352516
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "district": 6,
+        "representative": "Bali Zoltán",
+        "population": 3775
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          16.83584935877193,
+          46.84094715701754
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "district": 7,
+        "representative": "Szilasi Gábor",
+        "population": 4211
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          16.824266103061223,
+          46.823292787244895
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "district": 8,
+        "representative": "Makovecz Tamás",
+        "population": 3944
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          16.823391525225226,
+          46.84358517297297
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "district": 9,
+        "representative": "Galbavy Zoltán",
+        "population": 3009
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          16.842333141284403,
+          46.82933694678899
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "district": 10,
+        "representative": "Bognár Ákos",
+        "population": 4132
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          16.835300602564104,
+          46.83354674358974
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "district": 11,
+        "representative": "Orosz Ferencné",
+        "population": 4046
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          16.834044473333332,
+          46.82538988666666
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "district": 12,
+        "representative": "Herkliné Ebedli Gyöngyi",
+        "population": 3603
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          16.87355383627451,
+          46.84348912058823
         ]
       }
     }

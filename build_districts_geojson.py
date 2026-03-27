@@ -184,19 +184,19 @@ def main():
         if len(unmatched) > 10:
             print(f"  ... and {len(unmatched) - 10} more")
 
-    # 4. Generate GeoJSON
+    # 4. Generate GeoJSON - centroids (Point), not polygons
     features = []
     for evk in range(1, 13):
         points = evk_points.get(evk, [])
         print(f"\nEVK {evk}: {len(points)} points")
 
-        if len(points) < 3:
-            print(f"  WARNING: too few points, skipping")
+        if not points:
+            print(f"  WARNING: no points, skipping")
             continue
 
-        hull = convex_hull(points)
-        hull = expand_hull(hull)
-        coords = hull + [hull[0]]  # close polygon
+        # Compute centroid (average of all street segment centers)
+        cx = sum(p[0] for p in points) / len(points)
+        cy = sum(p[1] for p in points) / len(points)
 
         pop = sum(SZK_POP.get(szk, 0) for szk in EVK_SZK[evk])
 
@@ -206,11 +206,10 @@ def main():
                 "district": evk,
                 "representative": REPRESENTATIVES[evk],
                 "population": pop,
-                "points": len(points),
             },
             "geometry": {
-                "type": "Polygon",
-                "coordinates": [coords],
+                "type": "Point",
+                "coordinates": [cx, cy],
             }
         }
         features.append(feature)
@@ -221,7 +220,7 @@ def main():
     with open(output, "w", encoding="utf-8") as f:
         json.dump(geojson, f, ensure_ascii=False, indent=2)
 
-    print(f"\nSaved {output} with {len(features)} district polygons")
+    print(f"\nSaved {output} with {len(features)} district centroids")
 
 
 if __name__ == "__main__":
