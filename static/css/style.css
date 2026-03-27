@@ -240,20 +240,32 @@
     border-top: 1px solid rgba(255,255,255,0.1);
   }
 
-  .stat-item { }
-
-  .stat-number {
+  .hero-stat-num {
     font-family: 'Playfair Display', serif;
     font-size: 28px;
     font-weight: 700;
     color: white;
+    display: block;
   }
 
-  .stat-label {
+  .hero-stat-label {
     font-size: 12px;
     color: var(--hill-pale);
     font-weight: 400;
     letter-spacing: 0.04em;
+    display: block;
+  }
+
+  .hero-wave {
+    position: relative;
+    width: 100%;
+    margin-top: auto;
+  }
+
+  .hero-wave svg {
+    display: block;
+    width: 100%;
+    height: auto;
   }
 
   .hero-right {
@@ -614,18 +626,19 @@
   .districts-section .section-title { color: white; }
   .districts-section .section-sub   { color: var(--hill-pale); }
 
-  .district-grid {
+  .district-grid,
+  .districts-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 1rem;
-    margin-top: 3.5rem;
+    margin-top: 2rem;
   }
 
   .district-card {
     background: rgba(255,255,255,0.05);
     border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 14px;
-    padding: 1.25rem;
+    border-radius: 10px;
+    padding: 0.85rem 1rem;
     transition: all 0.2s;
   }
 
@@ -637,25 +650,32 @@
 
   .district-num {
     font-family: 'Playfair Display', serif;
-    font-size: 32px;
+    font-size: 22px;
     font-weight: 900;
     color: rgba(255,255,255,0.2);
     line-height: 1;
     margin-bottom: 0.5rem;
   }
 
+  .district-rep {
+    font-size: 12px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.6);
+    margin-bottom: 2px;
+  }
+
   .district-name {
-    font-size: 13px;
+    font-size: 11px;
     font-weight: 500;
     color: rgba(255,255,255,0.75);
-    margin-bottom: 4px;
+    margin-bottom: 2px;
   }
 
   .district-bar {
     height: 3px;
     background: rgba(255,255,255,0.08);
     border-radius: 2px;
-    margin-top: 0.75rem;
+    margin-top: 0.5rem;
     overflow: hidden;
   }
 
@@ -2042,5 +2062,5 @@
   .hero-content { flex-direction: column; padding: 120px 2rem 0; }
   .hero-left { padding-right: 0; }
   .hero-right { display: none; }
-  .districts-grid { grid-template-columns: repeat(2, 1fr); }
+  .districts-grid { grid-template-columns: repeat(3, 1fr); }
 }
