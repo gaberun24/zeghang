@@ -321,3 +321,17 @@ document.addEventListener('DOMContentLoaded', function() {
   var disc = document.getElementById('disclaimerBanner');
   if (disc && sessionStorage.getItem('zh_disclaimer')) disc.style.display = 'none';
 });
+
+// ── MOBILE MENU ──
+function toggleMobileMenu() {
+  var links = document.querySelector('.nav-links');
+  if (links) links.classList.toggle('mobile-open');
+}
+
+// Close mobile menu on link click
+document.addEventListener('click', function(e) {
+  if (e.target.closest('.nav-links a')) {
+    var links = document.querySelector('.nav-links');
+    if (links) links.classList.remove('mobile-open');
+  }
+});
