@@ -225,6 +225,40 @@
     maxZoom: 18,
   }).addTo(map);
 
+  // District boundary colors
+  var districtColors = [
+    '#e74c3c', '#3498db', '#2ecc71', '#f39c12', '#9b59b6', '#1abc9c',
+    '#e67e22', '#34495e', '#e91e63', '#00bcd4', '#8bc34a', '#ff5722'
+  ];
+
+  // Load district polygons
+  fetch('{{ url_for("static", filename="districts.geojson") }}')
+    .then(function(r) { return r.json(); })
+    .then(function(geojson) {
+      L.geoJSON(geojson, {
+        style: function(feature) {
+          var idx = (feature.properties.district - 1) % districtColors.length;
+          return {
+            color: districtColors[idx],
+            weight: 2,
+            opacity: 0.8,
+            fillColor: districtColors[idx],
+            fillOpacity: 0.15,
+          };
+        },
+        onEachFeature: function(feature, layer) {
+          var p = feature.properties;
+          var num = String(p.district).padStart(2, '0');
+          layer.bindPopup(
+            '<strong>' + num + '. körzet</strong><br>' +
+            '<span style="font-size:12px;">' + p.representative + '</span><br>' +
+            '<span style="font-size:11px; color:#888;">' + p.population.toLocaleString('hu') + ' választópolgár</span>'
+          );
+        }
+      }).addTo(map);
+    });
+
+  // Load issue markers on top
   var catColors = {
     road: '#e74c3c', park: '#27ae60', safety: '#f39c12',
     infrastructure: '#3498db', transport: '#9b59b6', other: '#95a5a6'
@@ -233,7 +267,7 @@
   fetch('/api/map-issues')
     .then(function(r) { return r.json(); })
     .then(function(geojson) {
-      if (!geojson.features.length) return;
+      if (!geojson.features || !geojson.features.length) return;
       L.geoJSON(geojson, {
         pointToLayer: function(feature, latlng) {
           var color = catColors[feature.properties.category] || '#95a5a6';
@@ -247,7 +281,7 @@
           var p = feature.properties;
           layer.bindPopup(
             '<strong>' + p.title + '</strong><br>' +
-            '<span style="font-size:12px;">' + String(p.district).padStart(2,'0') + '. körzet · ↑' + p.votes + ' szavazat</span>'
+            '<span style="font-size:12px;">' + String(p.district).padStart(2,'0') + '. körzet · szavazat: ' + p.votes + '</span>'
           );
         }
       }).addTo(map);

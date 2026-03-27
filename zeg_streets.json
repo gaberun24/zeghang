@@ -1,0 +1,4930 @@
+[
+  {
+    "nev": "Ady Endre",
+    "tipus": "utca",
+    "tol": 1,
+    "ig": 32,
+    "haz": "Folyamatos házszámok",
+    "korzet": "020"
+  },
+  {
+    "nev": "Szent Erzsébet",
+    "tipus": "kert",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "001"
+  },
+  {
+    "nev": "Vadász",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "048"
+  },
+  {
+    "nev": "Alsó-Rózsadombi",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "026"
+  },
+  {
+    "nev": "Baross",
+    "tipus": "liget",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "041"
+  },
+  {
+    "nev": "Bokor",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "026"
+  },
+  {
+    "nev": "Csillagvölgy",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "004"
+  },
+  {
+    "nev": "Dr. Michelberger Pál",
+    "tipus": "út",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "004"
+  },
+  {
+    "nev": "Gévaalja",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "048"
+  },
+  {
+    "nev": "Kéknefelejcs",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "013"
+  },
+  {
+    "nev": "Mártírok",
+    "tipus": "útja",
+    "tol": 61,
+    "ig": 61,
+    "haz": "Folyamatos házszámok",
+    "korzet": "021"
+  },
+  {
+    "nev": "Rheinmetall",
+    "tipus": "út",
+    "tol": 61,
+    "ig": 61,
+    "haz": "Teljes közterület",
+    "korzet": "004"
+  },
+  {
+    "nev": "Ságodi",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "004"
+  },
+  {
+    "nev": "Sashegyi",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "048"
+  },
+  {
+    "nev": "Sirály",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "048"
+  },
+  {
+    "nev": "Szállítók",
+    "tipus": "útja",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "040"
+  },
+  {
+    "nev": "Szivárvány",
+    "tipus": "tér",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "051"
+  },
+  {
+    "nev": "ZalaZONE",
+    "tipus": "tér",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "004"
+  },
+  {
+    "nev": "Ady Endre",
+    "tipus": "utca",
+    "tol": 34,
+    "ig": 999999,
+    "haz": "Folyamatos házszámok",
+    "korzet": "021"
+  },
+  {
+    "nev": "Áfonya",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "003"
+  },
+  {
+    "nev": "Akácfa",
+    "tipus": "sor",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "009"
+  },
+  {
+    "nev": "Akácfa",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "005"
+  },
+  {
+    "nev": "Akácos",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "048"
+  },
+  {
+    "nev": "Alkotmány",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "028"
+  },
+  {
+    "nev": "Almás",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "013"
+  },
+  {
+    "nev": "Alsó-Avashegyi",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "050"
+  },
+  {
+    "nev": "Alsóerdei",
+    "tipus": "út",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "026"
+  },
+  {
+    "nev": "Alsójánkahegyi",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "040"
+  },
+  {
+    "nev": "Andráshida",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "003"
+  },
+  {
+    "nev": "Apáczai Csere János",
+    "tipus": "tér",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "043"
+  },
+  {
+    "nev": "Apátfa",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "003"
+  },
+  {
+    "nev": "Arany akác",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "026"
+  },
+  {
+    "nev": "Arany János",
+    "tipus": "utca",
+    "tol": 3,
+    "ig": 61,
+    "haz": "Páratlan házszámok",
+    "korzet": "021"
+  },
+  {
+    "nev": "Arany János",
+    "tipus": "utca",
+    "tol": 63,
+    "ig": 999999,
+    "haz": "Páratlan házszámok",
+    "korzet": "023"
+  },
+  {
+    "nev": "Arany János",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Páros házszámok",
+    "korzet": "021"
+  },
+  {
+    "nev": "Aranyeső",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "026"
+  },
+  {
+    "nev": "Árnyas",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "009"
+  },
+  {
+    "nev": "Árpád",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "041"
+  },
+  {
+    "nev": "Átalszegett",
+    "tipus": "utca",
+    "tol": 1,
+    "ig": 21,
+    "haz": "Páratlan házszámok",
+    "korzet": "035"
+  },
+  {
+    "nev": "Átalszegett",
+    "tipus": "utca",
+    "tol": 6,
+    "ig": 14,
+    "haz": "Páros házszámok",
+    "korzet": "035"
+  },
+  {
+    "nev": "Átalszegett",
+    "tipus": "utca",
+    "tol": 16,
+    "ig": 58,
+    "haz": "Páros házszámok",
+    "korzet": "034"
+  },
+  {
+    "nev": "Átalszegett",
+    "tipus": "utca",
+    "tol": 23,
+    "ig": 149,
+    "haz": "Páratlan házszámok",
+    "korzet": "034"
+  },
+  {
+    "nev": "Átalszegett",
+    "tipus": "utca",
+    "tol": 60,
+    "ig": 999998,
+    "haz": "Páros házszámok",
+    "korzet": "036"
+  },
+  {
+    "nev": "Átalszegett",
+    "tipus": "utca",
+    "tol": 151,
+    "ig": 999999,
+    "haz": "Páratlan házszámok",
+    "korzet": "036"
+  },
+  {
+    "nev": "Átkötő",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "010"
+  },
+  {
+    "nev": "Avasárok",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "042"
+  },
+  {
+    "nev": "Avashegyi",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "050"
+  },
+  {
+    "nev": "Avashegy",
+    "tipus": "tető",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "050"
+  },
+  {
+    "nev": "Azáleás",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "026"
+  },
+  {
+    "nev": "Babits Mihály",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "037"
+  },
+  {
+    "nev": "Bajcsy-Zsilinszky",
+    "tipus": "tér",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "041"
+  },
+  {
+    "nev": "Balassi Bálint",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "036"
+  },
+  {
+    "nev": "Balatoni",
+    "tipus": "út",
+    "tol": 1,
+    "ig": 6,
+    "haz": "Folyamatos házszámok",
+    "korzet": "010"
+  },
+  {
+    "nev": "Balatoni",
+    "tipus": "út",
+    "tol": 7,
+    "ig": 999999,
+    "haz": "Folyamatos házszámok",
+    "korzet": "014"
+  },
+  {
+    "nev": "Bánya",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "040"
+  },
+  {
+    "nev": "Barackfa",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "013"
+  },
+  {
+    "nev": "Baráth Ferenc",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "042"
+  },
+  {
+    "nev": "Barka",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "009"
+  },
+  {
+    "nev": "Baross Gábor",
+    "tipus": "utca",
+    "tol": 1,
+    "ig": 19,
+    "haz": "Páratlan házszámok",
+    "korzet": "047"
+  },
+  {
+    "nev": "Baross Gábor",
+    "tipus": "utca",
+    "tol": 21,
+    "ig": 999999,
+    "haz": "Páratlan házszámok",
+    "korzet": "048"
+  },
+  {
+    "nev": "Baross Gábor",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Páros házszámok",
+    "korzet": "047"
+  },
+  {
+    "nev": "Bartók Béla",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "040"
+  },
+  {
+    "nev": "Báthori István",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "042"
+  },
+  {
+    "nev": "Batsányi János",
+    "tipus": "utca",
+    "tol": 1,
+    "ig": 13,
+    "haz": "Páratlan házszámok",
+    "korzet": "021"
+  },
+  {
+    "nev": "Batsányi János",
+    "tipus": "utca",
+    "tol": 2,
+    "ig": 8,
+    "haz": "Páros házszámok",
+    "korzet": "021"
+  },
+  {
+    "nev": "Batsányi János",
+    "tipus": "utca",
+    "tol": 10,
+    "ig": 999998,
+    "haz": "Páros házszámok",
+    "korzet": "023"
+  },
+  {
+    "nev": "Batsányi János",
+    "tipus": "utca",
+    "tol": 17,
+    "ig": 999999,
+    "haz": "Páratlan házszámok",
+    "korzet": "023"
+  },
+  {
+    "nev": "Batthyány Lajos",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "011"
+  },
+  {
+    "nev": "Bazitai",
+    "tipus": "út",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "024"
+  },
+  {
+    "nev": "Becsali",
+    "tipus": "tető",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "026"
+  },
+  {
+    "nev": "Becsali",
+    "tipus": "út",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "026"
+  },
+  {
+    "nev": "Békeháza",
+    "tipus": "út",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "002"
+  },
+  {
+    "nev": "Bekeháza",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "002"
+  },
+  {
+    "nev": "Béke-ligeti",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "016"
+  },
+  {
+    "nev": "Béke",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "008"
+  },
+  {
+    "nev": "Belsőszeg",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "026"
+  },
+  {
+    "nev": "Bem József",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "041"
+  },
+  {
+    "nev": "Berek",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "002"
+  },
+  {
+    "nev": "Berzsenyi Dániel",
+    "tipus": "utca",
+    "tol": 1,
+    "ig": 13,
+    "haz": "Páratlan házszámok",
+    "korzet": "015"
+  },
+  {
+    "nev": "Berzsenyi Dániel",
+    "tipus": "utca",
+    "tol": 8,
+    "ig": 10,
+    "haz": "Páros házszámok",
+    "korzet": "015"
+  },
+  {
+    "nev": "Berzsenyi Dániel",
+    "tipus": "utca",
+    "tol": 12,
+    "ig": 22,
+    "haz": "Páros házszámok",
+    "korzet": "010"
+  },
+  {
+    "nev": "Berzsenyi Dániel",
+    "tipus": "utca",
+    "tol": 15,
+    "ig": 999999,
+    "haz": "Páratlan házszámok",
+    "korzet": "017"
+  },
+  {
+    "nev": "Berzsenyi Dániel",
+    "tipus": "utca",
+    "tol": 26,
+    "ig": 999998,
+    "haz": "Páros házszámok",
+    "korzet": "017"
+  },
+  {
+    "nev": "Besenyő",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "049"
+  },
+  {
+    "nev": "Bethlen Gábor",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "016"
+  },
+  {
+    "nev": "Bíró Márton",
+    "tipus": "utca",
+    "tol": 1,
+    "ig": 44,
+    "haz": "Folyamatos házszámok",
+    "korzet": "016"
+  },
+  {
+    "nev": "Bíró Márton",
+    "tipus": "utca",
+    "tol": 46,
+    "ig": 50,
+    "haz": "Folyamatos házszámok",
+    "korzet": "042"
+  },
+  {
+    "nev": "Bíró Márton",
+    "tipus": "utca",
+    "tol": 51,
+    "ig": 51,
+    "haz": "Folyamatos házszámok",
+    "korzet": "016"
+  },
+  {
+    "nev": "Bíró Márton",
+    "tipus": "utca",
+    "tol": 52,
+    "ig": 999999,
+    "haz": "Folyamatos házszámok",
+    "korzet": "042"
+  },
+  {
+    "nev": "Bóbita",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "051"
+  },
+  {
+    "nev": "Bocskai István",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "017"
+  },
+  {
+    "nev": "Bodza",
+    "tipus": "köz",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "046"
+  },
+  {
+    "nev": "Bodza",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "046"
+  },
+  {
+    "nev": "Boglárka",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "026"
+  },
+  {
+    "nev": "Bokréta",
+    "tipus": "út",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "040"
+  },
+  {
+    "nev": "Borbély György",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "023"
+  },
+  {
+    "nev": "Borostyán",
+    "tipus": "sor",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "043"
+  },
+  {
+    "nev": "Bor",
+    "tipus": "út",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "025"
+  },
+  {
+    "nev": "Botfa",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "050"
+  },
+  {
+    "nev": "Botfy Lajos",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "021"
+  },
+  {
+    "nev": "Bozsoki-hegyi",
+    "tipus": "út",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "014"
+  },
+  {
+    "nev": "Bozsoki",
+    "tipus": "tető",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "014"
+  },
+  {
+    "nev": "Bozsoki",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "014"
+  },
+  {
+    "nev": "Bozsoki-völgyi",
+    "tipus": "út",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "014"
+  },
+  {
+    "nev": "Budai Nagy Antal",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "006"
+  },
+  {
+    "nev": "Budai",
+    "tipus": "völgy",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "026"
+  },
+  {
+    "nev": "Búslak",
+    "tipus": "puszta",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "026"
+  },
+  {
+    "nev": "Búzavirág",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "028"
+  },
+  {
+    "nev": "Bükkfa",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "006"
+  },
+  {
+    "nev": "Cédrus",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "026"
+  },
+  {
+    "nev": "Ciklámen",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "046"
+  },
+  {
+    "nev": "Cimpóhegyi",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "026"
+  },
+  {
+    "nev": "Cinke",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "046"
+  },
+  {
+    "nev": "Citromfű",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "009"
+  },
+  {
+    "nev": "Csácsi-hegyi",
+    "tipus": "út",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "013"
+  },
+  {
+    "nev": "Csácsi",
+    "tipus": "tető",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "013"
+  },
+  {
+    "nev": "Csácsi",
+    "tipus": "utca",
+    "tol": 1,
+    "ig": 60,
+    "haz": "Folyamatos házszámok",
+    "korzet": "051"
+  },
+  {
+    "nev": "Csácsi",
+    "tipus": "utca",
+    "tol": 61,
+    "ig": 999999,
+    "haz": "Folyamatos házszámok",
+    "korzet": "013"
+  },
+  {
+    "nev": "Csáfordi",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "026"
+  },
+  {
+    "nev": "Csány László",
+    "tipus": "tér",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "019"
+  },
+  {
+    "nev": "Csapási",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "004"
+  },
+  {
+    "nev": "Csendes",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "035"
+  },
+  {
+    "nev": "Cseresnyésszeri",
+    "tipus": "út",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "049"
+  },
+  {
+    "nev": "Cserfa",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "002"
+  },
+  {
+    "nev": "Cserhegyi",
+    "tipus": "út",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "026"
+  },
+  {
+    "nev": "Cserlap hegyhát",
+    "tipus": "dűlő",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "013"
+  },
+  {
+    "nev": "Cserlapi",
+    "tipus": "út",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "013"
+  },
+  {
+    "nev": "Csertán Sándor",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "027"
+  },
+  {
+    "nev": "Csicsergő",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "009"
+  },
+  {
+    "nev": "Csiga",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "013"
+  },
+  {
+    "nev": "Csilla",
+    "tipus": "dűlő",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "047"
+  },
+  {
+    "nev": "Csillagfény",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "004"
+  },
+  {
+    "nev": "Csillagfürt",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "009"
+  },
+  {
+    "nev": "Csilla",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "051"
+  },
+  {
+    "nev": "Csörge",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "049"
+  },
+  {
+    "nev": "Csutor Imre",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "043"
+  },
+  {
+    "nev": "Czobor Mátyás",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "035"
+  },
+  {
+    "nev": "Dalos",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "009"
+  },
+  {
+    "nev": "Damjanich",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "013"
+  },
+  {
+    "nev": "Deák Ferenc",
+    "tipus": "tér",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "011"
+  },
+  {
+    "nev": "Déryné",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "031"
+  },
+  {
+    "nev": "Diófa",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "004"
+  },
+  {
+    "nev": "Diós",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "048"
+  },
+  {
+    "nev": "Dísz",
+    "tipus": "tér",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "018"
+  },
+  {
+    "nev": "Dobó Katalin",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "041"
+  },
+  {
+    "nev": "Dombalja",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "013"
+  },
+  {
+    "nev": "Dombos",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "025"
+  },
+  {
+    "nev": "Dombtető",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "013"
+  },
+  {
+    "nev": "Domb",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "013"
+  },
+  {
+    "nev": "Dózsa György",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "023"
+  },
+  {
+    "nev": "Dr. Jancsó Benedek",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "005"
+  },
+  {
+    "nev": "Dr. Michelberger Pál",
+    "tipus": "út",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "000"
+  },
+  {
+    "nev": "Dukai Takács Judit",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "002"
+  },
+  {
+    "nev": "Ebergényi",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "009"
+  },
+  {
+    "nev": "Égerfa",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "002"
+  },
+  {
+    "nev": "Egerszeghegyi",
+    "tipus": "út",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "025"
+  },
+  {
+    "nev": "Egervári",
+    "tipus": "út",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "005"
+  },
+  {
+    "nev": "Egry József",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "027"
+  },
+  {
+    "nev": "Enikő",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "048"
+  },
+  {
+    "nev": "Eötvös József",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "020"
+  },
+  {
+    "nev": "Építők",
+    "tipus": "útja",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "046"
+  },
+  {
+    "nev": "Erdész",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "036"
+  },
+  {
+    "nev": "Erdőalja",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "026"
+  },
+  {
+    "nev": "Erkel Ferenc",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "037"
+  },
+  {
+    "nev": "Erzsébethegyi",
+    "tipus": "út",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "001"
+  },
+  {
+    "nev": "Erzsébet",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "001"
+  },
+  {
+    "nev": "Esthajnal",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "004"
+  },
+  {
+    "nev": "Estike",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "003"
+  },
+  {
+    "nev": "Esze Tamás",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "049"
+  },
+  {
+    "nev": "Fácános",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "004"
+  },
+  {
+    "nev": "Fagyal",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "049"
+  },
+  {
+    "nev": "Fagyöngy",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "025"
+  },
+  {
+    "nev": "Fakopáncs",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "004"
+  },
+  {
+    "nev": "Falumúzeum",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "008"
+  },
+  {
+    "nev": "Farkas Dávid",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "042"
+  },
+  {
+    "nev": "Fáy András",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "041"
+  },
+  {
+    "nev": "Fehérhegyi",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "050"
+  },
+  {
+    "nev": "Fejér György",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "038"
+  },
+  {
+    "nev": "Feketerigó",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "026"
+  },
+  {
+    "nev": "Felsődűlő",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "025"
+  },
+  {
+    "nev": "Felsőerdő",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "005"
+  },
+  {
+    "nev": "Feltáró",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "026"
+  },
+  {
+    "nev": "Fenyő",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "042"
+  },
+  {
+    "nev": "Fenyvesalja",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "009"
+  },
+  {
+    "nev": "Fenyves",
+    "tipus": "köz",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "009"
+  },
+  {
+    "nev": "Fészek",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "004"
+  },
+  {
+    "nev": "Flamingó",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "004"
+  },
+  {
+    "nev": "Flórián",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "021"
+  },
+  {
+    "nev": "Folyondár",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "025"
+  },
+  {
+    "nev": "Forrás",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "026"
+  },
+  {
+    "nev": "Futrinka",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "026"
+  },
+  {
+    "nev": "Fuvar",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "004"
+  },
+  {
+    "nev": "Fügefa",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "026"
+  },
+  {
+    "nev": "Fürdő",
+    "tipus": "sétány",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "004"
+  },
+  {
+    "nev": "Füzike",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "006"
+  },
+  {
+    "nev": "Gábor Áron",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "002"
+  },
+  {
+    "nev": "Gábor Miklós",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "020"
+  },
+  {
+    "nev": "Gálafeji",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "026"
+  },
+  {
+    "nev": "Gálafej",
+    "tipus": "major",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "026"
+  },
+  {
+    "nev": "Galagonya",
+    "tipus": "köz",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "026"
+  },
+  {
+    "nev": "Galamb",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "011"
+  },
+  {
+    "nev": "Gárdonyi Géza",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "023"
+  },
+  {
+    "nev": "Gasparich Márk",
+    "tipus": "utca",
+    "tol": 1,
+    "ig": 9,
+    "haz": "Páratlan házszámok",
+    "korzet": "023"
+  },
+  {
+    "nev": "Gasparich Márk",
+    "tipus": "utca",
+    "tol": 2,
+    "ig": 26,
+    "haz": "Páros házszámok",
+    "korzet": "007"
+  },
+  {
+    "nev": "Gasparich Márk",
+    "tipus": "utca",
+    "tol": 11,
+    "ig": 999999,
+    "haz": "Páratlan házszámok",
+    "korzet": "028"
+  },
+  {
+    "nev": "Gasparich Márk",
+    "tipus": "utca",
+    "tol": 28,
+    "ig": 999998,
+    "haz": "Páros házszámok",
+    "korzet": "028"
+  },
+  {
+    "nev": "Gát",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "003"
+  },
+  {
+    "nev": "Gazdaság",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "003"
+  },
+  {
+    "nev": "Gébárti",
+    "tipus": "út",
+    "tol": 1,
+    "ig": 64,
+    "haz": "Folyamatos házszámok",
+    "korzet": "003"
+  },
+  {
+    "nev": "Gébárti",
+    "tipus": "út",
+    "tol": 65,
+    "ig": 999998,
+    "haz": "Folyamatos házszámok",
+    "korzet": "006"
+  },
+  {
+    "nev": "Gerle",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "009"
+  },
+  {
+    "nev": "Gesztenyési",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "050"
+  },
+  {
+    "nev": "Gévahegyi",
+    "tipus": "út",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "048"
+  },
+  {
+    "nev": "Gévavölgyi",
+    "tipus": "út",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "048"
+  },
+  {
+    "nev": "Gógánhegyi",
+    "tipus": "út",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "009"
+  },
+  {
+    "nev": "Gógánhegy",
+    "tipus": "tető",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "009"
+  },
+  {
+    "nev": "Gógánvölgyi",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "009"
+  },
+  {
+    "nev": "Goldmark",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "036"
+  },
+  {
+    "nev": "Gólyadombi",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "006"
+  },
+  {
+    "nev": "Gólyahír",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "013"
+  },
+  {
+    "nev": "Gombás",
+    "tipus": "út",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "013"
+  },
+  {
+    "nev": "Göcseji Pataki F.",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "043"
+  },
+  {
+    "nev": "Göcseji",
+    "tipus": "út",
+    "tol": 2,
+    "ig": 18,
+    "haz": "Páros házszámok",
+    "korzet": "035"
+  },
+  {
+    "nev": "Göcseji",
+    "tipus": "út",
+    "tol": 5,
+    "ig": 31,
+    "haz": "Páratlan házszámok",
+    "korzet": "021"
+  },
+  {
+    "nev": "Göcseji",
+    "tipus": "út",
+    "tol": 20,
+    "ig": 999998,
+    "haz": "Páros házszámok",
+    "korzet": "033"
+  },
+  {
+    "nev": "Göcseji",
+    "tipus": "út",
+    "tol": 45,
+    "ig": 61,
+    "haz": "Páratlan házszámok",
+    "korzet": "033"
+  },
+  {
+    "nev": "Göcseji",
+    "tipus": "út",
+    "tol": 63,
+    "ig": 999999,
+    "haz": "Páratlan házszámok",
+    "korzet": "026"
+  },
+  {
+    "nev": "Gönczy Ferenc",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "048"
+  },
+  {
+    "nev": "Gyár",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "009"
+  },
+  {
+    "nev": "Gyík",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "001"
+  },
+  {
+    "nev": "Gyimesi",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "034"
+  },
+  {
+    "nev": "Gyöngyvirág",
+    "tipus": "út",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "026"
+  },
+  {
+    "nev": "Gyümölcsös",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "026"
+  },
+  {
+    "nev": "Hajnalcsillag",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "028"
+  },
+  {
+    "nev": "Hajnal",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "037"
+  },
+  {
+    "nev": "Hajnóczy József",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "004"
+  },
+  {
+    "nev": "Halom",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "014"
+  },
+  {
+    "nev": "Harangvirág",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "013"
+  },
+  {
+    "nev": "Harmat",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "009"
+  },
+  {
+    "nev": "Hársas",
+    "tipus": "út",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "025"
+  },
+  {
+    "nev": "Hársfa",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "009"
+  },
+  {
+    "nev": "Határjáró",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "046"
+  },
+  {
+    "nev": "Hatházi",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "004"
+  },
+  {
+    "nev": "Havasi gyopár",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "026"
+  },
+  {
+    "nev": "Hegyalja",
+    "tipus": "utca",
+    "tol": 2,
+    "ig": 24,
+    "haz": "Páros házszámok",
+    "korzet": "037"
+  },
+  {
+    "nev": "Hegyalja",
+    "tipus": "utca",
+    "tol": 3,
+    "ig": 7,
+    "haz": "Páratlan házszámok",
+    "korzet": "037"
+  },
+  {
+    "nev": "Hegyalja",
+    "tipus": "utca",
+    "tol": 9,
+    "ig": 9,
+    "haz": "Páratlan házszámok",
+    "korzet": "038"
+  },
+  {
+    "nev": "Hegyalja",
+    "tipus": "utca",
+    "tol": 11,
+    "ig": 999999,
+    "haz": "Páratlan házszámok",
+    "korzet": "045"
+  },
+  {
+    "nev": "Hegyalja",
+    "tipus": "utca",
+    "tol": 26,
+    "ig": 40,
+    "haz": "Páros házszámok",
+    "korzet": "044"
+  },
+  {
+    "nev": "Hegyalja",
+    "tipus": "utca",
+    "tol": 42,
+    "ig": 999998,
+    "haz": "Páros házszámok",
+    "korzet": "046"
+  },
+  {
+    "nev": "Hegybíró",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "028"
+  },
+  {
+    "nev": "Hegyi",
+    "tipus": "út",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "049"
+  },
+  {
+    "nev": "Hegyközség",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "028"
+  },
+  {
+    "nev": "Hegyoldal",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "028"
+  },
+  {
+    "nev": "Helikon",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "009"
+  },
+  {
+    "nev": "Hét vezér",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "013"
+  },
+  {
+    "nev": "Hevesi",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "048"
+  },
+  {
+    "nev": "Hock János",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "008"
+  },
+  {
+    "nev": "Holdfény",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "028"
+  },
+  {
+    "nev": "Hold",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "026"
+  },
+  {
+    "nev": "Holló",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "013"
+  },
+  {
+    "nev": "Holub József",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "048"
+  },
+  {
+    "nev": "Homoktövis",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "013"
+  },
+  {
+    "nev": "Honvéd",
+    "tipus": "utca",
+    "tol": 1,
+    "ig": 25,
+    "haz": "Páratlan házszámok",
+    "korzet": "042"
+  },
+  {
+    "nev": "Honvéd",
+    "tipus": "utca",
+    "tol": 2,
+    "ig": 50,
+    "haz": "Páros házszámok",
+    "korzet": "042"
+  },
+  {
+    "nev": "Honvéd",
+    "tipus": "utca",
+    "tol": 27,
+    "ig": 999999,
+    "haz": "Páratlan házszámok",
+    "korzet": "048"
+  },
+  {
+    "nev": "Honvéd",
+    "tipus": "utca",
+    "tol": 52,
+    "ig": 999998,
+    "haz": "Páros házszámok",
+    "korzet": "048"
+  },
+  {
+    "nev": "Horizont",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "013"
+  },
+  {
+    "nev": "Hosszúhegyi",
+    "tipus": "út",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "013"
+  },
+  {
+    "nev": "Hosszú-Jánka",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "041"
+  },
+  {
+    "nev": "Hóvirág",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "026"
+  },
+  {
+    "nev": "Hunyadi János",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "019"
+  },
+  {
+    "nev": "Ifjúság",
+    "tipus": "útja",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "037"
+  },
+  {
+    "nev": "Ilosvai",
+    "tipus": "út",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "004"
+  },
+  {
+    "nev": "Ipari",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "050"
+  },
+  {
+    "nev": "Irinyi János",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "006"
+  },
+  {
+    "nev": "Iskola",
+    "tipus": "köz",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "020"
+  },
+  {
+    "nev": "Iskola",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "002"
+  },
+  {
+    "nev": "Izzó",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "026"
+  },
+  {
+    "nev": "Jákum Ferenc",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "006"
+  },
+  {
+    "nev": "Jánkahegyi",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "041"
+  },
+  {
+    "nev": "Jászai Mari",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "037"
+  },
+  {
+    "nev": "Jázmin",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "026"
+  },
+  {
+    "nev": "Jedlik Ányos",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "004"
+  },
+  {
+    "nev": "Jegenyés",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "002"
+  },
+  {
+    "nev": "Jégmadár",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "006"
+  },
+  {
+    "nev": "Jókai Mór",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "023"
+  },
+  {
+    "nev": "József Attila",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "041"
+  },
+  {
+    "nev": "Juhász Gyula",
+    "tipus": "utca",
+    "tol": 2,
+    "ig": 14,
+    "haz": "Páros házszámok",
+    "korzet": "042"
+  },
+  {
+    "nev": "Juhász Gyula",
+    "tipus": "utca",
+    "tol": 16,
+    "ig": 999998,
+    "haz": "Páros házszámok",
+    "korzet": "048"
+  },
+  {
+    "nev": "Juhász Gyula",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Páratlan házszámok",
+    "korzet": "042"
+  },
+  {
+    "nev": "Kabók Lajos",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "008"
+  },
+  {
+    "nev": "Kakukkfű",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "006"
+  },
+  {
+    "nev": "Kanizsai",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "048"
+  },
+  {
+    "nev": "Kápolna-hegyi",
+    "tipus": "út",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "025"
+  },
+  {
+    "nev": "Kápolnahegy",
+    "tipus": "tető",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "013"
+  },
+  {
+    "nev": "Kápolna",
+    "tipus": "szer",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "001"
+  },
+  {
+    "nev": "Kápolna",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "025"
+  },
+  {
+    "nev": "Karácsony Sándor",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "009"
+  },
+  {
+    "nev": "Karácsony-hegyi",
+    "tipus": "út",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "050"
+  },
+  {
+    "nev": "Kaszaházi",
+    "tipus": "út",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "006"
+  },
+  {
+    "nev": "Kaszás",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "009"
+  },
+  {
+    "nev": "Katica",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "001"
+  },
+  {
+    "nev": "Katona József",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "040"
+  },
+  {
+    "nev": "Kazinczy Ferenc",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "048"
+  },
+  {
+    "nev": "Kazinczy",
+    "tipus": "tér",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "011"
+  },
+  {
+    "nev": "Kelemen Imre",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "021"
+  },
+  {
+    "nev": "Kerámia",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "021"
+  },
+  {
+    "nev": "Keresztes",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "026"
+  },
+  {
+    "nev": "Kertész",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "012"
+  },
+  {
+    "nev": "Kert",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "012"
+  },
+  {
+    "nev": "Kikelet",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "041"
+  },
+  {
+    "nev": "Kilátó",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "024"
+  },
+  {
+    "nev": "Kinizsi Pál",
+    "tipus": "utca",
+    "tol": 7,
+    "ig": 71,
+    "haz": "Páratlan házszámok",
+    "korzet": "047"
+  },
+  {
+    "nev": "Kinizsi Pál",
+    "tipus": "utca",
+    "tol": 73,
+    "ig": 999999,
+    "haz": "Páratlan házszámok",
+    "korzet": "048"
+  },
+  {
+    "nev": "Kinizsi Pál",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Páros házszámok",
+    "korzet": "047"
+  },
+  {
+    "nev": "Király-horhos",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "026"
+  },
+  {
+    "nev": "Király",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "006"
+  },
+  {
+    "nev": "Kis Csarit",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "025"
+  },
+  {
+    "nev": "Kisbükk",
+    "tipus": "dűlő",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "024"
+  },
+  {
+    "nev": "Kiserdei",
+    "tipus": "út",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "006"
+  },
+  {
+    "nev": "Kisfaludy Sándor",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "020"
+  },
+  {
+    "nev": "Kishegyi",
+    "tipus": "út",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "026"
+  },
+  {
+    "nev": "Kispálhegyi",
+    "tipus": "út",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "028"
+  },
+  {
+    "nev": "Kispest",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "030"
+  },
+  {
+    "nev": "Kis",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "011"
+  },
+  {
+    "nev": "Klapka György",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "051"
+  },
+  {
+    "nev": "Kodály Zoltán",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "027"
+  },
+  {
+    "nev": "Kossuth Lajos",
+    "tipus": "utca",
+    "tol": 1,
+    "ig": 25,
+    "haz": "Páratlan házszámok",
+    "korzet": "020"
+  },
+  {
+    "nev": "Kossuth Lajos",
+    "tipus": "utca",
+    "tol": 4,
+    "ig": 10,
+    "haz": "Páros házszámok",
+    "korzet": "018"
+  },
+  {
+    "nev": "Kossuth Lajos",
+    "tipus": "utca",
+    "tol": 18,
+    "ig": 999998,
+    "haz": "Páros házszámok",
+    "korzet": "019"
+  },
+  {
+    "nev": "Kossuth Lajos",
+    "tipus": "utca",
+    "tol": 27,
+    "ig": 999999,
+    "haz": "Páratlan házszámok",
+    "korzet": "019"
+  },
+  {
+    "nev": "Kosztolányi Dezső",
+    "tipus": "tér",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "015"
+  },
+  {
+    "nev": "Kosztolányi Dezső",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Páratlan házszámok",
+    "korzet": "018"
+  },
+  {
+    "nev": "Kosztolányi Dezső",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Páros házszámok",
+    "korzet": "016"
+  },
+  {
+    "nev": "Kovács Károly",
+    "tipus": "tér",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "015"
+  },
+  {
+    "nev": "Kökény",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "026"
+  },
+  {
+    "nev": "Kölcsey Ferenc",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "011"
+  },
+  {
+    "nev": "Könyök",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "011"
+  },
+  {
+    "nev": "Kőris",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "041"
+  },
+  {
+    "nev": "Körmendi",
+    "tipus": "út",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "003"
+  },
+  {
+    "nev": "Körtefa",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "013"
+  },
+  {
+    "nev": "Kövecses",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "002"
+  },
+  {
+    "nev": "Köztársaság",
+    "tipus": "útja",
+    "tol": 1,
+    "ig": 39,
+    "haz": "Páratlan házszámok",
+    "korzet": "035"
+  },
+  {
+    "nev": "Köztársaság",
+    "tipus": "útja",
+    "tol": 2,
+    "ig": 48,
+    "haz": "Páros házszámok",
+    "korzet": "035"
+  },
+  {
+    "nev": "Köztársaság",
+    "tipus": "útja",
+    "tol": 41,
+    "ig": 61,
+    "haz": "Páratlan házszámok",
+    "korzet": "037"
+  },
+  {
+    "nev": "Köztársaság",
+    "tipus": "útja",
+    "tol": 50,
+    "ig": 50,
+    "haz": "Páros házszámok",
+    "korzet": "037"
+  },
+  {
+    "nev": "Köztársaság",
+    "tipus": "útja",
+    "tol": 52,
+    "ig": 999998,
+    "haz": "Páros házszámok",
+    "korzet": "038"
+  },
+  {
+    "nev": "Köztársaság",
+    "tipus": "útja",
+    "tol": 69,
+    "ig": 999999,
+    "haz": "Páratlan házszámok",
+    "korzet": "039"
+  },
+  {
+    "nev": "Krókusz",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "026"
+  },
+  {
+    "nev": "Kutasi",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "002"
+  },
+  {
+    "nev": "Kutilapi",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "049"
+  },
+  {
+    "nev": "Kút",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "040"
+  },
+  {
+    "nev": "Külső-Kórház",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "005"
+  },
+  {
+    "nev": "Landorhegyi",
+    "tipus": "út",
+    "tol": 1,
+    "ig": 19,
+    "haz": "Páratlan házszámok",
+    "korzet": "031"
+  },
+  {
+    "nev": "Landorhegyi",
+    "tipus": "út",
+    "tol": 12,
+    "ig": 14,
+    "haz": "Páros házszámok",
+    "korzet": "031"
+  },
+  {
+    "nev": "Landorhegyi",
+    "tipus": "út",
+    "tol": 16,
+    "ig": 24,
+    "haz": "Páros házszámok",
+    "korzet": "032"
+  },
+  {
+    "nev": "Landorhegyi",
+    "tipus": "út",
+    "tol": 23,
+    "ig": 33,
+    "haz": "Páratlan házszámok",
+    "korzet": "032"
+  },
+  {
+    "nev": "Landorhegyi",
+    "tipus": "út",
+    "tol": 26,
+    "ig": 32,
+    "haz": "Páros házszámok",
+    "korzet": "028"
+  },
+  {
+    "nev": "Landorhegyi",
+    "tipus": "út",
+    "tol": 34,
+    "ig": 999998,
+    "haz": "Páros házszámok",
+    "korzet": "027"
+  },
+  {
+    "nev": "Landorhegyi",
+    "tipus": "út",
+    "tol": 35,
+    "ig": 999999,
+    "haz": "Páratlan házszámok",
+    "korzet": "030"
+  },
+  {
+    "nev": "Lankás",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "028"
+  },
+  {
+    "nev": "Leander",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "026"
+  },
+  {
+    "nev": "Lehel",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "036"
+  },
+  {
+    "nev": "Lejtős",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "026"
+  },
+  {
+    "nev": "Lépcsősor",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "034"
+  },
+  {
+    "nev": "Levendula",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "006"
+  },
+  {
+    "nev": "Ligetszépe",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "026"
+  },
+  {
+    "nev": "Liget",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "003"
+  },
+  {
+    "nev": "Lilaakác",
+    "tipus": "köz",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "025"
+  },
+  {
+    "nev": "Liliom",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "040"
+  },
+  {
+    "nev": "Liszt Ferenc",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "035"
+  },
+  {
+    "nev": "Lőrinc barát",
+    "tipus": "utca",
+    "tol": 1,
+    "ig": 1,
+    "haz": "Páratlan házszámok",
+    "korzet": "021"
+  },
+  {
+    "nev": "Lőrinc barát",
+    "tipus": "utca",
+    "tol": 2,
+    "ig": 6,
+    "haz": "Páros házszámok",
+    "korzet": "021"
+  },
+  {
+    "nev": "Lőrinc barát",
+    "tipus": "utca",
+    "tol": 3,
+    "ig": 999999,
+    "haz": "Páratlan házszámok",
+    "korzet": "023"
+  },
+  {
+    "nev": "Lőrinc barát",
+    "tipus": "utca",
+    "tol": 6,
+    "ig": 999998,
+    "haz": "Páros házszámok",
+    "korzet": "023"
+  },
+  {
+    "nev": "Lőtéri",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "009"
+  },
+  {
+    "nev": "Lukahegyi",
+    "tipus": "út",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "049"
+  },
+  {
+    "nev": "Madách Imre",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "029"
+  },
+  {
+    "nev": "Madárbirs",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "013"
+  },
+  {
+    "nev": "Magasbükk",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "024"
+  },
+  {
+    "nev": "Majori",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "025"
+  },
+  {
+    "nev": "Május 1.",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "041"
+  },
+  {
+    "nev": "Mákvirág",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "040"
+  },
+  {
+    "nev": "Malom",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "008"
+  },
+  {
+    "nev": "Mandulás",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "025"
+  },
+  {
+    "nev": "Margaréta",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "048"
+  },
+  {
+    "nev": "Martinovics",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "004"
+  },
+  {
+    "nev": "Mártírok",
+    "tipus": "útja",
+    "tol": 1,
+    "ig": 59,
+    "haz": "Páratlan házszámok",
+    "korzet": "021"
+  },
+  {
+    "nev": "Mártírok",
+    "tipus": "útja",
+    "tol": 63,
+    "ig": 999999,
+    "haz": "Páratlan házszámok",
+    "korzet": "020"
+  },
+  {
+    "nev": "Mártírok",
+    "tipus": "útja",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Páros házszámok",
+    "korzet": "020"
+  },
+  {
+    "nev": "Mátyás király",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "041"
+  },
+  {
+    "nev": "Meredek",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "026"
+  },
+  {
+    "nev": "Mérleg",
+    "tipus": "tér",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "011"
+  },
+  {
+    "nev": "Mészáros Lázár",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "039"
+  },
+  {
+    "nev": "Mező",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "014"
+  },
+  {
+    "nev": "Mikes Kelemen",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "023"
+  },
+  {
+    "nev": "Millennium",
+    "tipus": "köz",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "020"
+  },
+  {
+    "nev": "Millennium",
+    "tipus": "tér",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "020"
+  },
+  {
+    "nev": "Mókus",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "036"
+  },
+  {
+    "nev": "Móra Ferenc",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "009"
+  },
+  {
+    "nev": "Móricz Zsigmond",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "040"
+  },
+  {
+    "nev": "Mosoly",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "026"
+  },
+  {
+    "nev": "Munkácsy Mihály",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "006"
+  },
+  {
+    "nev": "Mura",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "008"
+  },
+  {
+    "nev": "Muskátli",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "008"
+  },
+  {
+    "nev": "Nagy Csarit",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "025"
+  },
+  {
+    "nev": "Napkelet",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "041"
+  },
+  {
+    "nev": "Napnyugta",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "013"
+  },
+  {
+    "nev": "Napraforgó",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "040"
+  },
+  {
+    "nev": "Napsugár",
+    "tipus": "utca",
+    "tol": 1,
+    "ig": 29,
+    "haz": "Páratlan házszámok",
+    "korzet": "035"
+  },
+  {
+    "nev": "Napsugár",
+    "tipus": "utca",
+    "tol": 31,
+    "ig": 999999,
+    "haz": "Páratlan házszámok",
+    "korzet": "036"
+  },
+  {
+    "nev": "Napsugár",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Páros házszámok",
+    "korzet": "035"
+  },
+  {
+    "nev": "Nárcisz",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "026"
+  },
+  {
+    "nev": "Nefelejcs",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "012"
+  },
+  {
+    "nev": "Nekeresdi",
+    "tipus": "út",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "006"
+  },
+  {
+    "nev": "Nemzetőr",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "044"
+  },
+  {
+    "nev": "Neszele",
+    "tipus": "út",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "006"
+  },
+  {
+    "nev": "Nimród",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "024"
+  },
+  {
+    "nev": "Novák Mihály",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "003"
+  },
+  {
+    "nev": "Nyári-hegyi",
+    "tipus": "út",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "013"
+  },
+  {
+    "nev": "Nyár",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "028"
+  },
+  {
+    "nev": "Nyerges",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "051"
+  },
+  {
+    "nev": "Nyíres",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "003"
+  },
+  {
+    "nev": "Október 6.",
+    "tipus": "tér",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "011"
+  },
+  {
+    "nev": "Olajátemelő",
+    "tipus": "udvar",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "014"
+  },
+  {
+    "nev": "Olajfa",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "026"
+  },
+  {
+    "nev": "Olajmunkás",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "041"
+  },
+  {
+    "nev": "Ola",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "012"
+  },
+  {
+    "nev": "Orgona",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "004"
+  },
+  {
+    "nev": "Orsolya",
+    "tipus": "tér",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "040"
+  },
+  {
+    "nev": "Orsolya",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "041"
+  },
+  {
+    "nev": "Ölyvesfalvi",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "014"
+  },
+  {
+    "nev": "Ördöngős",
+    "tipus": "völgy",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "041"
+  },
+  {
+    "nev": "Öreghegyi",
+    "tipus": "út",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "049"
+  },
+  {
+    "nev": "Öreghegy",
+    "tipus": "tető",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "049"
+  },
+  {
+    "nev": "Öreg-szívhegyi",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "025"
+  },
+  {
+    "nev": "Őrház",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "005"
+  },
+  {
+    "nev": "Ősz",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "028"
+  },
+  {
+    "nev": "Öveges József",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "002"
+  },
+  {
+    "nev": "Őzike",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "049"
+  },
+  {
+    "nev": "Pacsirta",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "013"
+  },
+  {
+    "nev": "Pais Dezső",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "029"
+  },
+  {
+    "nev": "Pálóczi Horváth Ádám",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "038"
+  },
+  {
+    "nev": "Panoráma",
+    "tipus": "tér",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "006"
+  },
+  {
+    "nev": "Paperdő",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "004"
+  },
+  {
+    "nev": "Patak",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "004"
+  },
+  {
+    "nev": "Páterdombi",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "048"
+  },
+  {
+    "nev": "Patkó",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "013"
+  },
+  {
+    "nev": "Pázmány Péter",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "016"
+  },
+  {
+    "nev": "Perczel Mór",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "040"
+  },
+  {
+    "nev": "Perlaki",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "009"
+  },
+  {
+    "nev": "Peteli-hegyi",
+    "tipus": "út",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "013"
+  },
+  {
+    "nev": "Petőfi Sándor",
+    "tipus": "utca",
+    "tol": 1,
+    "ig": 7,
+    "haz": "Folyamatos házszámok",
+    "korzet": "020"
+  },
+  {
+    "nev": "Petőfi Sándor",
+    "tipus": "utca",
+    "tol": 8,
+    "ig": 17,
+    "haz": "Folyamatos házszámok",
+    "korzet": "019"
+  },
+  {
+    "nev": "Petőfi Sándor",
+    "tipus": "utca",
+    "tol": 18,
+    "ig": 18,
+    "haz": "Folyamatos házszámok",
+    "korzet": "018"
+  },
+  {
+    "nev": "Petőfi Sándor",
+    "tipus": "utca",
+    "tol": 18,
+    "ig": 18,
+    "haz": "Folyamatos házszámok",
+    "korzet": "018"
+  },
+  {
+    "nev": "Petőfi Sándor",
+    "tipus": "utca",
+    "tol": 19,
+    "ig": 19,
+    "haz": "Folyamatos házszámok",
+    "korzet": "019"
+  },
+  {
+    "nev": "Petőfi Sándor",
+    "tipus": "utca",
+    "tol": 20,
+    "ig": 24,
+    "haz": "Folyamatos házszámok",
+    "korzet": "018"
+  },
+  {
+    "nev": "Petőfi Sándor",
+    "tipus": "utca",
+    "tol": 28,
+    "ig": 999999,
+    "haz": "Folyamatos házszámok",
+    "korzet": "016"
+  },
+  {
+    "nev": "Petőfi",
+    "tipus": "köz",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "018"
+  },
+  {
+    "nev": "Petúnia",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "009"
+  },
+  {
+    "nev": "Piac",
+    "tipus": "tér",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "011"
+  },
+  {
+    "nev": "Pillangó",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "048"
+  },
+  {
+    "nev": "Pincesor",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "009"
+  },
+  {
+    "nev": "Pintér Máté",
+    "tipus": "utca",
+    "tol": 1,
+    "ig": 11,
+    "haz": "Páratlan házszámok",
+    "korzet": "021"
+  },
+  {
+    "nev": "Pintér Máté",
+    "tipus": "utca",
+    "tol": 13,
+    "ig": 999999,
+    "haz": "Páratlan házszámok",
+    "korzet": "023"
+  },
+  {
+    "nev": "Pintér Máté",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Páros házszámok",
+    "korzet": "021"
+  },
+  {
+    "nev": "Pipahegyi",
+    "tipus": "út",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "048"
+  },
+  {
+    "nev": "Pityke",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "026"
+  },
+  {
+    "nev": "Pitypang",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "004"
+  },
+  {
+    "nev": "Platán",
+    "tipus": "sor",
+    "tol": 1,
+    "ig": 25,
+    "haz": "Páratlan házszámok",
+    "korzet": "007"
+  },
+  {
+    "nev": "Platán",
+    "tipus": "sor",
+    "tol": 2,
+    "ig": 18,
+    "haz": "Páros házszámok",
+    "korzet": "007"
+  },
+  {
+    "nev": "Platán",
+    "tipus": "sor",
+    "tol": 20,
+    "ig": 999998,
+    "haz": "Páros házszámok",
+    "korzet": "008"
+  },
+  {
+    "nev": "Platán",
+    "tipus": "sor",
+    "tol": 51,
+    "ig": 999999,
+    "haz": "Páratlan házszámok",
+    "korzet": "008"
+  },
+  {
+    "nev": "Posta",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "049"
+  },
+  {
+    "nev": "Pózva",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "005"
+  },
+  {
+    "nev": "Púpos-dombi",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "013"
+  },
+  {
+    "nev": "Puskás Ferenc",
+    "tipus": "köz",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "013"
+  },
+  {
+    "nev": "Puskás Tivadar",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "029"
+  },
+  {
+    "nev": "Püspöki Grácián",
+    "tipus": "utca",
+    "tol": 1,
+    "ig": 3,
+    "haz": "Folyamatos házszámok",
+    "korzet": "021"
+  },
+  {
+    "nev": "Püspöki Grácián",
+    "tipus": "utca",
+    "tol": 4,
+    "ig": 999999,
+    "haz": "Folyamatos házszámok",
+    "korzet": "023"
+  },
+  {
+    "nev": "Radnóti Miklós",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "042"
+  },
+  {
+    "nev": "Rákóczi Ferenc",
+    "tipus": "utca",
+    "tol": 1,
+    "ig": 13,
+    "haz": "Páratlan házszámok",
+    "korzet": "011"
+  },
+  {
+    "nev": "Rákóczi Ferenc",
+    "tipus": "utca",
+    "tol": 15,
+    "ig": 999999,
+    "haz": "Páratlan házszámok",
+    "korzet": "012"
+  },
+  {
+    "nev": "Rákóczi Ferenc",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Páros házszámok",
+    "korzet": "012"
+  },
+  {
+    "nev": "Repkény",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "013"
+  },
+  {
+    "nev": "Reptéri",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "004"
+  },
+  {
+    "nev": "Rét",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "002"
+  },
+  {
+    "nev": "Rigó",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "004"
+  },
+  {
+    "nev": "Rómer Flóris",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "013"
+  },
+  {
+    "nev": "Rozmaring",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "009"
+  },
+  {
+    "nev": "Rózsadombi",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "026"
+  },
+  {
+    "nev": "Rózsafa",
+    "tipus": "út",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "025"
+  },
+  {
+    "nev": "Rózsák",
+    "tipus": "tere",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "041"
+  },
+  {
+    "nev": "Rózsáshegyi",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "050"
+  },
+  {
+    "nev": "Rózsás",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "050"
+  },
+  {
+    "nev": "Rózsa",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "008"
+  },
+  {
+    "nev": "Rózsavölgyi",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "006"
+  },
+  {
+    "nev": "Rövid-Jánka",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "041"
+  },
+  {
+    "nev": "Rövid",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "048"
+  },
+  {
+    "nev": "Ruszt József",
+    "tipus": "tér",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "016"
+  },
+  {
+    "nev": "Ságodi",
+    "tipus": "út",
+    "tol": 1,
+    "ig": 37,
+    "haz": "Páratlan házszámok",
+    "korzet": "006"
+  },
+  {
+    "nev": "Ságodi",
+    "tipus": "út",
+    "tol": 2,
+    "ig": 18,
+    "haz": "Páros házszámok",
+    "korzet": "006"
+  },
+  {
+    "nev": "Ságodi",
+    "tipus": "út",
+    "tol": 24,
+    "ig": 999998,
+    "haz": "Páros házszámok",
+    "korzet": "004"
+  },
+  {
+    "nev": "Ságodi",
+    "tipus": "út",
+    "tol": 39,
+    "ig": 999999,
+    "haz": "Páratlan házszámok",
+    "korzet": "004"
+  },
+  {
+    "nev": "Sas",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "037"
+  },
+  {
+    "nev": "Síp",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "021"
+  },
+  {
+    "nev": "Sólyom",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "001"
+  },
+  {
+    "nev": "Sövény",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "026"
+  },
+  {
+    "nev": "Speditőr",
+    "tipus": "út",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "005"
+  },
+  {
+    "nev": "Sport",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "017"
+  },
+  {
+    "nev": "Stadion",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "010"
+  },
+  {
+    "nev": "Stromfeld Aurél",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "035"
+  },
+  {
+    "nev": "Sugár",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "026"
+  },
+  {
+    "nev": "Sütő",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "011"
+  },
+  {
+    "nev": "Süveghegy",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "013"
+  },
+  {
+    "nev": "Szabadság",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "014"
+  },
+  {
+    "nev": "Szajkó",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "048"
+  },
+  {
+    "nev": "Szamóca",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "001"
+  },
+  {
+    "nev": "Szarkaláb",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "028"
+  },
+  {
+    "nev": "Szarvas",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "013"
+  },
+  {
+    "nev": "Százszorszép",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "026"
+  },
+  {
+    "nev": "Széchenyi",
+    "tipus": "tér",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "015"
+  },
+  {
+    "nev": "Szedenik",
+    "tipus": "út",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "028"
+  },
+  {
+    "nev": "Szegfű",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "042"
+  },
+  {
+    "nev": "Szeglet",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "011"
+  },
+  {
+    "nev": "Szekeresvölgyi",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "009"
+  },
+  {
+    "nev": "Szélhordta",
+    "tipus": "út",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "009"
+  },
+  {
+    "nev": "Szellőháti",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "004"
+  },
+  {
+    "nev": "Szendrei Júlia",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "009"
+  },
+  {
+    "nev": "Szent István",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "003"
+  },
+  {
+    "nev": "Szent László",
+    "tipus": "utca",
+    "tol": 1,
+    "ig": 16,
+    "haz": "Folyamatos házszámok",
+    "korzet": "041"
+  },
+  {
+    "nev": "Szent László",
+    "tipus": "utca",
+    "tol": 17,
+    "ig": 999998,
+    "haz": "Folyamatos házszámok",
+    "korzet": "040"
+  },
+  {
+    "nev": "Szentmártoni",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "002"
+  },
+  {
+    "nev": "Széperdő",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "013"
+  },
+  {
+    "nev": "Szeretet",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "026"
+  },
+  {
+    "nev": "Szilágyi Erzsébet",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "012"
+  },
+  {
+    "nev": "Szilvás",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "004"
+  },
+  {
+    "nev": "Szirom",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "001"
+  },
+  {
+    "nev": "Szívhegyi",
+    "tipus": "út",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "026"
+  },
+  {
+    "nev": "Szív",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "013"
+  },
+  {
+    "nev": "Szó",
+    "tipus": "köz",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "013"
+  },
+  {
+    "nev": "Szőlőhegyi",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "001"
+  },
+  {
+    "nev": "Szőlőskert",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "040"
+  },
+  {
+    "nev": "Szövetkezet",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "049"
+  },
+  {
+    "nev": "Szüret",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "027"
+  },
+  {
+    "nev": "Takarék",
+    "tipus": "köz",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "019"
+  },
+  {
+    "nev": "Táncoslapi",
+    "tipus": "út",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "025"
+  },
+  {
+    "nev": "Táncsics Mihály",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "019"
+  },
+  {
+    "nev": "Tavasz",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "009"
+  },
+  {
+    "nev": "Telekalja",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "004"
+  },
+  {
+    "nev": "Tél",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "013"
+  },
+  {
+    "nev": "Termál",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "004"
+  },
+  {
+    "nev": "Teskándi",
+    "tipus": "út",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "001"
+  },
+  {
+    "nev": "Toldi Miklós",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "016"
+  },
+  {
+    "nev": "Tomori Pál",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "041"
+  },
+  {
+    "nev": "Tompa Mihály",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "020"
+  },
+  {
+    "nev": "Toposháza",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "024"
+  },
+  {
+    "nev": "Tóth Árpád",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "040"
+  },
+  {
+    "nev": "Tó",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "004"
+  },
+  {
+    "nev": "Tölgyfa",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "002"
+  },
+  {
+    "nev": "Tőzike",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "040"
+  },
+  {
+    "nev": "Tuja",
+    "tipus": "sor",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "026"
+  },
+  {
+    "nev": "Tulipán",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "048"
+  },
+  {
+    "nev": "Tücsök",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "006"
+  },
+  {
+    "nev": "Tüdőkórház",
+    "tipus": "köz",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "005"
+  },
+  {
+    "nev": "Tüttő György",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "014"
+  },
+  {
+    "nev": "Tüttőssy Ferenc",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "018"
+  },
+  {
+    "nev": "Tűzcsap",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "009"
+  },
+  {
+    "nev": "Újhegyi",
+    "tipus": "út",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "001"
+  },
+  {
+    "nev": "Új",
+    "tipus": "út",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "004"
+  },
+  {
+    "nev": "Űrhajós",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "033"
+  },
+  {
+    "nev": "Vackor",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "041"
+  },
+  {
+    "nev": "Vadrózsa",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "025"
+  },
+  {
+    "nev": "Vadszőlő",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "040"
+  },
+  {
+    "nev": "Vadvirág",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "002"
+  },
+  {
+    "nev": "Vágóhíd",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "012"
+  },
+  {
+    "nev": "Vajda Lajos",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "034"
+  },
+  {
+    "nev": "Vakaros-hegyi",
+    "tipus": "út",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "049"
+  },
+  {
+    "nev": "Válicka",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "014"
+  },
+  {
+    "nev": "Várberki",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "050"
+  },
+  {
+    "nev": "Vari-kút",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "013"
+  },
+  {
+    "nev": "Varkaus",
+    "tipus": "tér",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "037"
+  },
+  {
+    "nev": "Várkör",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "011"
+  },
+  {
+    "nev": "Vásártér",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "006"
+  },
+  {
+    "nev": "Vass Lajos",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "025"
+  },
+  {
+    "nev": "Vasút",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "005"
+  },
+  {
+    "nev": "Vasvári Pál",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "004"
+  },
+  {
+    "nev": "Vérmalom",
+    "tipus": "part",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "014"
+  },
+  {
+    "nev": "Verőfény",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "006"
+  },
+  {
+    "nev": "Viola",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "004"
+  },
+  {
+    "nev": "Virág Benedek",
+    "tipus": "utca",
+    "tol": 1,
+    "ig": 8,
+    "haz": "Folyamatos házszámok",
+    "korzet": "021"
+  },
+  {
+    "nev": "Virág Benedek",
+    "tipus": "utca",
+    "tol": 9,
+    "ig": 999998,
+    "haz": "Folyamatos házszámok",
+    "korzet": "023"
+  },
+  {
+    "nev": "Virágszer",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "001"
+  },
+  {
+    "nev": "Virág",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "001"
+  },
+  {
+    "nev": "Virágzó mező",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "006"
+  },
+  {
+    "nev": "Vizslaparki",
+    "tipus": "út",
+    "tol": 1,
+    "ig": 21,
+    "haz": "Páratlan házszámok",
+    "korzet": "021"
+  },
+  {
+    "nev": "Vizslaparki",
+    "tipus": "út",
+    "tol": 23,
+    "ig": 999999,
+    "haz": "Páratlan házszámok",
+    "korzet": "022"
+  },
+  {
+    "nev": "Vizslaparki",
+    "tipus": "út",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Páros házszámok",
+    "korzet": "021"
+  },
+  {
+    "nev": "Vorhotai",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "001"
+  },
+  {
+    "nev": "Völgyi",
+    "tipus": "út",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "001"
+  },
+  {
+    "nev": "Vörösmarty Mihály",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "018"
+  },
+  {
+    "nev": "Wlassics Gyula",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "042"
+  },
+  {
+    "nev": "Zalagyöngye",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "027"
+  },
+  {
+    "nev": "Zalai Tóth János",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "048"
+  },
+  {
+    "nev": "Zala",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "006"
+  },
+  {
+    "nev": "ZalaZONE",
+    "tipus": "tér",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "000"
+  },
+  {
+    "nev": "Zárda",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "041"
+  },
+  {
+    "nev": "Závodszky István",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "035"
+  },
+  {
+    "nev": "Zengő",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "028"
+  },
+  {
+    "nev": "Zölderdő",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "014"
+  },
+  {
+    "nev": "Zrínyi Miklós",
+    "tipus": "utca",
+    "tol": 1,
+    "ig": 13,
+    "haz": "Páratlan házszámok",
+    "korzet": "041"
+  },
+  {
+    "nev": "Zrínyi Miklós",
+    "tipus": "utca",
+    "tol": 19,
+    "ig": 999999,
+    "haz": "Páratlan házszámok",
+    "korzet": "040"
+  },
+  {
+    "nev": "Zrínyi Miklós",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Páros házszámok",
+    "korzet": "040"
+  },
+  {
+    "nev": "Zsák",
+    "tipus": "utca",
+    "tol": 0,
+    "ig": 999999,
+    "haz": "Teljes közterület",
+    "korzet": "026"
+  }
+]
