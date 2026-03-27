@@ -33,6 +33,8 @@ Utolsó frissítés: 2026. március 27.
 | Magyarítás (Dashboard → Áttekintő) | ✅ Kész | Angol kifejezések eltávolítva |
 | Footer nonprofit szöveg | ✅ Kész | Minden oldalon |
 | Sérülékenység javítások | ✅ Kész | XSS, rate limit, CSRF, session, stb. |
+| Admin statisztikák | ✅ Kész | Látogatottság, kategóriák, körzeti aktivitás |
+| Admin rendszer állapot (health) | ✅ Kész | CPU, memória, HDD, uptime |
 
 ## Tervezett / jövőbeli funkciók
 
@@ -40,7 +42,7 @@ Utolsó frissítés: 2026. március 27.
 |---------|-----------|------------|
 | Facebook auto-posztolás | 🔵 Alacsony | Napi összefoglaló poszt automatikusan |
 | Statisztika export (CSV) | 🔵 Alacsony | Admin funkció |
-| Több nyelv támogatás | 🔵 Alacsony | Jelenleg csak magyar |
+| Képviselői válasz funkció | 🟡 Közepes | Képviselők reagálhatnak a bejelentésekre |
 
 ## Ismert problémák
 

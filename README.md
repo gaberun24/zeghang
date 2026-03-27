@@ -27,6 +27,8 @@ Független, nonprofit közösségi platform Zalaegerszeg lakosai számára. Köz
 - **Trágárságszűrő** — magyar csúnyaszó-lista automatikus csillagozással (Jinja2 `|censor` filter)
 - **Troll védelem** — reputáció-alapú shadowban, rate limit
 - **Admin felület** — bejelentések/felhasználók/hozzászólások kezelése, ban, elrejtés
+- **Admin statisztikák** — látogatottság, kategóriák, körzeti aktivitás, top felhasználók
+- **Rendszer állapot** — CPU, memória, HDD, uptime monitorozás az admin felületen
 - **Cookie consent** + **segélyhívó figyelmeztetés** (112)
 
 ### Felhasználói funkciók
