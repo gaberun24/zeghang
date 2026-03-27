@@ -1,7 +1,23 @@
 """
-Zalaegerszeg 12 egyéni választókerülete — képviselők, utca→körzet mapping.
-Forrás: mockup + helyi önkormányzati adatok.
+Zalaegerszeg 12 egyéni választókerülete — képviselők, szavazókör→körzet mapping,
+és teljes utca→szavazókör adatbázis a zalaegerszeg.hu hivatalos adatai alapján.
+
+Forrás: https://zalaegerszeg.hu/ki-az-en-kepviselom/
 """
+
+import json
+import os
+import re
+import unicodedata
+
+# ── Ékezet eltávolítás (accent-insensitive kereséshez) ─────────────
+
+def _strip_accents(s: str) -> str:
+    """Remove Hungarian accents: á→a, é→e, í→i, ó→o, ö→o, ő→o, ú→u, ü→u, ű→u"""
+    nfkd = unicodedata.normalize("NFKD", s)
+    return "".join(c for c in nfkd if not unicodedata.combining(c))
+
+# ── Képviselők ──────────────────────────────────────────────────────
 
 DISTRICTS = [
     {"number": 1, "name": "Belváros / Kaszaháza-dél",
@@ -42,54 +58,155 @@ DISTRICTS = [
      "representative_party": ""},
 ]
 
-# Utcanév → körzet szám mapping (kisbetűs normalizált kulcsok)
-# A regisztrációnál az utcanév alapján auto-assign
-STREET_TO_DISTRICT = {
-    # 01 — Belváros / Kaszaháza-dél
-    "kossuth": 1, "deák": 1, "széchenyi": 1, "rákóczi": 1, "petőfi": 1,
-    "ady endre": 1, "kazinczy": 1, "jókai": 1, "batthyány": 1,
-    "dísz tér": 1, "szabadság tér": 1,
+# ── Szavazókör → Körzet mapping ────────────────────────────────────
+# Kulcs: szavazókör kód (str, 3 jegyű), Érték: körzet szám (int, 1-12)
 
-    # 02 — Ságod / Pózva
-    "ságodi": 2, "pózva": 2,
-
-    # 03 — Belváros-észak / Vizslapark
-    "göcseji": 3, "kosztolányi": 3, "vizslapark": 3, "mártírok": 3,
-
-    # 04 — Kertváros / Alsóerdő
-    "kertváros": 4, "alsóerdő": 4, "platán": 4,
-
-    # 05 — Munkás / Berzsenyi
-    "berzsenyi": 5, "munkás": 5, "sport": 5,
-
-    # 06 — Öreghegy / Botfa
-    "öreghegy": 6, "botfa": 6,
-
-    # 07 — Landorhegy / Neszele / Szenterzsébethegy
-    "landorhegy": 7, "neszele": 7, "szenterzsébethegy": 7,
-    "balatoni": 7, "olimpia": 7,
-
-    # 08 — Bazita / Nekeresd
-    "bazita": 8, "nekeresd": 8,
-
-    # 09 — Csács / Gógánhegy
-    "csács": 9, "gógánhegy": 9,
-
-    # 10 — Páterdombi / Jákum
-    "páterdomb": 10, "jákum": 10,
-
-    # 11 — Bekeháza / Zrínyi
-    "bekeháza": 11, "zrínyi": 11,
-
-    # 12 — Ebergény / Szenterzsébethegy-dél
-    "ebergény": 12,
+SZAVAZOKOR_TO_KORZET = {}
+_korzet_data = {
+    1: ["001", "002", "003", "009"],
+    2: ["004", "005", "006"],
+    3: ["016", "018", "019", "020"],
+    4: ["010", "011", "012", "015"],
+    5: ["042", "047", "048", "049", "050"],
+    6: ["007", "021", "022", "023"],
+    7: ["024", "025", "026", "027", "032"],
+    8: ["008", "028", "029", "030", "031"],
+    9: ["037", "040", "041"],
+    10: ["033", "034", "035", "036", "039"],
+    11: ["038", "043", "044", "045", "046"],
+    12: ["013", "014", "017", "051"],
 }
+for _korzet_num, _szavazokor_list in _korzet_data.items():
+    for _szk in _szavazokor_list:
+        SZAVAZOKOR_TO_KORZET[_szk] = _korzet_num
+
+# ── Utca adatbázis betöltése ───────────────────────────────────────
+
+_streets_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "streets_compact.json")
+with open(_streets_path, "r", encoding="utf-8") as _f:
+    STREETS = json.load(_f)
+
+# Index: utcanév (kisbetűs, ékezet nélkül) → lista az összes bejegyzésből
+_STREET_INDEX = {}
+for _entry in STREETS:
+    _key = _strip_accents(_entry["nev"].lower())
+    _STREET_INDEX.setdefault(_key, []).append(_entry)
 
 
-def guess_district(street: str) -> int | None:
-    """Try to guess district number from street name. Returns None if no match."""
-    street_lower = street.lower().strip()
-    for keyword, district_num in STREET_TO_DISTRICT.items():
-        if keyword in street_lower:
-            return district_num
-    return None
+def _normalize_street_name(raw: str) -> tuple[str, str | None, int | None]:
+    """
+    Parse a raw address string into (street_name, street_type, house_number).
+    Examples:
+        "Landorhegyi út 15"  → ("landorhegyi", "út", 15)
+        "Kossuth Lajos utca" → ("kossuth lajos", "utca", None)
+        "Petőfi u. 3/A"     → ("petőfi", "utca", 3)
+        "Ady Endre utca 34" → ("ady endre", "utca", 34)
+    """
+    raw = raw.strip()
+    if not raw:
+        return ("", None, None)
+
+    # Known street types — both accented and unaccented forms
+    type_map = {
+        "útja": "útja", "utja": "útja",
+        "liget": "liget", "kert": "kert",
+        "tető": "tető", "teto": "tető",
+        "udvar": "udvar",
+        "köz": "köz", "koz": "köz",
+        "sor": "sor",
+        "tér": "tér", "ter": "tér",
+        "utca": "utca",
+        "út": "út", "ut": "út",
+        "u.": "utca",
+    }
+
+    raw_lower = raw.lower()
+
+    # Extract house number from end (e.g. "15", "3/A", "12-14", "7.sz")
+    house_num = None
+    house_match = re.search(r'(\d+)\s*[/\-\.]?\s*[a-zA-Z]?\s*\.?\s*$', raw)
+    if house_match:
+        house_num = int(house_match.group(1))
+        # Remove house number part from the string
+        raw_lower = raw_lower[:house_match.start()].strip()
+
+    # Detect and remove street type (match as whole word or at end)
+    street_type = None
+    for abbr, full_type in type_map.items():
+        pattern = r'\b' + re.escape(abbr) + r'(?:\b|$|\.)'
+        m = re.search(pattern, raw_lower)
+        if m and m.start() > 0:
+            street_type = full_type
+            raw_lower = raw_lower[:m.start()].strip()
+            break
+
+    street_name = _strip_accents(raw_lower.strip().rstrip("."))
+    return (street_name, street_type, house_num)
+
+
+def _matches_parity(house_num: int, haz_type: str) -> bool:
+    """Check if a house number matches the parity rule."""
+    if haz_type == "Teljes közterület" or haz_type == "Folyamatos házszámok":
+        return True
+    if haz_type == "Páratlan házszámok":
+        return house_num % 2 == 1
+    if haz_type == "Páros házszámok":
+        return house_num % 2 == 0
+    return True
+
+
+def guess_district(address: str) -> int | None:
+    """
+    Determine district number from a Zalaegerszeg address.
+    Uses the official zalaegerszeg.hu street→szavazókör→körzet database.
+
+    Returns district number (1-12) or None if no match.
+    """
+    street_name, street_type, house_num = _normalize_street_name(address)
+    if not street_name:
+        return None
+
+    entries = _STREET_INDEX.get(street_name)
+    if not entries:
+        # Fuzzy: try matching as substring
+        for key in _STREET_INDEX:
+            if street_name in key or key in street_name:
+                entries = _STREET_INDEX[key]
+                break
+    if not entries:
+        return None
+
+    # Filter by street type if provided
+    if street_type and len(entries) > 1:
+        typed = [e for e in entries if e["tipus"] == street_type]
+        if typed:
+            entries = typed
+
+    # If we have a house number, find the matching range
+    if house_num is not None:
+        for entry in entries:
+            tol = entry["tol"]
+            ig = entry["ig"]
+            # tol=0, ig=999999 means entire street — always matches
+            if tol == 0 and ig == 999999:
+                if _matches_parity(house_num, entry["haz"]):
+                    szk = entry["korzet"]
+                    return SZAVAZOKOR_TO_KORZET.get(szk)
+            elif tol <= house_num <= ig and _matches_parity(house_num, entry["haz"]):
+                szk = entry["korzet"]
+                return SZAVAZOKOR_TO_KORZET.get(szk)
+        # No range matched — try "Teljes közterület" entries as fallback
+        for entry in entries:
+            if entry["haz"] == "Teljes közterület":
+                szk = entry["korzet"]
+                return SZAVAZOKOR_TO_KORZET.get(szk)
+
+    # No house number — return first "Teljes közterület" or first entry
+    for entry in entries:
+        if entry["haz"] == "Teljes közterület":
+            szk = entry["korzet"]
+            return SZAVAZOKOR_TO_KORZET.get(szk)
+
+    # Fallback: first entry
+    szk = entries[0]["korzet"]
+    return SZAVAZOKOR_TO_KORZET.get(szk)
