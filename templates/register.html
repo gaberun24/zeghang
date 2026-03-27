@@ -7,7 +7,7 @@
 <div class="auth-page">
   <div class="auth-card">
     <div class="auth-logo">
-      <div class="auth-logo-mark">ZH</div>
+      <div class="auth-logo-mark">Z!</div>
       <h2>Regisztráció</h2>
       <p>Csatlakozz a körzeted közösségéhez!</p>
     </div>
@@ -69,6 +69,13 @@
           </option>
           {% endfor %}
         </select>
+      </div>
+
+      <div class="field" style="margin-top:1rem;">
+        <label style="display:flex; align-items:flex-start; gap:8px; cursor:pointer; font-weight:400; font-size:13px; line-height:1.4;">
+          <input type="checkbox" name="accept_terms" required style="margin-top:3px; flex-shrink:0;">
+          Elfogadom az <a href="{{ url_for('terms') }}" target="_blank" style="color:var(--meadow); font-weight:600;">Általános Szerződési Feltételeket</a> és az <a href="{{ url_for('privacy') }}" target="_blank" style="color:var(--meadow); font-weight:600;">Adatvédelmi tájékoztatót</a>.
+        </label>
       </div>
 
       <button type="submit" class="btn-submit">Regisztráció →</button>

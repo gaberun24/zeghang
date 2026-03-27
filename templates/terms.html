@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+{% block title %}Általános Szerződési Feltételek — ZEG Hang{% endblock %}
+
+{% block content %}
+<div class="how-page">
+  <div class="how-hero">
+    <h1>Általános Szerződési<br>Feltételek (ÁSZF)</h1>
+    <p>Utolsó frissítés: 2026. március 27.</p>
+  </div>
+
+  <div class="how-section">
+    <h2><span class="icon">📋</span> 1. A szolgáltatás</h2>
+    <p>A ZEG Hang (<strong>zeghang.hajasgabor.com</strong>) egy ingyenes, független közösségi platform, amely lehetővé teszi Zalaegerszeg lakosai számára közterületi problémák bejelentését, szavazást és közösségi priorizálást.</p>
+    <p style="margin-top:1rem;">A platform üzemeltetője: <strong>Hajas Gábor e.v.</strong> (továbbiakban: Üzemeltető).</p>
+    <p style="margin-top:0.5rem;">A platform forráskódja nyilvános: <a href="https://github.com/gaberun24/zeghang" target="_blank" style="color:var(--meadow); font-weight:600;">github.com/gaberun24/zeghang</a></p>
+  </div>
+
+  <div class="how-section">
+    <h2><span class="icon">👤</span> 2. Regisztráció és felhasználói fiók</h2>
+    <ul>
+      <li>A platform használatához regisztráció szükséges, amelyhez zalaegerszegi lakcím megadása kötelező.</li>
+      <li>Egy személy egy fiókot hozhat létre.</li>
+      <li>A regisztrációval elfogadod a jelen ÁSZF-et és az <a href="{{ url_for('privacy') }}" style="color:var(--meadow);">Adatvédelmi tájékoztatót</a>.</li>
+      <li>A megadott adatok valódiságáért a felhasználó felel.</li>
+      <li>A fiók jelszavának biztonságos megőrzése a felhasználó felelőssége.</li>
+    </ul>
+  </div>
+
+  <div class="how-section">
+    <h2><span class="icon">✅</span> 3. A platform használata</h2>
+    <p>A felhasználó jogosult:</p>
+    <ul>
+      <li>Közterületi problémákat bejelenteni (szöveggel, fotóval, térképi jelöléssel)</li>
+      <li>Más bejelentésekre szavazni (fel/le)</li>
+      <li>Hozzászólásokat írni</li>
+      <li>Saját bejelentéseit és szavazatait megtekinteni</li>
+    </ul>
+  </div>
+
+  <div class="how-section">
+    <h2><span class="icon">🚫</span> 4. Tiltott tevékenységek</h2>
+    <p>A platform használata során tilos:</p>
+    <ul>
+      <li><strong>Hamis bejelentés</strong> — nem létező vagy szándékosan félrevezető probléma bejelentése</li>
+      <li><strong>Gyűlöletkeltés</strong> — faji, vallási, nemi, politikai alapú gyűlöletre uszítás</li>
+      <li><strong>Személyes támadás</strong> — más felhasználók, képviselők vagy közszereplők személyeskedő, sértő megjegyzésekkel való illetése</li>
+      <li><strong>Spam</strong> — ismétlődő, értelmetlen vagy reklám célú tartalom</li>
+      <li><strong>Visszaélés a szavazással</strong> — többszörös fiókkal történő szavazás-manipuláció</li>
+      <li><strong>Jogsértő tartalom</strong> — bármilyen tartalom, amely sérti a magyar jogszabályokat</li>
+    </ul>
+    <div class="how-highlight">
+      A tiltott tevékenységek észlelése esetén az Üzemeltető jogosult a felhasználói fiók felfüggesztésére vagy törlésére, előzetes értesítés nélkül.
+    </div>
+  </div>
+
+  <div class="how-section">
+    <h2><span class="icon">🤖</span> 5. AI feldolgozás</h2>
+    <p>A bejelentések automatikus feldolgozásához mesterséges intelligenciát (OpenAI GPT-4o-mini) használunk:</p>
+    <ul>
+      <li>Kategória javaslat</li>
+      <li>Sürgősség becslés</li>
+      <li>Duplikáció szűrés</li>
+    </ul>
+    <p style="margin-top:1rem;">Az AI soha nem dönt — kizárólag javaslatot tesz. A felhasználó bármikor felülírhatja az AI javaslatát. A bejelentés szövege (cím, leírás) átkerül az OpenAI API-hoz; személyes adatok (email, lakcím) soha nem.</p>
+  </div>
+
+  <div class="how-section">
+    <h2><span class="icon">⚖️</span> 6. Szavazás és súlyozás</h2>
+    <ul>
+      <li>Minden regisztrált felhasználó bejelentésenként egy szavazatot adhat le (fel vagy le irányba).</li>
+      <li>A szavazat bármikor módosítható vagy visszavonható.</li>
+      <li>A szavazatok a körzet lakosságszámával arányosan súlyozottak, hogy minden körzet egyenlő eséllyel jelenhessen meg a városszintű rangsorban.</li>
+      <li>A szavazatok anonimek — sem más felhasználók, sem képviselők nem látják, ki szavazott mire.</li>
+    </ul>
+  </div>
+
+  <div class="how-section">
+    <h2><span class="icon">📸</span> 7. Feltöltött tartalmak</h2>
+    <ul>
+      <li>A felhasználó által feltöltött fotók és szövegek a bejelentéshez kapcsolódóan publikusan megjelenhetnek a platformon.</li>
+      <li>A felhasználó szavatolja, hogy a feltöltött tartalom nem sérti mások jogait (szerzői jog, személyiségi jog).</li>
+      <li>Az Üzemeltető jogosult a jogsértő tartalmak eltávolítására.</li>
+    </ul>
+  </div>
+
+  <div class="how-section">
+    <h2><span class="icon">🔒</span> 8. Adatvédelem</h2>
+    <p>Az adatkezelés részleteit az <a href="{{ url_for('privacy') }}" style="color:var(--meadow); font-weight:600;">Adatvédelmi tájékoztató</a> tartalmazza. A regisztrációval a felhasználó elfogadja az abban foglaltakat.</p>
+  </div>
+
+  <div class="how-section">
+    <h2><span class="icon">⚠️</span> 9. Felelősségkorlátozás</h2>
+    <ul>
+      <li>A platform "ahogy van" (as-is) alapon működik. Az Üzemeltető nem garantálja a megszakítás nélküli elérhetőséget.</li>
+      <li>A bejelentések tartalma a felhasználók véleményét tükrözi — az Üzemeltető nem vállal felelősséget azok valóságtartalmáért.</li>
+      <li>A platform nem helyettesíti az önkormányzati ügyintézést. Az Üzemeltető nem garantálja, hogy a bejelentett problémák megoldásra kerülnek.</li>
+      <li>Az Üzemeltető nem vállal felelősséget a platform használatából eredő közvetett károkért.</li>
+    </ul>
+  </div>
+
+  <div class="how-section">
+    <h2><span class="icon">🔄</span> 10. Módosítások</h2>
+    <p>Az Üzemeltető jogosult a jelen ÁSZF-et bármikor módosítani. A módosításokról a platformon értesítjük a felhasználókat. A módosítás után a platform további használata az új feltételek elfogadásának minősül.</p>
+  </div>
+
+  <div class="how-section">
+    <h2><span class="icon">🚪</span> 11. Fiók törlése</h2>
+    <ul>
+      <li>A felhasználó bármikor kérheti fiókja törlését a zeghang@hajasgabor.com email címen.</li>
+      <li>Törléskor minden személyes adat (email, jelszó hash, lakcím hash, szavazatok) véglegesen eltávolításra kerül.</li>
+      <li>A bejelentések anonimizálva megmaradhatnak a közösségi adatok megőrzése érdekében.</li>
+    </ul>
+  </div>
+
+  <div class="how-section">
+    <h2><span class="icon">🏛️</span> 12. Irányadó jog</h2>
+    <p>A jelen ÁSZF-re a magyar jog az irányadó. Jogvita esetén a Zalaegerszegi Járásbíróság kizárólagos illetékességét kötjük ki.</p>
+  </div>
+
+  <div style="text-align:center; padding:3rem 2rem; background:var(--cream-dark);">
+    <p style="color:var(--text-muted); font-size:13px;">Kérdésed van az ÁSZF-fel kapcsolatban?</p>
+    <p style="color:var(--text-mid); font-size:14px; margin-top:0.5rem;">zeghang@hajasgabor.com</p>
+  </div>
+</div>
+{% endblock %}

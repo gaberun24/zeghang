@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+{% block title %}Adatvédelmi tájékoztató — ZEG Hang{% endblock %}
+
+{% block content %}
+<div class="how-page">
+  <div class="how-hero">
+    <h1>Adatvédelmi<br>tájékoztató</h1>
+    <p>Utolsó frissítés: 2026. március 27.</p>
+  </div>
+
+  <div class="how-section">
+    <h2><span class="icon">📋</span> 1. Adatkezelő</h2>
+    <p>A ZEG Hang platform (<strong>zeghang.hajasgabor.com</strong>) üzemeltetője:</p>
+    <ul>
+      <li><strong>Név:</strong> Hajas Gábor e.v.</li>
+      <li><strong>Székhely:</strong> Zalaegerszeg</li>
+      <li><strong>Email:</strong> zeghang@hajasgabor.com</li>
+    </ul>
+    <p style="margin-top:1rem;">A platform független civil kezdeményezés, nem tartozik önkormányzathoz, párthoz vagy politikai szervezethez.</p>
+  </div>
+
+  <div class="how-section">
+    <h2><span class="icon">📊</span> 2. Kezelt adatok köre</h2>
+
+    <h3 style="font-size:16px; font-weight:600; margin:1.5rem 0 0.75rem; color:var(--text-dark);">Regisztrációkor megadott adatok</h3>
+    <table style="width:100%; border-collapse:collapse; font-size:14px;">
+      <tr style="border-bottom:1px solid var(--cream-dark);">
+        <td style="padding:8px 0; font-weight:600;">Email cím</td>
+        <td style="padding:8px 0;">Bejelentkezés, jelszó-emlékeztető. Soha nem jelenik meg publikusan.</td>
+      </tr>
+      <tr style="border-bottom:1px solid var(--cream-dark);">
+        <td style="padding:8px 0; font-weight:600;">Jelszó</td>
+        <td style="padding:8px 0;">Kizárólag <strong>bcrypt hash</strong> formában tárolva (salt-tal). A nyers jelszó soha nem kerül mentésre.</td>
+      </tr>
+      <tr style="border-bottom:1px solid var(--cream-dark);">
+        <td style="padding:8px 0; font-weight:600;">Lakcím</td>
+        <td style="padding:8px 0;">Egyirányú <strong>SHA-256 hash</strong> formában tárolva. A pontos cím visszafejtése matematikailag lehetetlen. Kizárólag a körzet-azonosításhoz használjuk, utána csak a hash marad.</td>
+      </tr>
+      <tr style="border-bottom:1px solid var(--cream-dark);">
+        <td style="padding:8px 0; font-weight:600;">Megjelenítési név</td>
+        <td style="padding:8px 0;">Opcionális. Ha nem adod meg, "Körzeti lakos" néven jelensz meg.</td>
+      </tr>
+      <tr>
+        <td style="padding:8px 0; font-weight:600;">Körzet száma</td>
+        <td style="padding:8px 0;">A lakcím alapján automatikusan hozzárendelt egyéni választókerület (1-12).</td>
+      </tr>
+    </table>
+
+    <h3 style="font-size:16px; font-weight:600; margin:1.5rem 0 0.75rem; color:var(--text-dark);">Használat során keletkező adatok</h3>
+    <table style="width:100%; border-collapse:collapse; font-size:14px;">
+      <tr style="border-bottom:1px solid var(--cream-dark);">
+        <td style="padding:8px 0; font-weight:600;">Bejelentések</td>
+        <td style="padding:8px 0;">Cím, leírás, kategória, helyszín, térkép-koordináta, feltöltött fotók.</td>
+      </tr>
+      <tr style="border-bottom:1px solid var(--cream-dark);">
+        <td style="padding:8px 0; font-weight:600;">Szavazatok</td>
+        <td style="padding:8px 0;">A szavazat ténye és iránya (fel/le). A szavazó kiléte soha nem jelenik meg publikusan.</td>
+      </tr>
+      <tr>
+        <td style="padding:8px 0; font-weight:600;">Hozzászólások</td>
+        <td style="padding:8px 0;">A bejelentésekhez fűzött szöveges megjegyzések.</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="how-section">
+    <h2><span class="icon">🔐</span> 3. Titkosítás és adatbiztonság</h2>
+    <p>A platform az alábbi biztonsági intézkedéseket alkalmazza:</p>
+    <ul>
+      <li><strong>Jelszó:</strong> bcrypt algoritmus, egyedi salt-tal. A bcrypt szándékosan lassú hash-függvény, amely ellenáll a brute-force támadásoknak.</li>
+      <li><strong>Lakcím:</strong> SHA-256 egyirányú hash. A pontos cím nem visszafejthető — sem az üzemeltető, sem külső támadó nem tudja kinyerni.</li>
+      <li><strong>Adatbázis:</strong> PostgreSQL, jelszóval védett hozzáférés, kizárólag a szerverről elérhető (nincs külső hozzáférés).</li>
+      <li><strong>Szavazatok:</strong> A rendszer tárolja a szavazó azonosítóját a dupla szavazás megelőzéséhez, de ez az adat soha nem jelenik meg publikusan — sem más felhasználóknak, sem képviselőknek.</li>
+      <li><strong>Munkamenet:</strong> Flask session cookie, szerver-oldali titkos kulccsal aláírva (HMAC-SHA256).</li>
+    </ul>
+    <div class="how-highlight">
+      A platform forráskódja nyilvános és bárki által ellenőrizhető:<br>
+      <a href="https://github.com/gaberun24/zeghang" target="_blank" style="color:var(--meadow); font-weight:600;">github.com/gaberun24/zeghang</a>
+    </div>
+  </div>
+
+  <div class="how-section">
+    <h2><span class="icon">🤖</span> 4. AI (mesterséges intelligencia) használata</h2>
+    <p>A platform OpenAI GPT-4o-mini modellt használ a bejelentések feldolgozásához:</p>
+    <ul>
+      <li><strong>Kategória javaslat</strong> — az AI a bejelentés szövege alapján kategóriát javasol</li>
+      <li><strong>Sürgősség becslés</strong> — az AI értékeli a probléma sürgősségét</li>
+      <li><strong>Duplikáció szűrés</strong> — az AI vizsgálja, van-e hasonló nyitott bejelentés</li>
+    </ul>
+    <p style="margin-top:1rem;">Az AI feldolgozáshoz a bejelentés szövege (cím, leírás) átkerül az OpenAI API-hoz. <strong>Személyes adat (email, lakcím, szavazat) soha nem kerül az AI-hoz.</strong></p>
+    <p style="margin-top:0.5rem;">Az OpenAI adatkezelési tájékoztatója: <a href="https://openai.com/policies/privacy-policy" target="_blank" style="color:var(--meadow);">openai.com/policies/privacy-policy</a></p>
+  </div>
+
+  <div class="how-section">
+    <h2><span class="icon">⚖️</span> 5. Adatkezelés jogalapja</h2>
+    <ul>
+      <li><strong>Hozzájárulás (GDPR 6(1)(a))</strong> — a regisztrációval kifejezetten hozzájárulsz az adatkezeléshez</li>
+      <li><strong>Szerződés teljesítése (GDPR 6(1)(b))</strong> — a platform szolgáltatásainak nyújtásához szükséges adatkezelés</li>
+      <li><strong>Jogos érdek (GDPR 6(1)(f))</strong> — biztonsági naplózás, visszaélés-megelőzés</li>
+    </ul>
+  </div>
+
+  <div class="how-section">
+    <h2><span class="icon">🕐</span> 6. Adatmegőrzés időtartama</h2>
+    <ul>
+      <li><strong>Felhasználói fiók adatai:</strong> a fiók törléséig</li>
+      <li><strong>Bejelentések, szavazatok:</strong> a platform működéséig (törlés kérhető)</li>
+      <li><strong>Biztonsági naplók:</strong> maximum 90 nap</li>
+    </ul>
+  </div>
+
+  <div class="how-section">
+    <h2><span class="icon">👤</span> 7. Érintetti jogok</h2>
+    <p>A GDPR alapján az alábbi jogok illetnek meg:</p>
+    <ul>
+      <li><strong>Hozzáférés joga</strong> — bármikor lekérheted, milyen adataidat kezeljük</li>
+      <li><strong>Helyesbítés joga</strong> — megjelenítési neved és körzeted módosítható</li>
+      <li><strong>Törlés joga ("elfeledtetés")</strong> — bármikor kérheted fiókod és minden hozzá tartozó adat végleges törlését</li>
+      <li><strong>Adathordozhatóság joga</strong> — kérheted adataid géppel olvasható formátumban</li>
+      <li><strong>Tiltakozás joga</strong> — bármikor visszavonhatod hozzájárulásodat</li>
+    </ul>
+    <p style="margin-top:1rem;">Jogaid gyakorlásához írj a <strong>zeghang@hajasgabor.com</strong> címre. A kéréseket 30 napon belül teljesítjük.</p>
+  </div>
+
+  <div class="how-section">
+    <h2><span class="icon">🚫</span> 8. Amit NEM teszünk</h2>
+    <ul>
+      <li>Nem adunk át adatot harmadik félnek (pártoknak, cégeknek, önkormányzatnak)</li>
+      <li>Nem használunk tracking cookie-kat vagy analitikát (Google Analytics, Facebook Pixel stb.)</li>
+      <li>Nem profilozunk felhasználókat</li>
+      <li>Nem küldünk marketing emaileket</li>
+      <li>Nem értékesítjük az adatokat</li>
+    </ul>
+  </div>
+
+  <div class="how-section">
+    <h2><span class="icon">📬</span> 9. Kapcsolat, panasz</h2>
+    <p>Adatvédelmi kérdés vagy panasz esetén:</p>
+    <ul>
+      <li><strong>Email:</strong> zeghang@hajasgabor.com</li>
+      <li><strong>NAIH (Nemzeti Adatvédelmi és Információszabadság Hatóság):</strong> <a href="https://naih.hu" target="_blank" style="color:var(--meadow);">naih.hu</a></li>
+    </ul>
+  </div>
+
+  <div style="text-align:center; padding:3rem 2rem; background:var(--cream-dark);">
+    <p style="color:var(--text-muted); font-size:13px;">A platform teljes forráskódja nyilvánosan elérhető és auditálható:</p>
+    <a href="https://github.com/gaberun24/zeghang" target="_blank" style="color:var(--meadow); font-weight:600; font-size:15px;">github.com/gaberun24/zeghang</a>
+  </div>
+</div>
+{% endblock %}

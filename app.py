@@ -269,6 +269,16 @@ def how_it_works():
     return render_template("how_it_works.html")
 
 
+@app.route("/adatvedelem")
+def privacy():
+    return render_template("privacy.html")
+
+
+@app.route("/aszf")
+def terms():
+    return render_template("terms.html")
+
+
 # ── Routes: Auth ──
 @app.route("/register", methods=["GET", "POST"])
 def register():
@@ -285,6 +295,10 @@ def register():
         district_num = request.form.get("district_id", "")
 
         # Validation
+        if not request.form.get("accept_terms"):
+            flash("Az ÁSZF és az Adatvédelmi tájékoztató elfogadása kötelező.", "error")
+            return render_template("register.html", districts=DISTRICTS)
+
         if not email or "@" not in email:
             flash("Érvényes email címet adj meg.", "error")
             return render_template("register.html", districts=DISTRICTS)
