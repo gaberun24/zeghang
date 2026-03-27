@@ -225,19 +225,51 @@
     maxZoom: 18,
   }).addTo(map);
 
-  // Load district centroid markers
+  // District colors
+  var districtColors = [
+    '#e74c3c', '#3498db', '#2ecc71', '#f39c12', '#9b59b6', '#1abc9c',
+    '#e67e22', '#34495e', '#e91e63', '#00bcd4', '#8bc34a', '#ff5722'
+  ];
+
+  // Load district polygons + centroid markers
   fetch('{{ url_for("static", filename="districts.geojson") }}')
     .then(function(r) { return r.json(); })
     .then(function(geojson) {
-      L.geoJSON(geojson, {
+      // 1) Polygons first (background)
+      var polygons = { type: 'FeatureCollection', features: geojson.features.filter(function(f) { return f.properties.layer === 'polygon'; }) };
+      L.geoJSON(polygons, {
+        style: function(feature) {
+          var idx = (feature.properties.district - 1) % districtColors.length;
+          return {
+            color: districtColors[idx],
+            weight: 2, opacity: 0.7,
+            fillColor: districtColors[idx],
+            fillOpacity: 0.15,
+          };
+        },
+        onEachFeature: function(feature, layer) {
+          var p = feature.properties;
+          var num = String(p.district).padStart(2, '0');
+          layer.bindPopup(
+            '<strong>' + num + '. körzet</strong><br>' +
+            '<span style="font-size:13px;">' + p.representative + '</span><br>' +
+            '<span style="font-size:11px; color:#888;">' + p.population.toLocaleString('hu') + ' választópolgár</span>'
+          );
+        }
+      }).addTo(map);
+
+      // 2) Centroid markers on top
+      var centroids = { type: 'FeatureCollection', features: geojson.features.filter(function(f) { return f.properties.layer === 'centroid'; }) };
+      L.geoJSON(centroids, {
         pointToLayer: function(feature, latlng) {
           var num = String(feature.properties.district).padStart(2, '0');
+          var idx = (feature.properties.district - 1) % districtColors.length;
           return L.marker(latlng, {
             icon: L.divIcon({
               className: 'district-marker',
-              html: '<div style="background:var(--forest,#0F3460);color:#fff;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,0.3);">' + num + '</div>',
-              iconSize: [32, 32],
-              iconAnchor: [16, 16],
+              html: '<div style="background:' + districtColors[idx] + ';color:#fff;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,0.3);">' + num + '</div>',
+              iconSize: [30, 30],
+              iconAnchor: [15, 15],
             })
           });
         },

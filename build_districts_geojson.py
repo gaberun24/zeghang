@@ -184,7 +184,7 @@ def main():
         if len(unmatched) > 10:
             print(f"  ... and {len(unmatched) - 10} more")
 
-    # 4. Generate GeoJSON - centroids (Point), not polygons
+    # 4. Generate GeoJSON - polygons + centroids
     features = []
     for evk in range(1, 13):
         points = evk_points.get(evk, [])
@@ -194,25 +194,43 @@ def main():
             print(f"  WARNING: no points, skipping")
             continue
 
-        # Compute centroid (average of all street segment centers)
-        cx = sum(p[0] for p in points) / len(points)
-        cy = sum(p[1] for p in points) / len(points)
-
         pop = sum(SZK_POP.get(szk, 0) for szk in EVK_SZK[evk])
 
-        feature = {
+        # Polygon (convex hull)
+        if len(points) >= 3:
+            hull = convex_hull(points)
+            hull = expand_hull(hull)
+            coords = hull + [hull[0]]  # close polygon
+            features.append({
+                "type": "Feature",
+                "properties": {
+                    "district": evk,
+                    "representative": REPRESENTATIVES[evk],
+                    "population": pop,
+                    "layer": "polygon",
+                },
+                "geometry": {
+                    "type": "Polygon",
+                    "coordinates": [coords],
+                }
+            })
+
+        # Centroid (point)
+        cx = sum(p[0] for p in points) / len(points)
+        cy = sum(p[1] for p in points) / len(points)
+        features.append({
             "type": "Feature",
             "properties": {
                 "district": evk,
                 "representative": REPRESENTATIVES[evk],
                 "population": pop,
+                "layer": "centroid",
             },
             "geometry": {
                 "type": "Point",
                 "coordinates": [cx, cy],
             }
-        }
-        features.append(feature)
+        })
 
     geojson = {"type": "FeatureCollection", "features": features}
 
@@ -220,7 +238,7 @@ def main():
     with open(output, "w", encoding="utf-8") as f:
         json.dump(geojson, f, ensure_ascii=False, indent=2)
 
-    print(f"\nSaved {output} with {len(features)} district centroids")
+    print(f"\nSaved {output} with {len(features)} features (polygons + centroids)")
 
 
 if __name__ == "__main__":
