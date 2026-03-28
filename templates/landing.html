@@ -692,18 +692,21 @@
     }, 2000);
   }
 
-  window.setWeather = function(condition, weatherId) {
+  window.setWeather = function(condition, weatherId, extraData) {
     clearWeather();
     currentWeather = condition;
 
     // Felhő típus: fehér (szép idő), szürke (borult), sötét (vihar/eső)
-    var cloudType = 'light'; // alapértelmezett: fehér bárányfelhő
+    var cloudType = 'light';
     if (condition === 'thunderstorm') cloudType = 'dark';
-    else if (condition === 'rain') cloudType = 'dark';
+    else if (condition === 'rain' || condition === 'sleet') cloudType = 'dark';
     else if (condition === 'drizzle') cloudType = 'overcast';
     else if (condition === 'snow') cloudType = 'overcast';
-    else if (weatherId && weatherId >= 803) cloudType = 'overcast'; // borult ég
-    // 801-802: kevés felhő → marad light (fehér)
+    else if (weatherId && weatherId >= 803) cloudType = 'overcast';
+
+    // Rossz látás (köd, pára) → köd effekt is
+    var addFog = false;
+    if (extraData && extraData.visibility && extraData.visibility < 2000) addFog = true;
 
     switch (condition) {
       case 'clouds':
@@ -713,22 +716,31 @@
       case 'drizzle':
         createClouds();
         createRaindrops(condition === 'drizzle' ? 30 : 60);
+        if (addFog) createFog();
         break;
       case 'thunderstorm':
         createClouds();
         createRaindrops(80);
         startLightningFlash();
         break;
+      case 'sleet':
+        // Havas eső: eső + hó egyszerre
+        createClouds();
+        createRaindrops(35);
+        createSnowflakes(20);
+        if (addFog) createFog();
+        break;
       case 'snow':
         createClouds();
         createSnowflakes(40);
+        if (addFog) createFog();
         break;
       case 'fog':
         createFog();
+        createClouds(); // ködben felhők is vannak
         break;
       case 'clear':
       default:
-        // No weather effects
         break;
     }
 
@@ -751,12 +763,14 @@
         if (id >= 200 && id < 300) condition = 'thunderstorm';
         else if (id >= 300 && id < 400) condition = 'drizzle';
         else if (id >= 500 && id < 600) condition = 'rain';
+        else if (id >= 611 && id <= 616) condition = 'sleet'; // havas eső
         else if (id >= 600 && id < 700) condition = 'snow';
         else if (id >= 700 && id < 800) condition = 'fog';
         else if (id === 800) condition = 'clear';
         else if (id > 800) condition = 'clouds';
-        setWeather(condition, id);
-        console.log('Z! időjárás:', data.weather[0].description, '→', condition, '(id:' + id + ')');
+        var extra = { visibility: data.visibility || 10000 };
+        setWeather(condition, id, extra);
+        console.log('Z! időjárás:', data.weather[0].description, '→', condition, '(id:' + id + ', visibility:' + extra.visibility + 'm)');
       })
       .catch(function(e) { console.log('Időjárás API hiba:', e); });
   }
