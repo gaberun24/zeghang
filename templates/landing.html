@@ -756,9 +756,7 @@
 
   // ── OpenWeatherMap API — Zalaegerszeg valós időjárás ──
   function fetchWeather() {
-    var apiKey = '839c8c4c2b2d5acc3dd5185ebdafe1fe';
-    var url = 'https://api.openweathermap.org/data/2.5/weather?q=Zalaegerszeg,HU&appid=' + apiKey;
-    fetch(url)
+    fetch('/api/weather')
       .then(function(r) { return r.json(); })
       .then(function(data) {
         if (!data.weather || !data.weather.length) return;

@@ -101,6 +101,7 @@ if [ -f "${APP_DIR}/.env" ]; then
     grep -q "^UPLOAD_DIR=" "${APP_DIR}/.env" || echo "UPLOAD_DIR=${APP_DIR}/uploads" >> "${APP_DIR}/.env"
     grep -q "^MAX_UPLOAD_MB=" "${APP_DIR}/.env" || echo "MAX_UPLOAD_MB=20" >> "${APP_DIR}/.env"
     grep -q "^BREVO_API_KEY=" "${APP_DIR}/.env" || echo "BREVO_API_KEY=" >> "${APP_DIR}/.env"
+    grep -q "^OPENWEATHER_API_KEY=" "${APP_DIR}/.env" || echo "OPENWEATHER_API_KEY=" >> "${APP_DIR}/.env"
     grep -q "^ADMIN_ALERT_EMAIL=" "${APP_DIR}/.env" || echo "ADMIN_ALERT_EMAIL=" >> "${APP_DIR}/.env"
 else
     echo "  Új .env létrehozása"
@@ -124,6 +125,9 @@ MAX_UPLOAD_MB=20
 BREVO_API_KEY=
 BREVO_SENDER_EMAIL=zeghangja@gmail.com
 BREVO_SENDER_NAME=Zalaegerszeg Hangja
+
+# OpenWeatherMap
+OPENWEATHER_API_KEY=
 
 # Admin alerts
 ADMIN_ALERT_EMAIL=

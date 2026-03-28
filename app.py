@@ -296,7 +296,7 @@ def set_security_headers(response):
         "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; "
         "font-src 'self' https://fonts.gstatic.com; "
         "img-src 'self' data: https://*.tile.openstreetmap.org; "
-        "connect-src 'self' https://api.openweathermap.org https://unpkg.com https://*.tile.openstreetmap.org"
+        "connect-src 'self' https://unpkg.com https://*.tile.openstreetmap.org"
     )
     return response
 
@@ -1505,6 +1505,24 @@ def api_ai_categorize():
     title = data.get("title", "")
     category = quick_categorize(title)
     return jsonify({"category": category})
+
+
+@app.route("/api/weather")
+def api_weather():
+    """Proxy OpenWeatherMap API — keeps API key server-side."""
+    import requests as req
+    api_key = os.getenv("OPENWEATHER_API_KEY", "")
+    if not api_key:
+        return jsonify({"error": "No API key"}), 503
+    try:
+        r = req.get(
+            "https://api.openweathermap.org/data/2.5/weather",
+            params={"q": "Zalaegerszeg,HU", "appid": api_key},
+            timeout=5,
+        )
+        return jsonify(r.json()), r.status_code
+    except Exception:
+        return jsonify({"error": "Weather API error"}), 503
 
 
 @app.route("/api/streets")
