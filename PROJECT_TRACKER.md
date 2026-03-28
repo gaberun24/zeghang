@@ -41,6 +41,15 @@ Utolsó frissítés: 2026. március 28.
 | Nap/Hold animáció | ✅ Kész | Valós idejű égitest a hero szekcióban, napszakfüggő színek |
 | Szavazás 👍/👎 ikonok | ✅ Kész | Nyilak lecserélve thumb ikonokra |
 
+## Fejlesztés alatt 🔧
+
+| Funkció | Állapot | Megjegyzés |
+|---------|---------|------------|
+| SVG sziluettek (TV torony, nagytemplom) | 🟠 Folyamatban | Kézzel rajzolt SVG a hero tájba |
+| Időjárás effektek | 🟠 Folyamatban | Eső, hó, felhők, köd, villámlás CSS animáció |
+| OpenWeatherMap API integráció | 🟠 Folyamatban | Zalaegerszeg valós idejű időjárás a hero-ban |
+| GPS alapú helymegjelölés | 🟠 Folyamatban | Bejelentés formnál automatikus pozíció a telefonról |
+
 ## Tervezett / jövőbeli funkciók
 
 | Funkció | Prioritás | Megjegyzés |
@@ -48,7 +57,7 @@ Utolsó frissítés: 2026. március 28.
 | Facebook auto-posztolás | 🔵 Alacsony | Napi összefoglaló poszt automatikusan |
 | Statisztika export (CSV) | 🔵 Alacsony | Admin funkció |
 | Képviselői válasz funkció | 🟡 Közepes | Képviselők reagálhatnak a bejelentésekre |
-| SVG sziluettek (TV torony, nagytemplom) | 🟡 Közepes | Kézzel rajzolt SVG a hero tájba |
+| Cookie banner stílus javítás | 🟡 Közepes | Mobilon formázás nélkül jelenik meg |
 
 ## Ismert problémák
 
