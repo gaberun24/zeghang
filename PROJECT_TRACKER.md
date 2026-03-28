@@ -1,6 +1,6 @@
 # Zalaegerszeg Hangja — Projekt állapot
 
-Utolsó frissítés: 2026. március 27.
+Utolsó frissítés: 2026. március 28.
 
 ---
 
@@ -35,6 +35,11 @@ Utolsó frissítés: 2026. március 27.
 | Sérülékenység javítások | ✅ Kész | XSS, rate limit, CSRF, session, stb. |
 | Admin statisztikák | ✅ Kész | Látogatottság, kategóriák, körzeti aktivitás |
 | Admin rendszer állapot (health) | ✅ Kész | CPU, memória, HDD, uptime |
+| Biztonsági napló (admin) | ✅ Kész | Sikertelen login, tiltott hozzáférés, admin műveletek |
+| Email riasztások (Brevo) | ✅ Kész | Gyanús tevékenység értesítés adminnak |
+| Sötét/világos téma | ✅ Kész | Rendszerfüggő + kézi váltás beállításokban |
+| Nap/Hold animáció | ✅ Kész | Valós idejű égitest a hero szekcióban, napszakfüggő színek |
+| Szavazás 👍/👎 ikonok | ✅ Kész | Nyilak lecserélve thumb ikonokra |
 
 ## Tervezett / jövőbeli funkciók
 
@@ -43,6 +48,7 @@ Utolsó frissítés: 2026. március 27.
 | Facebook auto-posztolás | 🔵 Alacsony | Napi összefoglaló poszt automatikusan |
 | Statisztika export (CSV) | 🔵 Alacsony | Admin funkció |
 | Képviselői válasz funkció | 🟡 Közepes | Képviselők reagálhatnak a bejelentésekre |
+| SVG sziluettek (TV torony, nagytemplom) | 🟡 Közepes | Kézzel rajzolt SVG a hero tájba |
 
 ## Ismert problémák
 

@@ -29,6 +29,8 @@ Független, nonprofit közösségi platform Zalaegerszeg lakosai számára. Köz
 - **Admin felület** — bejelentések/felhasználók/hozzászólások kezelése, ban, elrejtés
 - **Admin statisztikák** — látogatottság, kategóriák, körzeti aktivitás, top felhasználók
 - **Rendszer állapot** — CPU, memória, HDD, uptime monitorozás az admin felületen
+- **Biztonsági napló** — sikertelen bejelentkezések, tiltott hozzáférések, admin műveletek logolása
+- **Email riasztások** — Brevo értesítés adminnak gyanús tevékenységről
 - **Cookie consent** + **segélyhívó figyelmeztetés** (112)
 
 ### Felhasználói funkciók
@@ -38,7 +40,10 @@ Független, nonprofit közösségi platform Zalaegerszeg lakosai számára. Köz
 - **Címmódosítás** — évente 1x megengedett
 - **Beállítások oldal** — értesítések, megjelenítési név, lakcím kezelése
 
-### Mobil és PWA
+### Megjelenés
+- **Sötét/világos téma** — rendszer-függő vagy kézi váltás a beállításokban
+- **Nap/Hold animáció** — valós idejű égitest-mozgás a dombok felett, napszakfüggő színvilág
+- **Csillagos égbolt** — éjszaka animált csillagok a hero szekcióban
 - **Teljes mobil responsive** — 1024px / 768px / 400px breakpointok, hamburger menü
 - **PWA manifest** — telepíthető app Android (Chrome) és iPhone (Safari) eszközökre
 - **Használati útmutató** — telepítési leírással Android/iPhone-ra
