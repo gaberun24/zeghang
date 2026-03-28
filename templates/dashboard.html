@@ -178,8 +178,15 @@
       </div>
 
       <div class="field">
-        <label>Jelöld meg a térképen <span>— kattints a pontos helyre</span></label>
+        <label>Jelöld meg a térképen <span>— kattints a pontos helyre, vagy használd a GPS-t</span></label>
+        <button type="button" id="gpsBtn" onclick="detectGPS()" style="display:inline-flex; align-items:center; gap:6px; padding:8px 16px; margin-bottom:8px; background:var(--forest); color:white; border:none; border-radius:var(--radius-sm); font-size:13px; font-family:'Inter',sans-serif; cursor:pointer; transition:opacity 0.2s;">
+          <span id="gpsIcon">📍</span> Helyzet megjelölése (GPS)
+        </button>
+        <span id="gpsStatus" style="font-size:12px; color:var(--text-muted); margin-left:8px;"></span>
         <div id="newIssueMap" style="width:100%; height:200px; border-radius:var(--radius-sm); border:1.5px solid var(--cream-dark);"></div>
+        <div id="coordsDisplay" style="font-size:11px; color:var(--text-muted); margin-top:4px; display:none;">
+          📍 Koordináták: <span id="coordsText"></span>
+        </div>
         <input type="hidden" id="issueLat">
         <input type="hidden" id="issueLng">
       </div>
@@ -248,8 +255,82 @@ var catColors = {
     });
 })();
 
-// New issue map (click to place marker)
+// New issue map (click to place marker, draggable)
 var newIssueMap, newIssueMarker;
+
+function updateCoords(lat, lng) {
+  document.getElementById('issueLat').value = lat.toFixed(6);
+  document.getElementById('issueLng').value = lng.toFixed(6);
+  var display = document.getElementById('coordsDisplay');
+  var text = document.getElementById('coordsText');
+  if (display && text) {
+    text.textContent = lat.toFixed(6) + ', ' + lng.toFixed(6);
+    display.style.display = 'block';
+  }
+}
+
+function placeMarker(latlng) {
+  if (newIssueMarker) {
+    newIssueMarker.setLatLng(latlng);
+  } else {
+    newIssueMarker = L.marker(latlng, { draggable: true }).addTo(newIssueMap);
+    newIssueMarker.on('dragend', function(ev) {
+      var pos = ev.target.getLatLng();
+      updateCoords(pos.lat, pos.lng);
+    });
+  }
+  updateCoords(latlng.lat, latlng.lng);
+}
+
+function detectGPS() {
+  var btn = document.getElementById('gpsBtn');
+  var status = document.getElementById('gpsStatus');
+  var icon = document.getElementById('gpsIcon');
+
+  if (!navigator.geolocation) {
+    status.textContent = 'A böngésződ nem támogatja a helymeghatározást.';
+    status.style.color = '#e74c3c';
+    return;
+  }
+
+  btn.disabled = true;
+  btn.style.opacity = '0.6';
+  icon.textContent = '⏳';
+  status.textContent = 'Helymeghatározás...';
+  status.style.color = 'var(--text-muted)';
+
+  navigator.geolocation.getCurrentPosition(
+    function(pos) {
+      var lat = pos.coords.latitude;
+      var lng = pos.coords.longitude;
+
+      btn.disabled = false;
+      btn.style.opacity = '1';
+      icon.textContent = '📍';
+      status.textContent = 'Helyzet meghatározva! Húzd a jelölőt a pontosításhoz.';
+      status.style.color = 'var(--meadow)';
+
+      if (newIssueMap) {
+        var latlng = L.latLng(lat, lng);
+        newIssueMap.setView(latlng, 17);
+        placeMarker(latlng);
+      }
+    },
+    function(err) {
+      btn.disabled = false;
+      btn.style.opacity = '1';
+      icon.textContent = '📍';
+      var msg = 'Nem sikerült a helymeghatározás.';
+      if (err.code === 1) msg = 'Helymeghatározás megtagadva. Engedélyezd a böngésző beállításaiban.';
+      else if (err.code === 2) msg = 'A helyzet nem elérhető. Próbáld újra.';
+      else if (err.code === 3) msg = 'Időtúllépés. Próbáld újra.';
+      status.textContent = msg;
+      status.style.color = '#e74c3c';
+    },
+    { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
+  );
+}
+
 var origOpenForm = window.openForm;
 window.openForm = function() {
   var overlay = document.getElementById('formOverlay');
@@ -265,10 +346,7 @@ window.openForm = function() {
       attribution: '&copy; OSM', maxZoom: 18,
     }).addTo(newIssueMap);
     newIssueMap.on('click', function(e) {
-      if (newIssueMarker) newIssueMap.removeLayer(newIssueMarker);
-      newIssueMarker = L.marker(e.latlng).addTo(newIssueMap);
-      document.getElementById('issueLat').value = e.latlng.lat.toFixed(6);
-      document.getElementById('issueLng').value = e.latlng.lng.toFixed(6);
+      placeMarker(e.latlng);
     });
   }, 200);
 };
