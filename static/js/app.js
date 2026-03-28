@@ -258,30 +258,57 @@ function submitIssue(e, confirmDuplicate) {
     btn.textContent = 'Küldés...';
   }
 
-  fetch('/issue/new', {
-    method: 'POST',
-    headers: { 'X-CSRFToken': getCsrf() },
-    body: formData,
-  })
-    .then(r => r.json())
-    .then(data => {
+  // Show progress bar if there are photos
+  var hasPhotos = photoInput && photoInput.files && photoInput.files.length > 0;
+  var progressWrap = document.getElementById('uploadProgress');
+  var progressBar = document.getElementById('uploadBar');
+  var progressText = document.getElementById('uploadText');
+  if (hasPhotos && progressWrap) {
+    progressWrap.style.display = 'block';
+    progressBar.style.width = '0%';
+    progressText.textContent = 'Feltöltés...';
+  }
+
+  var xhr = new XMLHttpRequest();
+  xhr.open('POST', '/issue/new');
+  xhr.setRequestHeader('X-CSRFToken', getCsrf());
+
+  xhr.upload.onprogress = function(e) {
+    if (e.lengthComputable && progressBar) {
+      var pct = Math.round((e.loaded / e.total) * 100);
+      progressBar.style.width = pct + '%';
+      progressText.textContent = 'Feltöltés... ' + pct + '%';
+    }
+  };
+
+  xhr.onload = function() {
+    if (progressWrap) progressWrap.style.display = 'none';
+    try {
+      var data = JSON.parse(xhr.responseText);
       if (data.ok) {
         closeForm();
         showToast('✓ Bejelentés elküldve — megjelenik a körzeti listán');
-        setTimeout(() => window.location.reload(), 1500);
+        setTimeout(function() { window.location.reload(); }, 1500);
       } else if (data.duplicate) {
-        // Duplicate warning — ask user to confirm
         if (btn) { btn.disabled = false; btn.textContent = 'Bejelentés küldése →'; }
         showDuplicateWarning(data);
       } else {
         if (btn) { btn.disabled = false; btn.textContent = 'Bejelentés küldése →'; }
         showToast('⚠ ' + (data.error || 'Hiba történt a küldés során.'), true);
       }
-    })
-    .catch(() => {
+    } catch(e) {
       if (btn) { btn.disabled = false; btn.textContent = 'Bejelentés küldése →'; }
-      alert('Hiba történt a küldés során.');
-    });
+      showToast('⚠ Hiba történt a küldés során.', true);
+    }
+  };
+
+  xhr.onerror = function() {
+    if (progressWrap) progressWrap.style.display = 'none';
+    if (btn) { btn.disabled = false; btn.textContent = 'Bejelentés küldése →'; }
+    alert('Hiba történt a küldés során.');
+  };
+
+  xhr.send(formData);
 }
 
 function showDuplicateWarning(data) {
@@ -521,3 +548,41 @@ document.addEventListener('click', function(e) {
     if (links) links.classList.remove('mobile-open');
   }
 });
+
+// ── PHOTO PREVIEW ──
+function previewPhotos(input) {
+  var preview = document.getElementById('photoPreview');
+  var placeholder = document.getElementById('photoPlaceholder');
+  if (!preview) return;
+
+  preview.innerHTML = '';
+  if (input.files && input.files.length > 0) {
+    preview.style.display = 'flex';
+    if (placeholder) placeholder.textContent = input.files.length + ' fotó kiválasztva';
+
+    for (var i = 0; i < input.files.length; i++) {
+      (function(file) {
+        var wrap = document.createElement('div');
+        wrap.style.cssText = 'position:relative; width:80px; height:80px; border-radius:8px; overflow:hidden; border:1px solid #ddd;';
+
+        if (file.type.startsWith('image/') && !file.name.match(/\.(heic|heif)$/i)) {
+          var reader = new FileReader();
+          reader.onload = function(e) {
+            var img = document.createElement('img');
+            img.src = e.target.result;
+            img.style.cssText = 'width:100%; height:100%; object-fit:cover;';
+            wrap.appendChild(img);
+          };
+          reader.readAsDataURL(file);
+        } else {
+          wrap.innerHTML = '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#f5f5f5;font-size:12px;color:#888;text-align:center;padding:4px;">📸<br>' + file.name.split('.').pop().toUpperCase() + '</div>';
+        }
+
+        preview.appendChild(wrap);
+      })(input.files[i]);
+    }
+  } else {
+    preview.style.display = 'none';
+    if (placeholder) placeholder.textContent = 'Húzd ide a fotót vagy kattints a tallózáshoz';
+  }
+}
