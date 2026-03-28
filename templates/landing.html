@@ -642,22 +642,25 @@
     weatherContainer.appendChild(frag);
   }
 
-  function createClouds() {
-    var cloud1 = document.createElement('img');
-    cloud1.src = "{{ url_for('static', filename='svg/cloud1.svg') }}";
-    cloud1.className = 'weather-cloud weather-cloud-1';
-    weatherContainer.appendChild(cloud1);
-
-    var cloud2 = document.createElement('img');
-    cloud2.src = "{{ url_for('static', filename='svg/cloud2.svg') }}";
-    cloud2.className = 'weather-cloud weather-cloud-2';
-    weatherContainer.appendChild(cloud2);
-
-    // Extra cloud for fullness
-    var cloud3 = document.createElement('img');
-    cloud3.src = "{{ url_for('static', filename='svg/cloud2.svg') }}";
-    cloud3.className = 'weather-cloud weather-cloud-3';
-    weatherContainer.appendChild(cloud3);
+  function createClouds(cloudPercent) {
+    var pct = cloudPercent || 50;
+    // 1-25%: 1 felhő, 26-50%: 2, 51-75%: 3, 76-90%: 4, 91-100%: 5
+    var count = pct <= 25 ? 1 : pct <= 50 ? 2 : pct <= 75 ? 3 : pct <= 90 ? 4 : 5;
+    var cloud1src = "{{ url_for('static', filename='svg/cloud1.svg') }}";
+    var cloud2src = "{{ url_for('static', filename='svg/cloud2.svg') }}";
+    var positions = [
+      { cls: 'weather-cloud-1', src: cloud1src },
+      { cls: 'weather-cloud-2', src: cloud2src },
+      { cls: 'weather-cloud-3', src: cloud2src },
+      { cls: 'weather-cloud-4', src: cloud1src },
+      { cls: 'weather-cloud-5', src: cloud2src }
+    ];
+    for (var i = 0; i < count; i++) {
+      var c = document.createElement('img');
+      c.src = positions[i].src;
+      c.className = 'weather-cloud ' + positions[i].cls;
+      weatherContainer.appendChild(c);
+    }
   }
 
   function createFog() {
@@ -696,12 +699,14 @@
     clearWeather();
     currentWeather = condition;
 
+    var cloudPct = (extraData && extraData.clouds) || 50;
+
     // Felhő típus: fehér (szép idő), szürke (borult), sötét (vihar/eső)
     var cloudType = 'light';
-    if (condition === 'thunderstorm') cloudType = 'dark';
-    else if (condition === 'rain' || condition === 'sleet') cloudType = 'dark';
-    else if (condition === 'drizzle') cloudType = 'overcast';
-    else if (condition === 'snow') cloudType = 'overcast';
+    if (condition === 'thunderstorm') { cloudType = 'dark'; cloudPct = 100; }
+    else if (condition === 'rain' || condition === 'sleet') { cloudType = 'dark'; cloudPct = Math.max(cloudPct, 75); }
+    else if (condition === 'drizzle') { cloudType = 'overcast'; cloudPct = Math.max(cloudPct, 60); }
+    else if (condition === 'snow') { cloudType = 'overcast'; cloudPct = Math.max(cloudPct, 70); }
     else if (weatherId && weatherId >= 803) cloudType = 'overcast';
 
     // Rossz látás (köd, pára) → köd effekt is
@@ -710,34 +715,33 @@
 
     switch (condition) {
       case 'clouds':
-        createClouds();
+        createClouds(cloudPct);
         break;
       case 'rain':
       case 'drizzle':
-        createClouds();
+        createClouds(cloudPct);
         createRaindrops(condition === 'drizzle' ? 30 : 60);
         if (addFog) createFog();
         break;
       case 'thunderstorm':
-        createClouds();
+        createClouds(100);
         createRaindrops(80);
         startLightningFlash();
         break;
       case 'sleet':
-        // Havas eső: eső + hó egyszerre
-        createClouds();
+        createClouds(cloudPct);
         createRaindrops(35);
         createSnowflakes(20);
         if (addFog) createFog();
         break;
       case 'snow':
-        createClouds();
+        createClouds(cloudPct);
         createSnowflakes(40);
         if (addFog) createFog();
         break;
       case 'fog':
         createFog();
-        createClouds(); // ködben felhők is vannak
+        createClouds(cloudPct);
         break;
       case 'clear':
       default:
@@ -768,9 +772,12 @@
         else if (id >= 700 && id < 800) condition = 'fog';
         else if (id === 800) condition = 'clear';
         else if (id > 800) condition = 'clouds';
-        var extra = { visibility: data.visibility || 10000 };
+        var extra = {
+          visibility: data.visibility || 10000,
+          clouds: (data.clouds && data.clouds.all) || 0
+        };
         setWeather(condition, id, extra);
-        console.log('Z! időjárás:', data.weather[0].description, '→', condition, '(id:' + id + ', visibility:' + extra.visibility + 'm)');
+        console.log('Z! időjárás:', data.weather[0].description, '→', condition, '(id:' + id + ', clouds:' + extra.clouds + '%, visibility:' + extra.visibility + 'm)');
       })
       .catch(function(e) { console.log('Időjárás API hiba:', e); });
   }

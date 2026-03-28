@@ -3034,6 +3034,30 @@
   100% { left: calc(100% + 50px); }
 }
 
+.weather-cloud-4 {
+  width: 200px;
+  top: 25%;
+  animation: cloudDrift4 50s linear infinite;
+  animation-delay: -15s;
+}
+
+.weather-cloud-5 {
+  width: 160px;
+  top: 2%;
+  animation: cloudDrift5 65s linear infinite;
+  animation-delay: -40s;
+}
+
+@keyframes cloudDrift4 {
+  0% { left: calc(100% + 50px); }
+  100% { left: -220px; }
+}
+
+@keyframes cloudDrift5 {
+  0% { left: -180px; }
+  100% { left: calc(100% + 50px); }
+}
+
 /* ── FOG ── */
 .weather-fog {
   position: absolute;
