@@ -37,6 +37,7 @@ apt-get install -y -qq \
     postgresql postgresql-contrib \
     nginx certbot python3-certbot-nginx \
     build-essential libpq-dev \
+    libjpeg-dev libwebp-dev zlib1g-dev \
     ufw
 
 # ── 2. Felhasználó létrehozása ──
@@ -224,6 +225,18 @@ echo "[9/9] UFW tűzfal..."
 ufw --force enable
 ufw allow ssh
 ufw allow 'Nginx Full'
+
+# ── 10. Napi adatbázis mentés (cron) ──
+echo "[10] Napi backup cron beállítás..."
+chmod +x "${APP_DIR}/backup.sh"
+chown "$APP_USER":"$APP_USER" "${APP_DIR}/backup.sh"
+mkdir -p "${APP_DIR}/backups"
+chown "$APP_USER":"$APP_USER" "${APP_DIR}/backups"
+
+# Cron job: minden nap hajnali 3-kor
+CRON_LINE="0 3 * * * ${APP_DIR}/backup.sh >> ${APP_DIR}/backup.log 2>&1"
+(crontab -u "$APP_USER" -l 2>/dev/null | grep -v "backup.sh"; echo "$CRON_LINE") | crontab -u "$APP_USER" -
+echo "  Napi mentés beállítva: hajnali 3:00"
 
 echo ""
 echo "========================================="

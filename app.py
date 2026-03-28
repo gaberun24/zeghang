@@ -23,6 +23,8 @@ from flask_wtf.csrf import CSRFProtect
 from flask_session import Session
 from werkzeug.middleware.proxy_fix import ProxyFix
 from werkzeug.utils import secure_filename
+from PIL import Image
+import io
 
 from lib.config import (
     FLASK_SECRET_KEY, FLASK_DEBUG, UPLOAD_DIR, MAX_UPLOAD_MB,
@@ -1094,13 +1096,27 @@ def new_issue():
                     photo.seek(0)
                     if not any(header.startswith(magic) for magic in MAGIC_BYTES):
                         continue  # Skip invalid files silently
-                    filename = f"{uuid.uuid4().hex}{ext}"
+
                     os.makedirs(UPLOAD_DIR, exist_ok=True)
-                    photo.save(os.path.join(UPLOAD_DIR, filename))
+
+                    # Resize & compress with Pillow
+                    img = Image.open(photo)
+                    img = img.convert("RGB")  # RGBA/palette → RGB for JPEG
+                    max_dim = 1920
+                    if img.width > max_dim or img.height > max_dim:
+                        img.thumbnail((max_dim, max_dim), Image.LANCZOS)
+
+                    filename = f"{uuid.uuid4().hex}.jpg"
+                    img.save(
+                        os.path.join(UPLOAD_DIR, filename),
+                        format="JPEG",
+                        quality=85,
+                        optimize=True,
+                    )
                     conn.execute(
                         "INSERT INTO issue_media (issue_id, filename, original_name, mime_type) "
                         "VALUES (%s, %s, %s, %s)",
-                        (issue_id, filename, secure_filename(photo.filename), photo.content_type),
+                        (issue_id, filename, secure_filename(photo.filename), "image/jpeg"),
                     )
 
         conn.commit()
