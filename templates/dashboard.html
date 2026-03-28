@@ -173,7 +173,7 @@
       <div class="field" style="position:relative;">
         <label>Helyszín <span>— utca/tér neve (opcionális)</span></label>
         <input type="text" id="issueLocation" placeholder="pl. Balatoni út" autocomplete="off" oninput="streetAutocomplete(this.value)">
-        <div id="streetSuggestions" style="display:none; position:absolute; left:0; right:0; top:100%; background:white; border:1px solid var(--cream-dark); border-top:none; border-radius:0 0 var(--radius-sm) var(--radius-sm); max-height:180px; overflow-y:auto; z-index:100; box-shadow:var(--shadow-md);"></div>
+        <div id="streetSuggestions" style="display:none; position:absolute; left:0; right:0; top:100%; background:var(--bg-card, #1e293b); color:var(--text, #e2e8f0); border:1px solid var(--border, #334155); border-top:none; border-radius:0 0 var(--radius-sm) var(--radius-sm); max-height:180px; overflow-y:auto; z-index:100; box-shadow:var(--shadow-md);"></div>
         <div class="field-hint">📍 Automatikusan a {{ '%02d' % current_user.district.number }}. körzetbe kerül a bejelentés</div>
       </div>
 

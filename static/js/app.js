@@ -460,7 +460,8 @@ function streetAutocomplete(val) {
   }
 
   box.innerHTML = matches.map(function(s) {
-    return '<div style="padding:8px 12px; cursor:pointer; font-size:14px; border-bottom:1px solid #f0f0f0;" '
+    return '<div style="padding:8px 12px; cursor:pointer; font-size:14px; border-bottom:1px solid var(--border, #334155);" '
+      + 'onmouseover="this.style.background=\'rgba(255,255,255,0.1)\'" onmouseout="this.style.background=\'transparent\'" '
       + 'onmousedown="selectStreet(this)" data-street="' + s + '">'
       + s.replace(new RegExp('(' + query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi'), '<strong>$1</strong>')
       + '</div>';
