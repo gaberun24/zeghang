@@ -692,9 +692,18 @@
     }, 3000);
   }
 
-  window.setWeather = function(condition) {
+  window.setWeather = function(condition, weatherId) {
     clearWeather();
     currentWeather = condition;
+
+    // Felhő típus: fehér (szép idő), szürke (borult), sötét (vihar/eső)
+    var cloudType = 'light'; // alapértelmezett: fehér bárányfelhő
+    if (condition === 'thunderstorm') cloudType = 'dark';
+    else if (condition === 'rain') cloudType = 'dark';
+    else if (condition === 'drizzle') cloudType = 'overcast';
+    else if (condition === 'snow') cloudType = 'overcast';
+    else if (weatherId && weatherId >= 803) cloudType = 'overcast'; // borult ég
+    // 801-802: kevés felhő → marad light (fehér)
 
     switch (condition) {
       case 'clouds':
@@ -724,6 +733,7 @@
     }
 
     weatherContainer.setAttribute('data-weather', condition);
+    weatherContainer.setAttribute('data-cloud-type', cloudType);
   };
 
   window.getWeather = function() { return currentWeather; };
@@ -745,8 +755,8 @@
         else if (id >= 700 && id < 800) condition = 'fog';
         else if (id === 800) condition = 'clear';
         else if (id > 800) condition = 'clouds';
-        setWeather(condition);
-        console.log('Z! időjárás:', data.weather[0].description, '→', condition);
+        setWeather(condition, id);
+        console.log('Z! időjárás:', data.weather[0].description, '→', condition, '(id:' + id + ')');
       })
       .catch(function(e) { console.log('Időjárás API hiba:', e); });
   }

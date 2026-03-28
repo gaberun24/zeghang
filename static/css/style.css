@@ -2984,6 +2984,19 @@
   pointer-events: none;
   opacity: 0.5;
   filter: brightness(1.5) drop-shadow(0 2px 8px rgba(0,0,0,0.1));
+  transition: filter 2s ease, opacity 2s ease;
+}
+
+/* Sötét viharfelhők */
+.weather-container[data-cloud-type="dark"] .weather-cloud {
+  filter: brightness(0.4) saturate(0.3) drop-shadow(0 4px 12px rgba(0,0,0,0.4));
+  opacity: 0.75;
+}
+
+/* Közepesen borult */
+.weather-container[data-cloud-type="overcast"] .weather-cloud {
+  filter: brightness(0.7) saturate(0.5) drop-shadow(0 3px 10px rgba(0,0,0,0.2));
+  opacity: 0.6;
 }
 
 .weather-cloud-1 {
