@@ -2851,3 +2851,239 @@
   .celestial-icon { font-size: 32px; }
   .celestial-glow { width: 80px; height: 80px; }
 }
+
+/* ==============================================
+   SILHOUETTES ON HILLS
+   ============================================== */
+
+.silhouettes {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.silhouette {
+  position: absolute;
+  pointer-events: none;
+  /* Default: dark silhouette for daytime */
+  filter: brightness(0) saturate(100%) opacity(0.7);
+  transition: filter 2s ease;
+}
+
+/* Church (templom) — LEFT hill, sits on the first hill peak around 40% from left */
+.silhouette-templom {
+  height: 60px;
+  left: 15%;
+  bottom: 58%;
+  filter: brightness(0) saturate(100%) opacity(0.6);
+}
+
+/* Fountain (szokokut) — MIDDLE, on the middle hill valley/peak area */
+.silhouette-szokokut {
+  height: 32px;
+  left: 48%;
+  transform: translateX(-50%);
+  bottom: 52%;
+  filter: brightness(0) saturate(100%) opacity(0.55);
+}
+
+/* TV tower (tvtorony) — RIGHT hill */
+.silhouette-tvtorony {
+  height: 80px;
+  right: 15%;
+  bottom: 50%;
+  filter: brightness(0) saturate(100%) opacity(0.6);
+}
+
+/* ── Time-of-day silhouette variations (controlled by JS class on .hero) ── */
+/* Night: very dark, almost black */
+.hero[data-period="night"] .silhouette {
+  filter: brightness(0) saturate(100%) opacity(0.85);
+}
+
+/* Sunrise/sunset: dark with warm tint */
+.hero[data-period="sunrise"] .silhouette,
+.hero[data-period="sunset"] .silhouette {
+  filter: brightness(0.08) saturate(100%) sepia(0.5) opacity(0.75);
+}
+
+/* Day: slightly lighter */
+.hero[data-period="day"] .silhouette {
+  filter: brightness(0.05) saturate(100%) opacity(0.55);
+}
+
+/* ==============================================
+   WEATHER EFFECTS
+   ============================================== */
+
+.weather-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+/* ── RAIN ── */
+.weather-raindrop {
+  position: absolute;
+  top: -20px;
+  width: 3px;
+  height: 18px;
+  animation: rainFall linear infinite;
+  pointer-events: none;
+  filter: brightness(2) opacity(0.6);
+}
+
+@keyframes rainFall {
+  0% {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(calc(100vh + 20px));
+    opacity: 0.3;
+  }
+}
+
+/* ── SNOW ── */
+.weather-snowflake {
+  position: absolute;
+  top: -30px;
+  width: 12px;
+  height: 12px;
+  animation: snowFall linear infinite;
+  pointer-events: none;
+  filter: brightness(3) drop-shadow(0 0 2px rgba(255,255,255,0.5));
+}
+
+@keyframes snowFall {
+  0% {
+    transform: translateY(-30px) translateX(0) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(calc(100vh + 30px)) translateX(40px) rotate(360deg);
+    opacity: 0.2;
+  }
+}
+
+/* ── CLOUDS ── */
+.weather-cloud {
+  position: absolute;
+  pointer-events: none;
+  opacity: 0.5;
+  filter: brightness(1.5) drop-shadow(0 2px 8px rgba(0,0,0,0.1));
+}
+
+.weather-cloud-1 {
+  width: 280px;
+  top: 5%;
+  animation: cloudDrift1 45s linear infinite;
+}
+
+.weather-cloud-2 {
+  width: 180px;
+  top: 18%;
+  animation: cloudDrift2 60s linear infinite;
+  animation-delay: -20s;
+}
+
+.weather-cloud-3 {
+  width: 220px;
+  top: 10%;
+  animation: cloudDrift3 55s linear infinite;
+  animation-delay: -35s;
+}
+
+@keyframes cloudDrift1 {
+  0% { left: -300px; }
+  100% { left: calc(100% + 50px); }
+}
+
+@keyframes cloudDrift2 {
+  0% { left: calc(100% + 50px); }
+  100% { left: -200px; }
+}
+
+@keyframes cloudDrift3 {
+  0% { left: -250px; }
+  100% { left: calc(100% + 50px); }
+}
+
+/* ── FOG ── */
+.weather-fog {
+  position: absolute;
+  width: 120%;
+  bottom: 10%;
+  pointer-events: none;
+  opacity: 0.25;
+  filter: brightness(2) blur(2px);
+}
+
+.weather-fog-1 {
+  animation: fogDrift1 30s ease-in-out infinite alternate;
+}
+
+.weather-fog-2 {
+  bottom: 25%;
+  opacity: 0.15;
+  animation: fogDrift2 25s ease-in-out infinite alternate;
+  animation-delay: -10s;
+}
+
+@keyframes fogDrift1 {
+  0% { transform: translateX(-10%); }
+  100% { transform: translateX(5%); }
+}
+
+@keyframes fogDrift2 {
+  0% { transform: translateX(5%); }
+  100% { transform: translateX(-8%); }
+}
+
+/* ── LIGHTNING FLASH ── */
+.weather-container.lightning-flash::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.3);
+  z-index: 10;
+  pointer-events: none;
+}
+
+/* ── RESPONSIVE: Hide silhouettes on small screens ── */
+@media (max-width: 900px) {
+  .silhouettes {
+    display: none;
+  }
+}
+
+@media (min-width: 901px) and (max-width: 1200px) {
+  .silhouette-templom { height: 45px; }
+  .silhouette-szokokut { height: 24px; }
+  .silhouette-tvtorony { height: 60px; }
+}
+
+/* Smaller weather elements on mobile */
+@media (max-width: 768px) {
+  .weather-cloud-1 { width: 160px; }
+  .weather-cloud-2 { width: 100px; }
+  .weather-cloud-3 { width: 130px; }
+}

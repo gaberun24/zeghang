@@ -91,7 +91,15 @@
     <div class="celestial-glow"></div>
     <div class="celestial-icon" id="celestialIcon"></div>
   </div>
+  <!-- Weather effects overlay -->
+  <div class="weather-container" id="weatherContainer"></div>
   <div class="hero-wave">
+    <!-- Silhouettes positioned on the hills -->
+    <div class="silhouettes" id="silhouettes">
+      <img src="{{ url_for('static', filename='svg/templom.svg') }}" alt="" class="silhouette silhouette-templom" draggable="false">
+      <img src="{{ url_for('static', filename='svg/szokokut.svg') }}" alt="" class="silhouette silhouette-szokokut" draggable="false">
+      <img src="{{ url_for('static', filename='svg/tvtorony.svg') }}" alt="" class="silhouette silhouette-tvtorony" draggable="false">
+    </div>
     <svg viewBox="0 0 1440 200" preserveAspectRatio="none" style="display:block; width:100%; height:auto;">
       <!-- Hátsó domb — világoskék -->
       <path d="M0,160 C200,80 400,120 600,60 C800,0 1000,100 1200,40 C1350,10 1440,80 1440,80 L1440,200 L0,200Z" fill="var(--hill-light)" opacity="0.3"/>
@@ -547,6 +555,17 @@
     }
     hero.style.background = gradient;
 
+    // Set time period for silhouette styling
+    if (hour >= dawnStart && hour < sunrise + 1.5) {
+      hero.setAttribute('data-period', 'sunrise');
+    } else if (hour >= sunrise + 1.5 && hour < sunset - 2) {
+      hero.setAttribute('data-period', 'day');
+    } else if (hour >= sunset - 2 && hour < duskEnd) {
+      hero.setAttribute('data-period', 'sunset');
+    } else {
+      hero.setAttribute('data-period', 'night');
+    }
+
     // Hill color changes
     var hillLight = document.querySelector('.hero-wave path:nth-child(1)');
     var hillMeadow = document.querySelector('.hero-wave path:nth-child(2)');
@@ -573,6 +592,141 @@
   // Run immediately and every minute
   updateCelestial();
   setInterval(updateCelestial, 60000);
+})();
+</script>
+<script>
+// ── WEATHER EFFECTS ──
+(function() {
+  var weatherContainer = document.getElementById('weatherContainer');
+  if (!weatherContainer) return;
+
+  var currentWeather = 'clear';
+  var flashInterval = null;
+
+  function clearWeather() {
+    weatherContainer.innerHTML = '';
+    weatherContainer.className = 'weather-container';
+    if (flashInterval) { clearInterval(flashInterval); flashInterval = null; }
+  }
+
+  function createRaindrops(count) {
+    var frag = document.createDocumentFragment();
+    for (var i = 0; i < count; i++) {
+      var drop = document.createElement('img');
+      drop.src = "{{ url_for('static', filename='svg/rain.svg') }}";
+      drop.className = 'weather-raindrop';
+      drop.style.left = (Math.random() * 100) + '%';
+      drop.style.animationDuration = (0.6 + Math.random() * 0.4) + 's';
+      drop.style.animationDelay = (Math.random() * 2) + 's';
+      drop.style.opacity = 0.4 + Math.random() * 0.4;
+      frag.appendChild(drop);
+    }
+    weatherContainer.appendChild(frag);
+  }
+
+  function createSnowflakes(count) {
+    var frag = document.createDocumentFragment();
+    for (var i = 0; i < count; i++) {
+      var flake = document.createElement('img');
+      flake.src = "{{ url_for('static', filename='svg/snow.svg') }}";
+      flake.className = 'weather-snowflake';
+      flake.style.left = (Math.random() * 100) + '%';
+      flake.style.animationDuration = (3 + Math.random() * 4) + 's';
+      flake.style.animationDelay = (Math.random() * 5) + 's';
+      flake.style.opacity = 0.3 + Math.random() * 0.5;
+      var size = 8 + Math.random() * 12;
+      flake.style.width = size + 'px';
+      flake.style.height = size + 'px';
+      frag.appendChild(flake);
+    }
+    weatherContainer.appendChild(frag);
+  }
+
+  function createClouds() {
+    var cloud1 = document.createElement('img');
+    cloud1.src = "{{ url_for('static', filename='svg/cloud1.svg') }}";
+    cloud1.className = 'weather-cloud weather-cloud-1';
+    weatherContainer.appendChild(cloud1);
+
+    var cloud2 = document.createElement('img');
+    cloud2.src = "{{ url_for('static', filename='svg/cloud2.svg') }}";
+    cloud2.className = 'weather-cloud weather-cloud-2';
+    weatherContainer.appendChild(cloud2);
+
+    // Extra cloud for fullness
+    var cloud3 = document.createElement('img');
+    cloud3.src = "{{ url_for('static', filename='svg/cloud2.svg') }}";
+    cloud3.className = 'weather-cloud weather-cloud-3';
+    weatherContainer.appendChild(cloud3);
+  }
+
+  function createFog() {
+    var fog1 = document.createElement('img');
+    fog1.src = "{{ url_for('static', filename='svg/fog.svg') }}";
+    fog1.className = 'weather-fog weather-fog-1';
+    weatherContainer.appendChild(fog1);
+
+    var fog2 = document.createElement('img');
+    fog2.src = "{{ url_for('static', filename='svg/fog.svg') }}";
+    fog2.className = 'weather-fog weather-fog-2';
+    weatherContainer.appendChild(fog2);
+  }
+
+  function startLightningFlash() {
+    flashInterval = setInterval(function() {
+      if (Math.random() > 0.7) {
+        weatherContainer.classList.add('lightning-flash');
+        setTimeout(function() {
+          weatherContainer.classList.remove('lightning-flash');
+        }, 150);
+        // Double flash sometimes
+        if (Math.random() > 0.5) {
+          setTimeout(function() {
+            weatherContainer.classList.add('lightning-flash');
+            setTimeout(function() {
+              weatherContainer.classList.remove('lightning-flash');
+            }, 100);
+          }, 250);
+        }
+      }
+    }, 3000);
+  }
+
+  window.setWeather = function(condition) {
+    clearWeather();
+    currentWeather = condition;
+
+    switch (condition) {
+      case 'clouds':
+        createClouds();
+        break;
+      case 'rain':
+      case 'drizzle':
+        createClouds();
+        createRaindrops(condition === 'drizzle' ? 30 : 60);
+        break;
+      case 'thunderstorm':
+        createClouds();
+        createRaindrops(80);
+        startLightningFlash();
+        break;
+      case 'snow':
+        createClouds();
+        createSnowflakes(40);
+        break;
+      case 'fog':
+        createFog();
+        break;
+      case 'clear':
+      default:
+        // No weather effects
+        break;
+    }
+
+    weatherContainer.setAttribute('data-weather', condition);
+  };
+
+  window.getWeather = function() { return currentWeather; };
 })();
 </script>
 {% endblock %}
