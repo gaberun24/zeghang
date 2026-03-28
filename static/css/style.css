@@ -2876,7 +2876,7 @@
 
 /* Church (templom) — LEFT hill, sits on the first hill peak around 40% from left */
 .silhouette-templom {
-  height: 18px;
+  height: 100px;
   left: 15%;
   bottom: 58%;
   filter: brightness(0) saturate(100%) opacity(0.6);
@@ -2884,7 +2884,7 @@
 
 /* Fountain (szokokut) — MIDDLE, on the middle hill valley/peak area */
 .silhouette-szokokut {
-  height: 10px;
+  height: 55px;
   left: 48%;
   transform: translateX(-50%);
   bottom: 52%;
@@ -2893,7 +2893,7 @@
 
 /* TV tower (tvtorony) — RIGHT hill */
 .silhouette-tvtorony {
-  height: 22px;
+  height: 150px;
   right: 15%;
   bottom: 50%;
   filter: brightness(0) saturate(100%) opacity(0.6);
@@ -3076,9 +3076,9 @@
 }
 
 @media (min-width: 901px) and (max-width: 1200px) {
-  .silhouette-templom { height: 14px; }
-  .silhouette-szokokut { height: 8px; }
-  .silhouette-tvtorony { height: 18px; }
+  .silhouette-templom { height: 70px; }
+  .silhouette-szokokut { height: 38px; }
+  .silhouette-tvtorony { height: 105px; }
 }
 
 /* Smaller weather elements on mobile */
