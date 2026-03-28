@@ -12,3 +12,4 @@ pywebpush==2.3.0
 py-vapid==1.9.2
 psutil==7.0.0
 Pillow==11.2.1
+pillow-heif==0.21.0

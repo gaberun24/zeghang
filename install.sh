@@ -37,7 +37,7 @@ apt-get install -y -qq \
     postgresql postgresql-contrib \
     nginx certbot python3-certbot-nginx \
     build-essential libpq-dev \
-    libjpeg-dev libwebp-dev zlib1g-dev \
+    libjpeg-dev libwebp-dev zlib1g-dev libheif-dev \
     ufw
 
 # ── 2. Felhasználó létrehozása ──

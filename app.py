@@ -24,7 +24,11 @@ from flask_session import Session
 from werkzeug.middleware.proxy_fix import ProxyFix
 from werkzeug.utils import secure_filename
 from PIL import Image
+import pillow_heif
 import io
+
+# Register HEIC/HEIF support in Pillow
+pillow_heif.register_heif_opener()
 
 from lib.config import (
     FLASK_SECRET_KEY, FLASK_DEBUG, UPLOAD_DIR, MAX_UPLOAD_MB,
@@ -1080,43 +1084,35 @@ def new_issue():
 
         # Handle photo uploads
         photos = request.files.getlist("photos")
-        MAGIC_BYTES = {
-            b"\xff\xd8\xff": ".jpg",
-            b"\x89PNG\r\n\x1a\n": ".png",
-            b"GIF87a": ".gif",
-            b"GIF89a": ".gif",
-            b"RIFF": ".webp",
-        }
+        ALLOWED_EXT = (".jpg", ".jpeg", ".png", ".webp", ".gif", ".heic", ".heif")
         for photo in photos:
             if photo and photo.filename:
                 ext = os.path.splitext(photo.filename)[1].lower()
-                if ext in (".jpg", ".jpeg", ".png", ".webp", ".gif"):
-                    # Validate file content (magic bytes)
-                    header = photo.read(16)
-                    photo.seek(0)
-                    if not any(header.startswith(magic) for magic in MAGIC_BYTES):
-                        continue  # Skip invalid files silently
-
+                if ext in ALLOWED_EXT:
                     os.makedirs(UPLOAD_DIR, exist_ok=True)
 
-                    # Resize & compress with Pillow
-                    img = Image.open(photo)
-                    img = img.convert("RGB")  # RGBA/palette → RGB for JPEG
-                    max_dim = 1920
+                    # Open & convert with Pillow (supports HEIC via pillow-heif)
+                    try:
+                        img = Image.open(photo)
+                    except Exception:
+                        continue  # Skip unreadable files
+
+                    img = img.convert("RGB")
+                    max_dim = 3840  # 4K
                     if img.width > max_dim or img.height > max_dim:
                         img.thumbnail((max_dim, max_dim), Image.LANCZOS)
 
-                    filename = f"{uuid.uuid4().hex}.jpg"
+                    filename = f"{uuid.uuid4().hex}.webp"
                     img.save(
                         os.path.join(UPLOAD_DIR, filename),
-                        format="JPEG",
-                        quality=85,
-                        optimize=True,
+                        format="WEBP",
+                        quality=70,
+                        method=4,
                     )
                     conn.execute(
                         "INSERT INTO issue_media (issue_id, filename, original_name, mime_type) "
                         "VALUES (%s, %s, %s, %s)",
-                        (issue_id, filename, secure_filename(photo.filename), "image/jpeg"),
+                        (issue_id, filename, secure_filename(photo.filename), "image/webp"),
                     )
 
         conn.commit()
