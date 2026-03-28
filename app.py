@@ -290,7 +290,7 @@ def set_security_headers(response):
         "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; "
         "font-src 'self' https://fonts.gstatic.com; "
         "img-src 'self' data: https://*.tile.openstreetmap.org; "
-        "connect-src 'self'"
+        "connect-src 'self' https://api.openweathermap.org"
     )
     return response
 
