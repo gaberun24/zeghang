@@ -727,6 +727,31 @@
   };
 
   window.getWeather = function() { return currentWeather; };
+
+  // ── OpenWeatherMap API — Zalaegerszeg valós időjárás ──
+  function fetchWeather() {
+    var apiKey = '839c8c4c2b2d5acc3dd5185ebdafe1fe';
+    var url = 'https://api.openweathermap.org/data/2.5/weather?q=Zalaegerszeg,HU&appid=' + apiKey;
+    fetch(url)
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        if (!data.weather || !data.weather.length) return;
+        var id = data.weather[0].id;
+        var condition = 'clear';
+        if (id >= 200 && id < 300) condition = 'thunderstorm';
+        else if (id >= 300 && id < 400) condition = 'drizzle';
+        else if (id >= 500 && id < 600) condition = 'rain';
+        else if (id >= 600 && id < 700) condition = 'snow';
+        else if (id >= 700 && id < 800) condition = 'fog';
+        else if (id === 800) condition = 'clear';
+        else if (id > 800) condition = 'clouds';
+        setWeather(condition);
+        console.log('Z! időjárás:', data.weather[0].description, '→', condition);
+      })
+      .catch(function(e) { console.log('Időjárás API hiba:', e); });
+  }
+  fetchWeather();
+  setInterval(fetchWeather, 600000); // 10 percenként frissít
 })();
 </script>
 {% endblock %}
