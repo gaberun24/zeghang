@@ -89,7 +89,22 @@ sudo -u "$APP_USER" "${APP_DIR}/venv/bin/pip" install -r "${APP_DIR}/requirement
 
 # ── 6. .env fájl ──
 echo "[6/9] .env konfiguráció..."
-cat > "${APP_DIR}/.env" <<ENVEOF
+if [ -f "${APP_DIR}/.env" ]; then
+    echo "  Meglévő .env megőrzése — csak hiányzó kulcsok pótlása"
+    # Frissítjük a DB URL-t és Flask secret-et (ezeket mi generáljuk)
+    sed -i "s|^DATABASE_URL=.*|DATABASE_URL=postgresql://${DB_USER}:${DB_PASS}@localhost:5432/${DB_NAME}|" "${APP_DIR}/.env"
+    sed -i "s|^FLASK_SECRET_KEY=.*|FLASK_SECRET_KEY=${FLASK_SECRET}|" "${APP_DIR}/.env"
+    # Hiányzó kulcsok hozzáadása (ha nincsenek benne)
+    grep -q "^FLASK_DEBUG=" "${APP_DIR}/.env" || echo "FLASK_DEBUG=0" >> "${APP_DIR}/.env"
+    grep -q "^OPENAI_API_KEY=" "${APP_DIR}/.env" || echo "OPENAI_API_KEY=sk-CHANGEME" >> "${APP_DIR}/.env"
+    grep -q "^OPENAI_MODEL=" "${APP_DIR}/.env" || echo "OPENAI_MODEL=gpt-4o-mini" >> "${APP_DIR}/.env"
+    grep -q "^UPLOAD_DIR=" "${APP_DIR}/.env" || echo "UPLOAD_DIR=${APP_DIR}/uploads" >> "${APP_DIR}/.env"
+    grep -q "^MAX_UPLOAD_MB=" "${APP_DIR}/.env" || echo "MAX_UPLOAD_MB=20" >> "${APP_DIR}/.env"
+    grep -q "^BREVO_API_KEY=" "${APP_DIR}/.env" || echo "BREVO_API_KEY=" >> "${APP_DIR}/.env"
+    grep -q "^ADMIN_ALERT_EMAIL=" "${APP_DIR}/.env" || echo "ADMIN_ALERT_EMAIL=" >> "${APP_DIR}/.env"
+else
+    echo "  Új .env létrehozása"
+    cat > "${APP_DIR}/.env" <<ENVEOF
 # Flask
 FLASK_SECRET_KEY=${FLASK_SECRET}
 FLASK_DEBUG=0
@@ -97,14 +112,23 @@ FLASK_DEBUG=0
 # PostgreSQL
 DATABASE_URL=postgresql://${DB_USER}:${DB_PASS}@localhost:5432/${DB_NAME}
 
-# OpenAI — cseréld ki a saját API kulcsodra!
+# OpenAI
 OPENAI_API_KEY=sk-CHANGEME
 OPENAI_MODEL=gpt-4o-mini
 
 # Upload
 UPLOAD_DIR=${APP_DIR}/uploads
 MAX_UPLOAD_MB=20
+
+# Brevo (email)
+BREVO_API_KEY=
+BREVO_SENDER_EMAIL=zeghangja@gmail.com
+BREVO_SENDER_NAME=Zalaegerszeg Hangja
+
+# Admin alerts
+ADMIN_ALERT_EMAIL=
 ENVEOF
+fi
 
 chown "$APP_USER":"$APP_USER" "${APP_DIR}/.env"
 chmod 600 "${APP_DIR}/.env"
