@@ -2879,7 +2879,6 @@
   height: 100px;
   left: 15%;
   bottom: 58%;
-  filter: brightness(0) saturate(100%) opacity(0.6);
 }
 
 /* Fountain (szokokut) — MIDDLE, on the middle hill valley/peak area */
@@ -2888,7 +2887,6 @@
   left: 48%;
   transform: translateX(-50%);
   bottom: 52%;
-  filter: brightness(0) saturate(100%) opacity(0.55);
 }
 
 /* TV tower (tvtorony) — RIGHT hill */
@@ -2896,24 +2894,23 @@
   height: 150px;
   right: 15%;
   bottom: 50%;
-  filter: brightness(0) saturate(100%) opacity(0.6);
 }
 
-/* ── Time-of-day silhouette variations (controlled by JS class on .hero) ── */
-/* Night: very dark, almost black */
+/* ── Time-of-day silhouette variations ── */
+/* Night: slightly dimmed */
 .hero[data-period="night"] .silhouette {
-  filter: brightness(0) saturate(100%) opacity(0.85);
+  filter: brightness(0.6) opacity(0.8);
 }
 
-/* Sunrise/sunset: dark with warm tint */
+/* Sunrise/sunset: warm tint */
 .hero[data-period="sunrise"] .silhouette,
 .hero[data-period="sunset"] .silhouette {
-  filter: brightness(0.08) saturate(100%) sepia(0.5) opacity(0.75);
+  filter: brightness(0.8) sepia(0.3) opacity(0.85);
 }
 
-/* Day: slightly lighter */
+/* Day: full color */
 .hero[data-period="day"] .silhouette {
-  filter: brightness(0.05) saturate(100%) opacity(0.55);
+  filter: none;
 }
 
 /* ==============================================
