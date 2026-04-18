@@ -245,6 +245,15 @@ def hash_email_for_log(email: str) -> str:
     return hashlib.sha256(email.lower().strip().encode()).hexdigest()[:16]
 
 
+def safe_admin_redirect(default_endpoint: str):
+    """Open-redirect védelem: csak saját domain /admin/* referrer-t fogadunk el, különben default."""
+    ref = request.referrer or ""
+    host = request.host_url
+    if ref.startswith(host) and ref[len(host):].startswith("admin/"):
+        return redirect(ref)
+    return redirect(url_for(default_endpoint))
+
+
 def check_rate_limit(ip, event_type="login_fail", max_attempts=5, window_seconds=300):
     conn = get_db()
     try:
@@ -582,7 +591,13 @@ def register():
                 "SELECT id FROM users WHERE email = %s", (email,)
             ).fetchone()
             if existing:
-                flash("Ez az email cím már regisztrálva van.", "error")
+                # Email enumeration csökkentése: nem áruljuk el hogy létezik-e a cím.
+                # A legitim user a jelszó-visszaállítón keresztül jön vissza.
+                flash(
+                    "A regisztráció nem sikerült. Ha már van fiókod, jelentkezz be, "
+                    "vagy használd az „Elfelejtett jelszó” funkciót.",
+                    "error",
+                )
                 return render_template("register.html", districts=DISTRICTS)
 
             # Get district id
@@ -1787,7 +1802,7 @@ def admin_issue_action(issue_id):
         conn.rollback()
     finally:
         conn.close()
-    return redirect(request.referrer or url_for("admin_issues"))
+    return safe_admin_redirect("admin_issues")
 
 
 @app.route("/admin/users")
@@ -1834,7 +1849,7 @@ def admin_user_action(user_id):
         conn.rollback()
     finally:
         conn.close()
-    return redirect(request.referrer or url_for("admin_users"))
+    return safe_admin_redirect("admin_users")
 
 
 @app.route("/admin/comments")
@@ -1885,7 +1900,7 @@ def admin_comment_action(comment_id):
         conn.rollback()
     finally:
         conn.close()
-    return redirect(request.referrer or url_for("admin_comments"))
+    return safe_admin_redirect("admin_comments")
 
 
 # ── Admin: Stats ──
