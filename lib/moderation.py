@@ -15,24 +15,31 @@ _BADWORDS = [
     # fasz és ragozott alakok
     "fasz", "faszom", "faszod", "faszát", "faszt", "faszba", "faszába",
     "faszság", "faszomba", "faszomat", "faszfej", "faszkalap",
+    "faszok", "faszokat", "faszán", "faszának", "faszunk", "faszatok",
+    "faszukat",
     # geci
     "geci", "gecis", "geciző", "gecit", "gecik",
-    # basz + bazmeg
-    "baszd", "baszom", "baszok", "baszott", "baszni",
-    "basszus", "basszál", "bassza", "basszá", "bazd", "bazdmeg", "bazmeg",
+    # basz + bazmeg (jelen / múlt / felszólító / főnévi igenév)
+    "basz", "baszd", "baszod", "baszol", "baszom", "baszok", "baszik",
+    "baszunk", "basztok", "basznak", "baszni", "baszódj", "baszódjon",
+    "baszott", "basztam", "basztál", "basztunk", "basztatok", "basztak",
+    "bassz", "basszon", "basszatok", "basszák", "basszus", "basszál",
+    "bassza", "basszá", "bazd", "bazdmeg", "bazmeg", "bazmegaz",
     # anyád
     "anyád", "anyádat", "anyámat", "anyádba",
     # szar és ragozott alakok
     "szar", "szart", "szarnak", "szaros", "szarházi", "szarok", "szarjon", "szarom",
     # picsa / pina
-    "picsa", "picsát", "picsába", "picsája", "pina", "pinát", "pinád",
+    "picsa", "picsát", "picsába", "picsája", "picsán", "picsájába",
+    "pina", "pinát", "pinád", "pinába", "pinája",
     # segg
-    "segg", "segged", "seggfej", "segge", "seggbe", "seggét", "seggében",
+    "segg", "segged", "seggem", "seggfej", "segge", "seggbe",
+    "seggét", "seggében", "seggemet", "seggedet", "seggükbe",
     # egyéb sértések / trágárságok
     "buzi", "buzis",
     "ribanc", "ringyó", "lotyó",
     "köcsög", "köcsögök",
-    "szopd", "szopjál", "szopj",
+    "szopd", "szopjál", "szopj", "szopjatok", "szopós", "szopja",
     "dögölj", "dögöljön",
     "rohadt", "rohadj", "rohadék",
     "mocsok", "mocskos",
