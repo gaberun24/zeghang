@@ -135,9 +135,15 @@
   <div class="toast" id="toast"></div>
 
   <!-- Cookie consent -->
-  <div class="cookie-banner" id="cookieBanner">
-    <p>Ez az oldal kizárólag működéshez szükséges cookie-kat használ (munkamenet). Nem használunk tracking cookie-kat, analitikát vagy harmadik féltől származó sütiket.</p>
-    <button class="cookie-btn" onclick="acceptCookies()">Rendben</button>
+  <div class="cookie-banner" id="cookieBanner" role="dialog" aria-labelledby="cookieTitle" aria-describedby="cookieDesc" aria-modal="false">
+    <div class="cookie-content">
+      <strong id="cookieTitle">Cookie-k használata</strong>
+      <p id="cookieDesc">Ez az oldal kizárólag a működéshez <strong>feltétlenül szükséges</strong> cookie-kat használ (bejelentkezési munkamenet, CSRF-védelem). Nem használunk tracking vagy analitikai cookie-t, sem harmadik féltől származó sütit. Bővebben az <a href="{{ url_for('privacy') }}">Adatvédelmi tájékoztatóban</a>.</p>
+    </div>
+    <div class="cookie-btns">
+      <button class="cookie-btn cookie-btn-secondary" onclick="acceptCookies('necessary')">Csak szükséges</button>
+      <button class="cookie-btn cookie-btn-primary" onclick="acceptCookies('all')">Rendben, elfogadom</button>
+    </div>
   </div>
 
   <!-- Disclaimer banner -->

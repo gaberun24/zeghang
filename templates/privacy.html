@@ -5,144 +5,355 @@
 <div class="how-page">
   <div class="how-hero">
     <h1>Adatvédelmi<br>tájékoztató</h1>
-    <p>Utolsó frissítés: 2026. március 27.</p>
+    <p>Hatályos: 2026. április 18-tól · GDPR (EU 2016/679) szerint</p>
   </div>
 
   <div class="how-section">
-    <h2><span class="icon">📋</span> 1. Adatkezelő</h2>
-    <p>A Zalaegerszeg Hangja platform (<strong>zeghang.hajasgabor.com</strong>) üzemeltetője:</p>
+    <p style="font-size:14px; color:var(--text-mid);">Jelen tájékoztató a Zalaegerszeg Hangja platformon (<strong>zeghang.hajasgabor.com</strong>) végzett személyesadat-kezelésről nyújt teljes körű tájékoztatást az Európai Unió általános adatvédelmi rendelete (GDPR, EU 2016/679) 13. cikke, valamint az információs önrendelkezési jogról és az információszabadságról szóló 2011. évi CXII. törvény (Infotv.) rendelkezéseinek megfelelően.</p>
+  </div>
+
+  <div class="how-section">
+    <h2><span class="icon">📋</span> 1. Az adatkezelő</h2>
     <ul>
-      <li><strong>Név:</strong> Hajas Gábor</li>
-      <li><strong>Székhely:</strong> Zalaegerszeg</li>
-      <li><strong>Email:</strong> zeghangja@proton.me</li>
+      <li><strong>Név:</strong> Hajas Gábor (magánszemély, független civil kezdeményezés üzemeltetőjeként)</li>
+      <li><strong>Székhely / levelezési cím:</strong> Zalaegerszeg</li>
+      <li><strong>Kapcsolattartás adatvédelmi ügyekben:</strong> zeghangja@proton.me</li>
+      <li><strong>Weboldal:</strong> zeghang.hajasgabor.com</li>
     </ul>
-    <p style="margin-top:1rem;">A platform független civil kezdeményezés, nem tartozik önkormányzathoz, párthoz vagy politikai szervezethez.</p>
+    <p style="margin-top:1rem;">A platform független civil kezdeményezés, <strong>nem tartozik önkormányzathoz, párthoz, politikai szervezethez vagy vállalathoz</strong>. Adatvédelmi tisztviselőt (DPO) nem foglalkoztatunk, mivel az Infotv. és GDPR 37. cikke szerint nem vagyunk kötelesek — kérdés esetén közvetlenül a fenti email címen lépj kapcsolatba az adatkezelővel.</p>
   </div>
 
   <div class="how-section">
-    <h2><span class="icon">📊</span> 2. Kezelt adatok köre</h2>
+    <h2><span class="icon">📊</span> 2. A kezelt személyes adatok köre</h2>
 
-    <h3 style="font-size:16px; font-weight:600; margin:1.5rem 0 0.75rem; color:var(--text-dark);">Regisztrációkor megadott adatok</h3>
+    <h3 style="font-size:16px; font-weight:600; margin:1.5rem 0 0.75rem; color:var(--text-dark);">A. Regisztrációkor megadott adatok</h3>
     <table style="width:100%; border-collapse:collapse; font-size:14px;">
       <tr style="border-bottom:1px solid var(--cream-dark);">
-        <td style="padding:8px 0; font-weight:600;">Email cím</td>
-        <td style="padding:8px 0;">Bejelentkezés, jelszó-emlékeztető. Soha nem jelenik meg publikusan.</td>
+        <td style="padding:8px 0; font-weight:600; width:30%;">Email cím</td>
+        <td style="padding:8px 0;">Bejelentkezés, jelszó-visszaállítás, adminisztratív értesítések. Publikusan soha nem jelenik meg.</td>
       </tr>
       <tr style="border-bottom:1px solid var(--cream-dark);">
         <td style="padding:8px 0; font-weight:600;">Jelszó</td>
-        <td style="padding:8px 0;">Kizárólag <strong>bcrypt hash</strong> formában tárolva (salt-tal). A nyers jelszó soha nem kerül mentésre.</td>
+        <td style="padding:8px 0;">Kizárólag <strong>bcrypt hash</strong> formában, egyedi salt-tal. A nyers jelszót sem az adatbázis, sem a logok nem tartalmazzák.</td>
       </tr>
       <tr style="border-bottom:1px solid var(--cream-dark);">
-        <td style="padding:8px 0; font-weight:600;">Lakcím</td>
-        <td style="padding:8px 0;">Egyirányú <strong>SHA-256 hash</strong> formában tárolva. A pontos cím visszafejtése matematikailag lehetetlen. Kizárólag a körzet-azonosításhoz használjuk, utána csak a hash marad.</td>
+        <td style="padding:8px 0; font-weight:600;">Lakcím (utca, házszám, irányítószám)</td>
+        <td style="padding:8px 0;">Egyirányú <strong>SHA-256 hash</strong> formában tárolva. A regisztráció feldolgozása után a pontos cím azonnal eldobódik, csak a hash és a körzet-azonosító marad. A hash-ből a cím matematikailag nem fejthető vissza.</td>
       </tr>
       <tr style="border-bottom:1px solid var(--cream-dark);">
         <td style="padding:8px 0; font-weight:600;">Megjelenítési név</td>
-        <td style="padding:8px 0;">Opcionális. Ha nem adod meg, "Körzeti lakos" néven jelensz meg.</td>
+        <td style="padding:8px 0;">Opcionális. Ha nem adsz meg, "Körzeti lakos" néven jelensz meg.</td>
       </tr>
       <tr style="border-bottom:1px solid var(--cream-dark);">
         <td style="padding:8px 0; font-weight:600;">Körzet száma</td>
-        <td style="padding:8px 0;">A lakcím alapján automatikusan hozzárendelt egyéni választókerület (1-12).</td>
+        <td style="padding:8px 0;">Az utca alapján automatikusan hozzárendelt egyéni választókerület (1-12).</td>
       </tr>
       <tr>
         <td style="padding:8px 0; font-weight:600;">Születési dátum</td>
-        <td style="padding:8px 0;">Kizárólag életkor-ellenőrzéshez kérjük (csak 18 éven felüliek regisztrálhatnak). A dátum <strong>nem kerül tárolásra</strong>: a regisztráció feldolgozása során a szerver kiszámolja a kort, majd a dátumot eldobja. Az adatbázisban sehol nem jelenik meg.</td>
+        <td style="padding:8px 0;">Kizárólag életkor-ellenőrzéshez kérjük (18+ jogosultság). A dátum <strong>NEM kerül tárolásra</strong>: a szerver a kort kiszámolja, majd a dátumot eldobja. Sem adatbázisba, sem logba nem íródik.</td>
       </tr>
     </table>
 
-    <h3 style="font-size:16px; font-weight:600; margin:1.5rem 0 0.75rem; color:var(--text-dark);">Használat során keletkező adatok</h3>
+    <h3 style="font-size:16px; font-weight:600; margin:1.5rem 0 0.75rem; color:var(--text-dark);">B. A szolgáltatás használata során keletkező adatok</h3>
     <table style="width:100%; border-collapse:collapse; font-size:14px;">
       <tr style="border-bottom:1px solid var(--cream-dark);">
-        <td style="padding:8px 0; font-weight:600;">Bejelentések</td>
-        <td style="padding:8px 0;">Cím, leírás, kategória, helyszín, térkép-koordináta, feltöltött fotók.</td>
+        <td style="padding:8px 0; font-weight:600; width:30%;">Bejelentések</td>
+        <td style="padding:8px 0;">Cím, leírás, kategória, megadott helyszín, opcionális GPS koordináta, feltöltött fénykép(ek).</td>
       </tr>
       <tr style="border-bottom:1px solid var(--cream-dark);">
         <td style="padding:8px 0; font-weight:600;">Szavazatok</td>
-        <td style="padding:8px 0;">A szavazat ténye és iránya (fel/le). A szavazó kiléte soha nem jelenik meg publikusan.</td>
+        <td style="padding:8px 0;">A szavazat ténye és iránya (támogató / ellenző), a szavazó felhasználó-azonosítójával összekapcsolva. A szavazó kiléte publikusan <strong>soha nem jelenik meg</strong>. Az azonosítót kizárólag a dupla szavazás megelőzésére tároljuk.</td>
+      </tr>
+      <tr style="border-bottom:1px solid var(--cream-dark);">
+        <td style="padding:8px 0; font-weight:600;">Hozzászólások</td>
+        <td style="padding:8px 0;">A bejelentésekhez fűzött szöveges megjegyzések, megjelenítési névvel együtt.</td>
+      </tr>
+      <tr style="border-bottom:1px solid var(--cream-dark);">
+        <td style="padding:8px 0; font-weight:600;">Reputációs pontszám</td>
+        <td style="padding:8px 0;">Automatikusan számolt numerikus érték (hasznos bejelentések, szavazatok alapján). A publikus profilnál megjelenik.</td>
       </tr>
       <tr>
-        <td style="padding:8px 0; font-weight:600;">Hozzászólások</td>
-        <td style="padding:8px 0;">A bejelentésekhez fűzött szöveges megjegyzések.</td>
+        <td style="padding:8px 0; font-weight:600;">Push-értesítés előfizetés</td>
+        <td style="padding:8px 0;">Kizárólag akkor tároljuk, ha <strong>kifejezetten engedélyezed</strong> a böngésződben. A beállítások oldalon bármikor letiltható.</td>
+      </tr>
+    </table>
+
+    <h3 style="font-size:16px; font-weight:600; margin:1.5rem 0 0.75rem; color:var(--text-dark);">C. Automatikusan gyűjtött adatok</h3>
+    <table style="width:100%; border-collapse:collapse; font-size:14px;">
+      <tr style="border-bottom:1px solid var(--cream-dark);">
+        <td style="padding:8px 0; font-weight:600; width:30%;">Biztonsági naplózás</td>
+        <td style="padding:8px 0;">Sikertelen bejelentkezések, rate limit események, admin-műveletek — az esemény típusa, időbélyeg, valamint az <strong>IP-cím</strong> (nyers formában, maximum 90 napig). Célja: visszaélés-megelőzés.</td>
+      </tr>
+      <tr>
+        <td style="padding:8px 0; font-weight:600;">Látogatottsági statisztika</td>
+        <td style="padding:8px 0;">Meglátogatott oldal útvonala, időbélyeg, <strong>hashelt (SHA-256) IP-cím rövidítve</strong> (16 karakter), bejelentkezve felhasználó-azonosító. A nyers IP-cím ebben a naplóban nem szerepel.</td>
       </tr>
     </table>
   </div>
 
   <div class="how-section">
-    <h2><span class="icon">🔐</span> 3. Titkosítás és adatbiztonság</h2>
-    <p>A platform az alábbi biztonsági intézkedéseket alkalmazza:</p>
+    <h2><span class="icon">⚖️</span> 3. Az adatkezelés céljai és jogalapja</h2>
+    <table style="width:100%; border-collapse:collapse; font-size:14px;">
+      <tr style="border-bottom:1px solid var(--cream-dark); background:var(--cream-dark);">
+        <td style="padding:10px 8px; font-weight:600;">Adatkezelés célja</td>
+        <td style="padding:10px 8px; font-weight:600;">Jogalap (GDPR)</td>
+      </tr>
+      <tr style="border-bottom:1px solid var(--cream-dark);">
+        <td style="padding:8px;">Fiók létrehozása, belépés, platform szolgáltatásainak nyújtása</td>
+        <td style="padding:8px;">Szerződés teljesítése — <strong>6(1)(b)</strong></td>
+      </tr>
+      <tr style="border-bottom:1px solid var(--cream-dark);">
+        <td style="padding:8px;">AI-feldolgozás (kategória, sürgősség, duplikáció, spam-szűrés)</td>
+        <td style="padding:8px;">Jogos érdek (platform integritás, moderáció) — <strong>6(1)(f)</strong></td>
+      </tr>
+      <tr style="border-bottom:1px solid var(--cream-dark);">
+        <td style="padding:8px;">Biztonsági naplózás, rate limit, visszaélés-megelőzés</td>
+        <td style="padding:8px;">Jogos érdek — <strong>6(1)(f)</strong></td>
+      </tr>
+      <tr style="border-bottom:1px solid var(--cream-dark);">
+        <td style="padding:8px;">Látogatottsági statisztika (hashelt IP-vel, pszeudonim)</td>
+        <td style="padding:8px;">Jogos érdek — <strong>6(1)(f)</strong></td>
+      </tr>
+      <tr style="border-bottom:1px solid var(--cream-dark);">
+        <td style="padding:8px;">Jelszó-visszaállító email küldése</td>
+        <td style="padding:8px;">Szerződés teljesítése — <strong>6(1)(b)</strong></td>
+      </tr>
+      <tr>
+        <td style="padding:8px;">Push-értesítések küldése</td>
+        <td style="padding:8px;">Hozzájárulás — <strong>6(1)(a)</strong> · bármikor visszavonható</td>
+      </tr>
+    </table>
+    <p style="margin-top:1rem; font-size:14px;">Ahol a jogalap jogos érdek (6(1)(f)), az érdekmérlegelési teszt az üzemeltetőnél írásban rendelkezésre áll; kérésre az adatvédelmi email címen kikérhető.</p>
+  </div>
+
+  <div class="how-section">
+    <h2><span class="icon">🤝</span> 4. Címzettek — kinek adjuk át az adatokat</h2>
+    <p>A platform működéséhez az alábbi szolgáltatók (adatfeldolgozók) segítségét vesszük igénybe. <strong>Más harmadik félnek (pártoknak, önkormányzatnak, vállalatoknak, hirdetőknek) adatot soha nem adunk át, értékesítésre nem kerül sor.</strong></p>
+
+    <table style="width:100%; border-collapse:collapse; font-size:14px; margin-top:1rem;">
+      <tr style="border-bottom:1px solid var(--cream-dark); background:var(--cream-dark);">
+        <td style="padding:10px 8px; font-weight:600;">Adatfeldolgozó</td>
+        <td style="padding:10px 8px; font-weight:600;">Átadott adat</td>
+        <td style="padding:10px 8px; font-weight:600;">Cél</td>
+      </tr>
+      <tr style="border-bottom:1px solid var(--cream-dark);">
+        <td style="padding:8px; font-weight:600;">OpenAI, L.L.C.<br><span style="font-weight:400; font-size:12px; color:var(--text-muted);">USA</span></td>
+        <td style="padding:8px;">A bejelentés <strong>címe és leírása</strong> szövege</td>
+        <td style="padding:8px;">Kategorizálás, sürgősség-becslés, duplikátum-felismerés, spam-szűrés (GPT-4o-mini modell). Email-cím, lakcím, szavazat, IP soha nem kerül ki.</td>
+      </tr>
+      <tr style="border-bottom:1px solid var(--cream-dark);">
+        <td style="padding:8px; font-weight:600;">Brevo (Sendinblue SAS)<br><span style="font-weight:400; font-size:12px; color:var(--text-muted);">Franciaország, EU</span></td>
+        <td style="padding:8px;">Email cím + tranzakciós üzenet tartalma</td>
+        <td style="padding:8px;">Jelszó-visszaállító email, illetve adminisztratív biztonsági értesítés kézbesítése.</td>
+      </tr>
+      <tr style="border-bottom:1px solid var(--cream-dark);">
+        <td style="padding:8px; font-weight:600;">Web Push szolgáltatók<br><span style="font-weight:400; font-size:12px; color:var(--text-muted);">Mozilla (USA), Google / Firebase Cloud Messaging (USA), Apple Push Notification Service (USA)</span></td>
+        <td style="padding:8px;">Push-előfizetési URL + értesítés tartalma (cím, rövid szöveg)</td>
+        <td style="padding:8px;">Csak akkor, ha a felhasználó <strong>engedélyezte</strong> a push-értesítéseket. A böngésző által használt szolgáltatóhoz kerül — a felhasználó kifejezett hozzájárulása alapján.</td>
+      </tr>
+      <tr>
+        <td style="padding:8px; font-weight:600;">Tárhely-szolgáltató (VPS)</td>
+        <td style="padding:8px;">Minden, az adatbázisban tárolt adat (titkosított hostingon)</td>
+        <td style="padding:8px;">Szerverüzemeltetés. Az adatfeldolgozó az adatokhoz technikai hozzáféréssel rendelkezik, de az adatkezelő kizárólagos ellenőrzése alatt.</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="how-section">
+    <h2><span class="icon">🌍</span> 5. Adattovábbítás harmadik országba (EU-n kívül)</h2>
+    <p>Az OpenAI és a Web Push szolgáltatók székhelye az Amerikai Egyesült Államokban található. Az adattovábbítás jogalapja a GDPR 46. cikke szerinti <strong>általános adatvédelmi szerződéses feltételek (Standard Contractual Clauses, SCC)</strong>, illetve — amennyiben a szolgáltató certifikált — az <strong>EU-USA Data Privacy Framework (DPF)</strong>.</p>
+    <ul style="margin-top:1rem;">
+      <li>OpenAI adatvédelmi tájékoztatója: <a href="https://openai.com/policies/privacy-policy" target="_blank" style="color:var(--meadow);">openai.com/policies/privacy-policy</a></li>
+      <li>Brevo adatvédelmi tájékoztatója (EU): <a href="https://www.brevo.com/legal/privacypolicy/" target="_blank" style="color:var(--meadow);">brevo.com/legal/privacypolicy</a></li>
+    </ul>
+    <p style="margin-top:1rem;">Személyes adat (email, cím) soha nem kerül EU-n kívüli szolgáltatóhoz. Az OpenAI felé kizárólag a bejelentés szövege (cím és leírás) kerül, amely a felhasználó által közérdekből közzétett tartalom.</p>
+  </div>
+
+  <div class="how-section">
+    <h2><span class="icon">🤖</span> 6. Automatizált döntéshozatal és profilozás (GDPR 22. cikk)</h2>
+    <p>A platform néhány automatizált mechanizmust használ, melyek a felhasználó beavatkozása nélkül hoznak döntést:</p>
     <ul>
-      <li><strong>Jelszó:</strong> bcrypt algoritmus, egyedi salt-tal. A bcrypt szándékosan lassú hash-függvény, amely ellenáll a brute-force támadásoknak.</li>
-      <li><strong>Lakcím:</strong> SHA-256 egyirányú hash. A pontos cím nem visszafejthető — sem az üzemeltető, sem külső támadó nem tudja kinyerni.</li>
-      <li><strong>Adatbázis:</strong> PostgreSQL, jelszóval védett hozzáférés, kizárólag a szerverről elérhető (nincs külső hozzáférés).</li>
-      <li><strong>Szavazatok:</strong> A rendszer tárolja a szavazó azonosítóját a dupla szavazás megelőzéséhez, de ez az adat soha nem jelenik meg publikusan — sem más felhasználóknak, sem képviselőknek.</li>
-      <li><strong>Munkamenet:</strong> Flask session cookie, szerver-oldali titkos kulccsal aláírva (HMAC-SHA256).</li>
+      <li><strong>AI tartalomszűrő</strong> — automatikusan elutasítja a nem közterületi tárgyú bejelentéseket (magánügy, üzleti panasz, politikai propaganda, spam).</li>
+      <li><strong>Rate limit</strong> — az IP-cím alapján 5 percben 5 sikertelen bejelentkezési kísérlet után átmenetileg tiltja a további próbálkozásokat.</li>
+      <li><strong>Reputáció-alapú láthatósági korlát (shadowban)</strong> — tartósan negatív reputációjú fiók bejelentései átmenetileg elrejtésre kerülhetnek. Admin felülvizsgálat mellett.</li>
+      <li><strong>Automatikus duplikáció-jelzés</strong> — a rendszer javaslatot tesz, a felhasználó dönthet a beküldésről.</li>
+    </ul>
+    <p style="margin-top:1rem;">Ezekkel a döntésekkel szemben jogod van:</p>
+    <ul>
+      <li><strong>Emberi beavatkozást kérni</strong> — a zeghangja@proton.me címen kérheted, hogy admin személyesen vizsgálja felül az automatikus döntést.</li>
+      <li><strong>Véleményt kifejteni, a döntést vitatni.</strong></li>
+    </ul>
+    <p style="margin-top:1rem; font-size:14px;">A reputáció-számítás önmagában nem minősül a GDPR 22. cikk szerinti, kizárólag automatizált döntésnek, mivel önmagában nem váltja ki a felhasználóra nézve jelentős hatással bíró döntést — a tényleges moderációs intézkedéseket adminisztrátor ellenőrzi.</p>
+  </div>
+
+  <div class="how-section">
+    <h2><span class="icon">🕐</span> 7. Az adatmegőrzés időtartama</h2>
+    <table style="width:100%; border-collapse:collapse; font-size:14px;">
+      <tr style="border-bottom:1px solid var(--cream-dark); background:var(--cream-dark);">
+        <td style="padding:10px 8px; font-weight:600;">Adatkör</td>
+        <td style="padding:10px 8px; font-weight:600;">Megőrzési idő</td>
+      </tr>
+      <tr style="border-bottom:1px solid var(--cream-dark);">
+        <td style="padding:8px;">Fiók adatai (email, jelszó-hash, cím-hash, megjelenítési név)</td>
+        <td style="padding:8px;">A fiók törléséig, vagy inaktív fiók esetén az utolsó belépéstől számított 3 év után törölhető.</td>
+      </tr>
+      <tr style="border-bottom:1px solid var(--cream-dark);">
+        <td style="padding:8px;">Bejelentések, szavazatok, hozzászólások</td>
+        <td style="padding:8px;">A platform működéséig. Fióktörlés esetén a bejelentések anonimizálva megőrzésre kerülhetnek (közösségi érdek).</td>
+      </tr>
+      <tr style="border-bottom:1px solid var(--cream-dark);">
+        <td style="padding:8px;">Biztonsági napló (nyers IP-vel)</td>
+        <td style="padding:8px;">Maximum <strong>90 nap</strong>, utána automatikus törlés.</td>
+      </tr>
+      <tr style="border-bottom:1px solid var(--cream-dark);">
+        <td style="padding:8px;">Látogatottsági statisztika (hashelt IP)</td>
+        <td style="padding:8px;">Maximum <strong>12 hónap</strong>.</td>
+      </tr>
+      <tr style="border-bottom:1px solid var(--cream-dark);">
+        <td style="padding:8px;">Jelszó-visszaállító tokenek</td>
+        <td style="padding:8px;">1 óra (lejárat után automatikus érvénytelenítés).</td>
+      </tr>
+      <tr>
+        <td style="padding:8px;">Feltöltött fotók a bejelentésekhez</td>
+        <td style="padding:8px;">A bejelentés élettartamáig. Törölt bejelentés fotói azonnal véglegesen törlődnek.</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="how-section">
+    <h2><span class="icon">🍪</span> 8. Cookie-k és hasonló technológiák</h2>
+    <p>A platform <strong>csak feltétlenül szükséges cookie-kat</strong> használ. Nem használunk Google Analytics, Facebook Pixel, sem hirdetési/tracking cookie-t.</p>
+    <table style="width:100%; border-collapse:collapse; font-size:14px; margin-top:1rem;">
+      <tr style="border-bottom:1px solid var(--cream-dark); background:var(--cream-dark);">
+        <td style="padding:10px 8px; font-weight:600;">Név</td>
+        <td style="padding:10px 8px; font-weight:600;">Típus</td>
+        <td style="padding:10px 8px; font-weight:600;">Cél / Tárolás</td>
+      </tr>
+      <tr style="border-bottom:1px solid var(--cream-dark);">
+        <td style="padding:8px;">session</td>
+        <td style="padding:8px;">Cookie (HttpOnly, SameSite=Lax)</td>
+        <td style="padding:8px;">Bejelentkezési állapot. Élettartam: 7 nap.</td>
+      </tr>
+      <tr style="border-bottom:1px solid var(--cream-dark);">
+        <td style="padding:8px;">csrf_token</td>
+        <td style="padding:8px;">Cookie / űrlapmező</td>
+        <td style="padding:8px;">CSRF-támadás elleni védelem.</td>
+      </tr>
+      <tr style="border-bottom:1px solid var(--cream-dark);">
+        <td style="padding:8px;">theme</td>
+        <td style="padding:8px;">localStorage</td>
+        <td style="padding:8px;">Világos/sötét téma választás.</td>
+      </tr>
+      <tr style="border-bottom:1px solid var(--cream-dark);">
+        <td style="padding:8px;">zh_cookies</td>
+        <td style="padding:8px;">localStorage</td>
+        <td style="padding:8px;">Cookie-nyilatkozat tudomásul vételének jelzése.</td>
+      </tr>
+      <tr>
+        <td style="padding:8px;">zh_disclaimer</td>
+        <td style="padding:8px;">sessionStorage</td>
+        <td style="padding:8px;">Segélyhívó (112) figyelmeztetés jelzése a böngészőmenet alatt.</td>
+      </tr>
+    </table>
+
+    <h3 style="font-size:16px; font-weight:600; margin:1.5rem 0 0.75rem; color:var(--text-dark);">Hozzájárulás visszavonása</h3>
+    <p>A cookie-k elfogadásakor rögzítjük a döntésedet (szint, verzió, időpont) a saját eszközöd localStorage tárolójában. Ezt bármikor visszavonhatod, ami után a banner újra megjelenik és új döntést hozhatsz:</p>
+    <p style="margin-top:0.75rem;">
+      <button type="button" onclick="resetCookieConsent();" style="background:var(--meadow); color:white; border:none; padding:10px 18px; border-radius:8px; font-weight:600; font-size:14px; cursor:pointer; font-family:inherit;">Cookie beállítások újrakezelése</button>
+    </p>
+    <p style="margin-top:0.75rem; font-size:13px; color:var(--text-muted);">Ugyanez a funkció a publikus oldalak láblécében található "Cookie beállítások" linkkel is elérhető.</p>
+  </div>
+
+  <div class="how-section">
+    <h2><span class="icon">🔐</span> 9. Adatbiztonsági intézkedések (GDPR 32. cikk)</h2>
+    <ul>
+      <li><strong>Jelszótárolás:</strong> bcrypt algoritmus, egyedi salt. A bcrypt szándékosan lassú, ellenáll a brute-force támadásnak.</li>
+      <li><strong>Lakcím:</strong> SHA-256 egyirányú hash. Sem az üzemeltető, sem külső támadó nem tudja visszafejteni.</li>
+      <li><strong>Átviteli titkosítás:</strong> HTTPS (TLS 1.2+), minden kliens ↔ szerver kommunikációra.</li>
+      <li><strong>Session-védelem:</strong> Flask session cookie HMAC-SHA256 aláírással, HttpOnly + SameSite=Lax.</li>
+      <li><strong>CSRF-védelem:</strong> token-alapú (Flask-WTF).</li>
+      <li><strong>Adatbázis:</strong> PostgreSQL, jelszóval védett hozzáférés, kizárólag a szerver localhost interfészéről.</li>
+      <li><strong>Biztonsági fejlécek:</strong> X-Content-Type-Options, X-Frame-Options, Content-Security-Policy, Strict-Transport-Security.</li>
+      <li><strong>Rate limit + riasztás:</strong> gyanús tevékenység esetén az adatkezelő automatikus email-értesítést kap.</li>
     </ul>
     <div class="how-highlight">
-      A platform forráskódja nyilvános és bárki által ellenőrizhető:<br>
+      A platform teljes forráskódja nyilvános és bárki által auditálható:<br>
       <a href="https://github.com/gaberun24/zeghang" target="_blank" style="color:var(--meadow); font-weight:600;">github.com/gaberun24/zeghang</a>
     </div>
   </div>
 
   <div class="how-section">
-    <h2><span class="icon">🤖</span> 4. AI (mesterséges intelligencia) használata</h2>
-    <p>A platform OpenAI GPT-4o-mini modellt használ a bejelentések feldolgozásához:</p>
+    <h2><span class="icon">👤</span> 10. Az érintett jogai (GDPR 15-22. cikk)</h2>
+    <p>Mint érintett személy, az alábbi jogokat gyakorolhatod bármikor, díjmentesen:</p>
     <ul>
-      <li><strong>Kategória javaslat</strong> — az AI a bejelentés szövege alapján kategóriát javasol</li>
-      <li><strong>Sürgősség becslés</strong> — az AI értékeli a probléma sürgősségét</li>
-      <li><strong>Duplikáció szűrés</strong> — az AI vizsgálja, van-e hasonló nyitott bejelentés</li>
+      <li><strong>Hozzáférés joga (15. cikk)</strong> — másolatot kérhetsz a rólad tárolt adatokról.</li>
+      <li><strong>Helyesbítés joga (16. cikk)</strong> — pontatlan adat javítható. A megjelenítési név és körzet a beállítások oldalon önállóan módosítható.</li>
+      <li><strong>Törlés joga / "elfeledtetéshez" való jog (17. cikk)</strong> — bármikor kérheted a fiókod és minden hozzá kapcsolódó személyes adat végleges törlését.</li>
+      <li><strong>Adatkezelés korlátozása (18. cikk)</strong> — vitatott adat esetén kérheted az adatkezelés ideiglenes felfüggesztését.</li>
+      <li><strong>Adathordozhatóság joga (20. cikk)</strong> — a rólad tárolt adatokat strukturált, géppel olvasható (JSON) formátumban megkaphatod.</li>
+      <li><strong>Tiltakozás joga (21. cikk)</strong> — jogos érdeken alapuló adatkezelés ellen tiltakozhatsz (pl. analitikai statisztika).</li>
+      <li><strong>Hozzájárulás visszavonása</strong> — a push-értesítések engedélye a beállításokban bármikor visszavonható.</li>
+      <li><strong>Automatizált döntéssel szembeni jog (22. cikk)</strong> — emberi felülvizsgálatot kérhetsz automatikus moderációs döntés esetén.</li>
     </ul>
-    <p style="margin-top:1rem;">Az AI feldolgozáshoz a bejelentés szövege (cím, leírás) átkerül az OpenAI API-hoz. <strong>Személyes adat (email, lakcím, szavazat) soha nem kerül az AI-hoz.</strong></p>
-    <p style="margin-top:0.5rem;">Az OpenAI adatkezelési tájékoztatója: <a href="https://openai.com/policies/privacy-policy" target="_blank" style="color:var(--meadow);">openai.com/policies/privacy-policy</a></p>
+    <p style="margin-top:1rem;">Jogaid gyakorlásához írj a <strong>zeghangja@proton.me</strong> címre. A kérést <strong>legkésőbb 30 napon belül</strong> teljesítjük (GDPR 12. cikk (3) bekezdés szerint, szükség esetén további 60 nappal meghosszabbítva, erről előzetesen értesítünk).</p>
   </div>
 
   <div class="how-section">
-    <h2><span class="icon">⚖️</span> 5. Adatkezelés jogalapja</h2>
-    <ul>
-      <li><strong>Hozzájárulás (GDPR 6(1)(a))</strong> — a regisztrációval kifejezetten hozzájárulsz az adatkezeléshez</li>
-      <li><strong>Szerződés teljesítése (GDPR 6(1)(b))</strong> — a platform szolgáltatásainak nyújtásához szükséges adatkezelés</li>
-      <li><strong>Jogos érdek (GDPR 6(1)(f))</strong> — biztonsági naplózás, visszaélés-megelőzés</li>
-    </ul>
+    <h2><span class="icon">⚖️</span> 11. Panasztétel joga</h2>
+    <p>Amennyiben úgy gondolod, hogy az adatkezelés során jogsértés történt, jogod van panasszal fordulni a magyar felügyeleti hatósághoz:</p>
+    <div style="background:var(--cream); padding:1rem 1.25rem; border-radius:8px; margin-top:0.75rem; border-left:3px solid var(--meadow);">
+      <strong>Nemzeti Adatvédelmi és Információszabadság Hatóság (NAIH)</strong><br>
+      Cím: 1055 Budapest, Falk Miksa utca 9-11.<br>
+      Postacím: 1363 Budapest, Pf. 9.<br>
+      Telefon: +36-1-391-1400<br>
+      Email: <a href="mailto:ugyfelszolgalat@naih.hu" style="color:var(--meadow);">ugyfelszolgalat@naih.hu</a><br>
+      Web: <a href="https://naih.hu" target="_blank" style="color:var(--meadow);">naih.hu</a>
+    </div>
+    <p style="margin-top:1rem; font-size:14px;">Jogod van továbbá a szokásos tartózkodási helyed szerinti bíróság előtt polgári pert indítani az adatkezelő ellen (GDPR 79. cikk).</p>
   </div>
 
   <div class="how-section">
-    <h2><span class="icon">🕐</span> 6. Adatmegőrzés időtartama</h2>
+    <h2><span class="icon">🚨</span> 12. Adatvédelmi incidens</h2>
+    <p>Adatvédelmi incidens (személyes adatok jogosulatlan kiszivárgása, elvesztése, módosítása) észlelése esetén:</p>
     <ul>
-      <li><strong>Felhasználói fiók adatai:</strong> a fiók törléséig</li>
-      <li><strong>Bejelentések, szavazatok:</strong> a platform működéséig (törlés kérhető)</li>
-      <li><strong>Biztonsági naplók:</strong> maximum 90 nap</li>
-    </ul>
-  </div>
-
-  <div class="how-section">
-    <h2><span class="icon">👤</span> 7. Érintetti jogok</h2>
-    <p>A GDPR alapján az alábbi jogok illetnek meg:</p>
-    <ul>
-      <li><strong>Hozzáférés joga</strong> — bármikor lekérheted, milyen adataidat kezeljük</li>
-      <li><strong>Helyesbítés joga</strong> — megjelenítési neved és körzeted módosítható</li>
-      <li><strong>Törlés joga ("elfeledtetés")</strong> — bármikor kérheted fiókod és minden hozzá tartozó adat végleges törlését</li>
-      <li><strong>Adathordozhatóság joga</strong> — kérheted adataid géppel olvasható formátumban</li>
-      <li><strong>Tiltakozás joga</strong> — bármikor visszavonhatod hozzájárulásodat</li>
-    </ul>
-    <p style="margin-top:1rem;">Jogaid gyakorlásához írj a <strong>zeghangja@proton.me</strong> címre. A kéréseket 30 napon belül teljesítjük.</p>
-  </div>
-
-  <div class="how-section">
-    <h2><span class="icon">🚫</span> 8. Amit NEM teszünk</h2>
-    <ul>
-      <li>Nem adunk át adatot harmadik félnek (pártoknak, cégeknek, önkormányzatnak)</li>
-      <li>Nem használunk tracking cookie-kat vagy analitikát (Google Analytics, Facebook Pixel stb.)</li>
-      <li>Nem profilozunk felhasználókat</li>
-      <li>Nem küldünk marketing emaileket</li>
-      <li>Nem értékesítjük az adatokat</li>
+      <li>A tudomásszerzéstől számított <strong>72 órán belül</strong> bejelentést teszünk a NAIH felé (GDPR 33. cikk), hacsak az incidens valószínűleg nem jár az érintettek jogaira és szabadságaira nézve kockázattal.</li>
+      <li>Amennyiben az incidens <strong>magas kockázattal</strong> jár, az érintetteket közvetlenül, indokolatlan késedelem nélkül értesítjük (GDPR 34. cikk) az incidens jellegéről, valószínű következményeiről és a megtett intézkedésekről.</li>
     </ul>
   </div>
 
   <div class="how-section">
-    <h2><span class="icon">📬</span> 9. Kapcsolat, panasz</h2>
-    <p>Adatvédelmi kérdés vagy panasz esetén:</p>
+    <h2><span class="icon">🧒</span> 13. Kiskorúak védelme</h2>
+    <p>A platform kizárólag <strong>18. életévüket betöltött</strong> személyek számára elérhető. A regisztrációnál az életkort születési dátum alapján ellenőrizzük, <strong>de a dátumot nem tároljuk</strong> — csak a kor kiszámolására használjuk, majd eldobjuk.</p>
+    <p style="margin-top:1rem;">Ez szigorúbb mint a GDPR 8. cikke (amely Magyarországon 16 évet állapít meg a digitális szolgáltatásokhoz való önálló hozzájárulás korhatárául), mert a platform politikai és közösségi döntéshozatalt érintő tartalmakkal foglalkozik, amelyekhez nagykorú jogképességet tartunk szükségesnek.</p>
+  </div>
+
+  <div class="how-section">
+    <h2><span class="icon">📝</span> 14. Amit NEM teszünk</h2>
     <ul>
-      <li><strong>Email:</strong> zeghangja@proton.me</li>
-      <li><strong>NAIH (Nemzeti Adatvédelmi és Információszabadság Hatóság):</strong> <a href="https://naih.hu" target="_blank" style="color:var(--meadow);">naih.hu</a></li>
+      <li>Személyes adatot <strong>soha nem értékesítünk</strong> harmadik félnek.</li>
+      <li>Nem adunk át adatot <strong>pártoknak, politikai szervezeteknek, vállalatoknak, hirdetőknek</strong>.</li>
+      <li>Nem használunk tracking/analitika cookie-t (Google Analytics, Facebook Pixel stb.).</li>
+      <li>Nem végzünk viselkedés-alapú célzott hirdetést, nem profilozunk marketing célokra.</li>
+      <li>Nem küldünk marketing- vagy hírlevél-emailt.</li>
+      <li>Nem használunk biometriai vagy különleges kategóriájú (GDPR 9. cikk) adatokat.</li>
+    </ul>
+  </div>
+
+  <div class="how-section">
+    <h2><span class="icon">🔄</span> 15. A tájékoztató módosítása</h2>
+    <p>Fenntartjuk a jogot a jelen tájékoztató módosítására, ha a szolgáltatás fejlődése, új szolgáltatók bevonása, vagy jogszabályi kötelezettség azt indokolttá teszi.</p>
+    <ul>
+      <li>Érdemi módosítás esetén a változást előzetesen, legalább <strong>15 nappal a hatályba lépés előtt</strong> közzétesszük a platformon és (bejelentkezett felhasználóknál) emailben is értesítünk.</li>
+      <li>A korábbi verziók archivált állapota a forráskód-repozitóriumban visszakereshető.</li>
+    </ul>
+  </div>
+
+  <div class="how-section">
+    <h2><span class="icon">📬</span> 16. Kapcsolat</h2>
+    <p>Adatvédelmi kérdés, kérelem vagy panasz esetén:</p>
+    <ul>
+      <li><strong>Email (adatkezelő):</strong> <a href="mailto:zeghangja@proton.me" style="color:var(--meadow);">zeghangja@proton.me</a></li>
+      <li><strong>Felügyeleti hatóság (NAIH):</strong> <a href="https://naih.hu" target="_blank" style="color:var(--meadow);">naih.hu</a></li>
     </ul>
   </div>
 

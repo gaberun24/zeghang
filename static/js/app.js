@@ -514,10 +514,43 @@ function checkDistrict() {
 }
 
 // ── COOKIE CONSENT ──
-function acceptCookies() {
-  localStorage.setItem('zh_cookies', '1');
+// A consent verzió. Ha az Adatvédelmi tájékoztató érdemben módosul, emeld eggyel:
+// a bannert újra megmutatja minden meglévő felhasználónak.
+var COOKIE_CONSENT_VERSION = 1;
+var COOKIE_CONSENT_KEY = 'zh_consent';
+
+function acceptCookies(level) {
+  var consent = {
+    version: COOKIE_CONSENT_VERSION,
+    level: level === 'all' ? 'all' : 'necessary',
+    timestamp: new Date().toISOString()
+  };
+  try {
+    localStorage.setItem(COOKIE_CONSENT_KEY, JSON.stringify(consent));
+    localStorage.removeItem('zh_cookies'); // régi kulcs takarítása
+  } catch (e) {}
   var el = document.getElementById('cookieBanner');
   if (el) el.style.display = 'none';
+}
+
+function hasValidConsent() {
+  try {
+    var raw = localStorage.getItem(COOKIE_CONSENT_KEY);
+    if (!raw) return false;
+    var c = JSON.parse(raw);
+    return c && c.version === COOKIE_CONSENT_VERSION;
+  } catch (e) {
+    return false;
+  }
+}
+
+function resetCookieConsent() {
+  try {
+    localStorage.removeItem(COOKIE_CONSENT_KEY);
+    localStorage.removeItem('zh_cookies');
+  } catch (e) {}
+  var el = document.getElementById('cookieBanner');
+  if (el) el.style.display = '';
 }
 
 // ── DISCLAIMER ──
@@ -530,7 +563,7 @@ function dismissDisclaimer() {
 // Show/hide banners on load
 document.addEventListener('DOMContentLoaded', function() {
   var cookie = document.getElementById('cookieBanner');
-  if (cookie && localStorage.getItem('zh_cookies')) cookie.style.display = 'none';
+  if (cookie && hasValidConsent()) cookie.style.display = 'none';
 
   var disc = document.getElementById('disclaimerBanner');
   if (disc && sessionStorage.getItem('zh_disclaimer')) disc.style.display = 'none';
