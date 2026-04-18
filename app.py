@@ -511,6 +511,59 @@ def terms():
     return render_template("terms.html")
 
 
+# ── SEO: robots.txt + sitemap.xml ──
+@app.route("/robots.txt")
+def robots_txt():
+    body = (
+        "User-agent: *\n"
+        "Allow: /\n"
+        "Disallow: /admin/\n"
+        "Disallow: /admin\n"
+        "Disallow: /api/\n"
+        "Disallow: /logout\n"
+        "Disallow: /beallitasok\n"
+        "Disallow: /uj-jelszo/\n"
+        "Disallow: /static/uploads/\n"
+        "\n"
+        f"Sitemap: {request.host_url.rstrip('/')}/sitemap.xml\n"
+    )
+    from flask import Response
+    return Response(body, mimetype="text/plain")
+
+
+@app.route("/sitemap.xml")
+def sitemap_xml():
+    from flask import Response
+    base = request.host_url.rstrip("/")
+    today = date.today().isoformat()
+
+    # Statikus publikus oldalak
+    static_urls = [
+        (url_for("index"), "1.0", "daily"),
+        (url_for("how_it_works"), "0.8", "monthly"),
+        (url_for("user_guide"), "0.8", "monthly"),
+        (url_for("privacy"), "0.5", "yearly"),
+        (url_for("terms"), "0.5", "yearly"),
+    ]
+
+    items = []
+    for path, priority, freq in static_urls:
+        items.append(
+            f"<url><loc>{base}{path}</loc>"
+            f"<lastmod>{today}</lastmod>"
+            f"<changefreq>{freq}</changefreq>"
+            f"<priority>{priority}</priority></url>"
+        )
+
+    xml = (
+        '<?xml version="1.0" encoding="UTF-8"?>'
+        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
+        + "".join(items) +
+        "</urlset>"
+    )
+    return Response(xml, mimetype="application/xml")
+
+
 # ── Routes: Auth ──
 @app.route("/register", methods=["GET", "POST"])
 def register():

@@ -14,12 +14,68 @@
   <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='apple-touch-icon.png') }}">
   <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
   <title>{% block title %}Zalaegerszeg Hangja — Közösségi Platform{% endblock %}</title>
+
+  {# ── SEO meta ── #}
+  <meta name="description" content="{% block meta_description %}Zalaegerszeg Hangja — független, nonprofit közösségi platform a város lakói számára. Közterületi problémák bejelentése, anonim szavazás és priorizálás 12 választókerületenként.{% endblock %}">
+  <meta name="keywords" content="Zalaegerszeg, közösségi platform, bejelentés, közterület, választókerület, civic tech, önkormányzat, lakossági ügyek">
+  <meta name="author" content="Hajas Gábor">
+  <meta name="robots" content="{% block meta_robots %}index, follow{% endblock %}">
+  <link rel="canonical" href="{% block canonical %}{{ request.base_url }}{% endblock %}">
+
+  {# ── Open Graph ── #}
+  <meta property="og:type" content="{% block og_type %}website{% endblock %}">
+  <meta property="og:site_name" content="Zalaegerszeg Hangja">
+  <meta property="og:locale" content="hu_HU">
+  <meta property="og:title" content="{% block og_title %}{{ self.title() }}{% endblock %}">
+  <meta property="og:description" content="{% block og_description %}{{ self.meta_description() }}{% endblock %}">
+  <meta property="og:url" content="{{ request.base_url }}">
+  <meta property="og:image" content="{% block og_image %}{{ url_for('static', filename='og-image.png', _external=True) }}{% endblock %}">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+
+  {# ── Twitter Card ── #}
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="{{ self.og_title() }}">
+  <meta name="twitter:description" content="{{ self.og_description() }}">
+  <meta name="twitter:image" content="{{ self.og_image() }}">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  {# ── JSON-LD structured data ── #}
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": "https://zeghangja.hu/#organization",
+        "name": "Zalaegerszeg Hangja",
+        "url": "https://zeghangja.hu",
+        "logo": "https://zeghangja.hu{{ url_for('static', filename='icon-512.png') }}",
+        "description": "Független, nonprofit közösségi platform Zalaegerszeg lakosai számára — közterületi problémák bejelentése, szavazás és priorizálás.",
+        "email": "zeghangja@proton.me",
+        "areaServed": {
+          "@type": "City",
+          "name": "Zalaegerszeg",
+          "addressCountry": "HU"
+        }
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://zeghangja.hu/#website",
+        "url": "https://zeghangja.hu",
+        "name": "Zalaegerszeg Hangja",
+        "publisher": {"@id": "https://zeghangja.hu/#organization"},
+        "inLanguage": "hu-HU"
+      }
+    ]
+  }
+  </script>
+
   {% block head %}{% endblock %}
 </head>
 <body>
