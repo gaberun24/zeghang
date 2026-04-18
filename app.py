@@ -337,6 +337,17 @@ def track_page_view():
         pass
 
 
+@app.before_request
+def trust_cloudflare_https():
+    """Cloudflare mögött: ha a CF-Visitor header HTTPS-t jelez, írjuk át a WSGI
+    scheme-et. Így a request.is_secure, request.host_url, url_for(..., _external=True)
+    mind HTTPS-t ad — fontos a sitemap.xml <loc>, canonical URL, OG URL miatt.
+    A ProxyFix X-Forwarded-Proto-t tisztel, de Nginx $scheme csak a CF→Nginx
+    szakaszt látja (ami lehet HTTP). CF-Visitor a user→CF szakaszt jelzi."""
+    if '"scheme":"https"' in request.headers.get("CF-Visitor", ""):
+        request.environ["wsgi.url_scheme"] = "https"
+
+
 @app.after_request
 def set_security_headers(response):
     response.headers["X-Content-Type-Options"] = "nosniff"
