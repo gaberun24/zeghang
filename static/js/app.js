@@ -502,7 +502,8 @@ function checkDistrict() {
     .then(r => r.json())
     .then(data => {
       if (data.district) {
-        districtHint.textContent = `📍 Felismert körzet: ${String(data.district).padStart(2, '0')}. körzet — ${data.name}`;
+        var rep = data.representative_name ? ` — ${data.representative_name}` : '';
+        districtHint.textContent = `📍 Felismert körzet: ${String(data.district).padStart(2, '0')}.${rep}`;
         districtHint.className = 'field-hint success';
         if (districtSelect) districtSelect.value = data.district;
       } else {

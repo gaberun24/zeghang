@@ -82,7 +82,7 @@
           <option value="">Válassz körzetet...</option>
           {% for d in districts %}
           <option value="{{ d.number }}" {{ 'selected' if request.form.get('district_id') == d.number|string }}>
-            {{ '%02d' % d.number }}. — {{ d.name }} ({{ d.representative_name }})
+            {{ '%02d' % d.number }}. körzet — {{ d.representative_name }}
           </option>
           {% endfor %}
         </select>

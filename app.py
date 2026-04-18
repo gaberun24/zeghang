@@ -1754,7 +1754,11 @@ def api_check_district():
     district_num = guess_district(street)
     if district_num:
         d = next((d for d in DISTRICTS if d["number"] == district_num), None)
-        return jsonify({"district": district_num, "name": d["name"] if d else ""})
+        return jsonify({
+            "district": district_num,
+            "representative_name": d.get("representative_name", "") if d else "",
+            "representative_party": d.get("representative_party", "") if d else "",
+        })
     return jsonify({"district": None})
 
 
