@@ -3143,24 +3143,47 @@
 }
 
 /* ── Password visibility toggle ── */
+/* A .pw-wrap maga a border + háttér konténer, az input és a gomb
+   flex-item-ek benne. Így garantáltan egy sorban vannak. */
 .pw-wrap {
-  position: relative;
-  display: block;
+  display: flex;
+  align-items: stretch;
   width: 100%;
+  background: var(--cream);
+  border: 1.5px solid var(--cream-dark);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  transition: border-color 0.2s, background-color 0.2s;
+}
+
+.pw-wrap:focus-within {
+  border-color: var(--meadow);
+  background: var(--white);
 }
 
 .pw-wrap input[type="password"],
 .pw-wrap input[type="text"] {
-  padding-right: 48px !important;
-  width: 100%;
+  flex: 1 1 auto;
+  min-width: 0;
+  width: auto;
+  padding: 10px 14px;
+  border: none;
+  background: transparent;
+  border-radius: 0;
+  outline: none;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  color: var(--text-dark);
+}
+
+.pw-wrap input:focus {
+  outline: none;
+  background: transparent;
+  border: none;
 }
 
 .pw-toggle {
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  width: 44px;
+  flex: 0 0 44px;
   background: transparent;
   border: none;
   padding: 0;
@@ -3170,9 +3193,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
-  z-index: 2;
-  transition: color 0.15s, background 0.15s;
+  border-left: 1px solid var(--cream-dark);
+  transition: color 0.15s, background-color 0.15s;
 }
 
 .pw-toggle:hover {
