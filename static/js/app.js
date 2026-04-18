@@ -534,7 +534,38 @@ document.addEventListener('DOMContentLoaded', function() {
 
   var disc = document.getElementById('disclaimerBanner');
   if (disc && sessionStorage.getItem('zh_disclaimer')) disc.style.display = 'none';
+
+  initPasswordToggles();
+  initBirthDateMax();
 });
+
+// Prevent picking future dates on the registration birthdate field
+function initBirthDateMax() {
+  var el = document.getElementById('birthDate');
+  if (!el) return;
+  var today = new Date();
+  var pad = function(n) { return n < 10 ? '0' + n : '' + n; };
+  el.max = today.getFullYear() + '-' + pad(today.getMonth() + 1) + '-' + pad(today.getDate());
+}
+
+// ── PASSWORD VISIBILITY TOGGLE ──
+function initPasswordToggles() {
+  var buttons = document.querySelectorAll('[data-pw-toggle]');
+  for (var i = 0; i < buttons.length; i++) {
+    buttons[i].addEventListener('click', function(e) {
+      e.preventDefault();
+      var wrap = this.closest('.pw-wrap');
+      if (!wrap) return;
+      var input = wrap.querySelector('input');
+      if (!input) return;
+      var shown = this.getAttribute('data-shown') === '1';
+      input.type = shown ? 'password' : 'text';
+      this.setAttribute('data-shown', shown ? '0' : '1');
+      this.setAttribute('aria-label', shown ? 'Jelszó megjelenítése' : 'Jelszó elrejtése');
+      this.setAttribute('aria-pressed', shown ? 'false' : 'true');
+    });
+  }
+}
 
 // ── MOBILE MENU ──
 function toggleMobileMenu() {

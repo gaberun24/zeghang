@@ -3121,3 +3121,69 @@
   .weather-cloud-2 { width: 100px; }
   .weather-cloud-3 { width: 130px; }
 }
+
+/* ── Password visibility toggle ── */
+.pw-wrap {
+  position: relative;
+}
+
+.pw-wrap input[type="password"],
+.pw-wrap input[type="text"] {
+  padding-right: 44px !important;
+}
+
+.pw-toggle {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  padding: 6px;
+  cursor: pointer;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  transition: color 0.2s, background 0.2s;
+}
+
+.pw-toggle:hover {
+  color: var(--text-dark);
+  background: var(--cream-dark);
+}
+
+.pw-toggle:focus {
+  outline: 2px solid var(--meadow);
+  outline-offset: 1px;
+}
+
+.pw-toggle svg {
+  width: 20px;
+  height: 20px;
+  display: block;
+}
+
+.pw-toggle .pw-eye-off { display: none; }
+.pw-toggle[data-shown="1"] .pw-eye-on { display: none; }
+.pw-toggle[data-shown="1"] .pw-eye-off { display: block; }
+
+/* Date input styling consistent with other auth inputs */
+.auth-form input[type="date"] {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1.5px solid var(--cream-dark);
+  border-radius: var(--radius-sm);
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  color: var(--text-dark);
+  background: var(--cream);
+  transition: border-color 0.2s;
+}
+
+.auth-form input[type="date"]:focus {
+  outline: none;
+  border-color: var(--meadow);
+  background: var(--white);
+}

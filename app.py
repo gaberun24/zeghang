@@ -7,7 +7,7 @@ import hashlib
 import os
 import secrets
 import uuid
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 from functools import wraps
 
 import bcrypt
@@ -465,6 +465,7 @@ def register():
         address_street = request.form.get("address_street", "").strip()
         address_zip = request.form.get("address_zip", "").strip() or "8900"
         district_num = request.form.get("district_id", "")
+        birth_date_raw = request.form.get("birth_date", "").strip()
 
         # Validation
         if not request.form.get("accept_terms"):
@@ -482,6 +483,24 @@ def register():
         if password != password2:
             flash("A két jelszó nem egyezik.", "error")
             return render_template("register.html", districts=DISTRICTS)
+
+        # Age check — 18+ required. Birth date is NOT stored anywhere.
+        try:
+            bd = date.fromisoformat(birth_date_raw)
+        except ValueError:
+            flash("Érvényes születési dátumot adj meg.", "error")
+            return render_template("register.html", districts=DISTRICTS)
+
+        today = date.today()
+        if bd > today:
+            flash("Érvényes születési dátumot adj meg.", "error")
+            return render_template("register.html", districts=DISTRICTS)
+
+        age = today.year - bd.year - ((today.month, today.day) < (bd.month, bd.day))
+        if age < 18:
+            flash("A regisztráció 18 éven aluliak számára nem engedélyezett.", "error")
+            return render_template("register.html", districts=DISTRICTS)
+        bd = None  # discard — not stored, not logged
 
         if not address_street:
             flash("A zalaegerszegi lakcím megadása kötelező.", "error")
