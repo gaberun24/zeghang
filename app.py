@@ -37,7 +37,7 @@ Image.MAX_IMAGE_PIXELS = 50_000_000
 
 from lib.config import (
     FLASK_SECRET_KEY, FLASK_DEBUG, UPLOAD_DIR, MAX_UPLOAD_MB,
-    ADMIN_ALERT_EMAIL,
+    ADMIN_ALERT_EMAIL, SITE_URL,
 )
 from lib.database import get_db, init_db
 from lib.ai import (
@@ -74,6 +74,12 @@ login_manager.login_message_category = "error"
 
 # ── Jinja2 filters ──
 app.jinja_env.filters["censor"] = censor_text
+
+
+# ── Template context: SITE_URL minden template-ben ──
+@app.context_processor
+def inject_site_url():
+    return {"SITE_URL": SITE_URL}
 
 
 # ── Static cache-busting ──
@@ -536,7 +542,7 @@ def robots_txt():
         "Disallow: /uj-jelszo/\n"
         "Disallow: /static/uploads/\n"
         "\n"
-        f"Sitemap: {request.host_url.rstrip('/')}/sitemap.xml\n"
+        f"Sitemap: {SITE_URL}/sitemap.xml\n"
     )
     from flask import Response
     return Response(body, mimetype="text/plain")
@@ -545,7 +551,7 @@ def robots_txt():
 @app.route("/sitemap.xml")
 def sitemap_xml():
     from flask import Response
-    base = request.host_url.rstrip("/")
+    base = SITE_URL
     today = date.today().isoformat()
 
     # Statikus publikus oldalak

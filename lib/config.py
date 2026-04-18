@@ -39,3 +39,8 @@ VAPID_EMAIL = os.getenv("VAPID_EMAIL", "zeghangja@proton.me")
 
 # Admin alerts
 ADMIN_ALERT_EMAIL = os.getenv("ADMIN_ALERT_EMAIL", "")
+
+# Canonical site URL — ezt használjuk sitemap, canonical, og:url, og:image abszolút
+# URL-ekhez. Ne bízzunk a request.host_url-re, mert Cloudflare Flexible SSL mögött
+# rosszul (http://) jön vissza. Env override: SITE_URL.
+SITE_URL = os.getenv("SITE_URL", "https://zeghangja.hu").rstrip("/")

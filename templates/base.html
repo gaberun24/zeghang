@@ -20,7 +20,7 @@
   <meta name="keywords" content="Zalaegerszeg, közösségi platform, bejelentés, közterület, választókerület, civic tech, önkormányzat, lakossági ügyek">
   <meta name="author" content="Hajas Gábor">
   <meta name="robots" content="{% block meta_robots %}index, follow{% endblock %}">
-  <link rel="canonical" href="{% block canonical %}{{ request.base_url }}{% endblock %}">
+  <link rel="canonical" href="{% block canonical %}{{ SITE_URL }}{{ request.path }}{% endblock %}">
 
   {# ── Open Graph ── #}
   <meta property="og:type" content="{% block og_type %}website{% endblock %}">
@@ -28,8 +28,8 @@
   <meta property="og:locale" content="hu_HU">
   <meta property="og:title" content="{% block og_title %}{{ self.title() }}{% endblock %}">
   <meta property="og:description" content="{% block og_description %}{{ self.meta_description() }}{% endblock %}">
-  <meta property="og:url" content="{{ request.base_url }}">
-  <meta property="og:image" content="{% block og_image %}{{ url_for('static', filename='og-image.png', _external=True) }}{% endblock %}">
+  <meta property="og:url" content="{{ SITE_URL }}{{ request.path }}">
+  <meta property="og:image" content="{% block og_image %}{{ SITE_URL }}{{ url_for('static', filename='og-image.png') }}{% endblock %}">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
 
