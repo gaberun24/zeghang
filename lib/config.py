@@ -23,13 +23,13 @@ MAX_UPLOAD_MB = int(os.getenv("MAX_UPLOAD_MB", "20"))
 
 # Brevo (email)
 BREVO_API_KEY = os.getenv("BREVO_API_KEY", "")
-BREVO_SENDER_EMAIL = os.getenv("BREVO_SENDER_EMAIL", "zeghangja@gmail.com")
+BREVO_SENDER_EMAIL = os.getenv("BREVO_SENDER_EMAIL", "zeghangja@proton.me")
 BREVO_SENDER_NAME = os.getenv("BREVO_SENDER_NAME", "Zalaegerszeg Hangja")
 
 # Web Push (VAPID)
 VAPID_PUBLIC_KEY = os.getenv("VAPID_PUBLIC_KEY", "")
 VAPID_PRIVATE_KEY = os.getenv("VAPID_PRIVATE_KEY", "")
-VAPID_EMAIL = os.getenv("VAPID_EMAIL", "admin@zeghang.hu")
+VAPID_EMAIL = os.getenv("VAPID_EMAIL", "zeghangja@proton.me")
 
 # Admin alerts
 ADMIN_ALERT_EMAIL = os.getenv("ADMIN_ALERT_EMAIL", "")

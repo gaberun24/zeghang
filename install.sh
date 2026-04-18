@@ -123,7 +123,7 @@ MAX_UPLOAD_MB=20
 
 # Brevo (email)
 BREVO_API_KEY=
-BREVO_SENDER_EMAIL=zeghangja@gmail.com
+BREVO_SENDER_EMAIL=zeghangja@proton.me
 BREVO_SENDER_NAME=Zalaegerszeg Hangja
 
 # OpenWeatherMap
@@ -198,7 +198,7 @@ print(json.dumps({'public': v.public_key.public_numbers().encode_point().hex(), 
 # Web Push (VAPID) — automatikusan generálva
 VAPID_PUBLIC_KEY=${VAPID_PUB}
 VAPID_PRIVATE_KEY=${VAPID_PRIV}
-VAPID_EMAIL=admin@zeghang.hu
+VAPID_EMAIL=zeghangja@proton.me
 VAPIDEOF
         echo "  VAPID kulcsok hozzáadva a .env-hez"
     else

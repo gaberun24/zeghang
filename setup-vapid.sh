@@ -68,7 +68,7 @@ cat >> "$ENV_FILE" <<ENVEOF
 # Web Push (VAPID) — automatikusan generálva $(date +%Y-%m-%d)
 VAPID_PUBLIC_KEY=${VAPID_PUB}
 VAPID_PRIVATE_KEY=${VAPID_PRIV_FILE}
-VAPID_EMAIL=admin@zeghang.hu
+VAPID_EMAIL=zeghangja@proton.me
 ENVEOF
 
 echo ""
