@@ -131,4 +131,4 @@ Jelenleg nincs ismert, reprodukálható probléma.
 
 ---
 
-*Projekt indulás: 2026. március · Rollout: 2026. április 18. · Készítette: Hajas Gábor*
+*Projekt indulás: 2026. március · Rollout: 2026. április 18. · Készítette: Hájas Gábor*

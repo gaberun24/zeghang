@@ -225,4 +225,4 @@ Open source. A forráskód nyilvánosan elérhető és auditálható a GitHubon:
 
 ---
 
-*Készítette: Hajas Gábor · Zalaegerszeg · 2026*
+*Készítette: Hájas Gábor · Zalaegerszeg · 2026*
