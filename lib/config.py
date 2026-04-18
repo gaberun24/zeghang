@@ -7,7 +7,13 @@ for _env_path in ["/opt/zeghang/.env", ".env"]:
         load_dotenv(_env_path, override=True)
 
 # Flask
-FLASK_SECRET_KEY = os.getenv("FLASK_SECRET_KEY") or os.urandom(32).hex()
+FLASK_SECRET_KEY = os.getenv("FLASK_SECRET_KEY")
+if not FLASK_SECRET_KEY:
+    raise RuntimeError(
+        "FLASK_SECRET_KEY nincs beállítva a .env-ben. "
+        "Session stabilitás (különösen multi-worker Gunicornnál) csak explicit, "
+        "perzisztens kulccsal garantálható. Generálás: `python -c \"import secrets; print(secrets.token_hex(32))\"`"
+    )
 FLASK_DEBUG = os.getenv("FLASK_DEBUG", "0") == "1"
 
 # Database

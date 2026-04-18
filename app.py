@@ -254,6 +254,7 @@ def check_rate_limit(ip, event_type="login_fail", max_attempts=5, window_seconds
 SECURITY_EVENT_LABELS = {
     "login_fail": "Sikertelen bejelentkezés",
     "login_ok": "Sikeres bejelentkezés",
+    "register_attempt": "Regisztrációs próbálkozás",
     "register_ok": "Regisztráció",
     "password_reset_attempt": "Jelszó-visszaállítási próba",
     "password_reset_requested": "Jelszó-visszaállítás kérés",
@@ -323,13 +324,20 @@ def set_security_headers(response):
     response.headers["X-Frame-Options"] = "DENY"
     response.headers["X-XSS-Protection"] = "1; mode=block"
     response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    response.headers["Permissions-Policy"] = "geolocation=(self), camera=(), microphone=(), payment=()"
+    # HSTS csak HTTPS kérésnél (ProxyFix állítja be a scheme-t)
+    if request.is_secure:
+        response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
     response.headers["Content-Security-Policy"] = (
         "default-src 'self'; "
         "script-src 'self' 'unsafe-inline' https://*.tile.openstreetmap.org https://unpkg.com; "
         "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; "
         "font-src 'self' https://fonts.gstatic.com; "
         "img-src 'self' data: https://*.tile.openstreetmap.org; "
-        "connect-src 'self' https://unpkg.com https://*.tile.openstreetmap.org"
+        "connect-src 'self' https://unpkg.com https://*.tile.openstreetmap.org; "
+        "frame-ancestors 'none'; "
+        "base-uri 'self'; "
+        "form-action 'self'"
     )
     return response
 
@@ -491,6 +499,15 @@ def register():
         return redirect(url_for("dashboard"))
 
     if request.method == "POST":
+        ip = request.remote_addr
+        if check_rate_limit(ip, event_type="register_attempt", max_attempts=3, window_seconds=3600):
+            log_security("rate_limited", f"ip={ip} event=register_attempt", ip)
+            send_security_alert("rate_limited", f"ip={ip} event=register_attempt", ip)
+            flash("Túl sok regisztrációs próbálkozás erről az IP-ről. Próbáld újra 1 óra múlva.", "error")
+            return render_template("register.html", districts=DISTRICTS)
+
+        log_security("register_attempt", f"ip={ip}", ip)
+
         email = request.form.get("email", "").strip().lower()
         password = request.form.get("password", "")
         password2 = request.form.get("password2", "")
