@@ -44,7 +44,7 @@ from lib.ai import (
     categorize_issue, check_duplicates, quick_categorize,
     CATEGORIES, URGENCY_LABELS,
 )
-from lib.moderation import censor_text
+from lib.moderation import censor_text, has_profanity, find_profanity
 from lib.notifications import notify_vote, notify_comment, notify_status_change
 from lib.email import send_email
 from lib.config import VAPID_PUBLIC_KEY
@@ -286,6 +286,7 @@ SECURITY_EVENT_LABELS = {
     "address_change": "Címmódosítás",
     "shadowban": "Shadowban aktiválás",
     "content_rejected": "Tartalom elutasítva",
+    "content_profanity": "Trágár tartalom blokkolva",
     "upload_bomb": "Gyanús fotó feltöltés (decompression bomb)",
     "rate_limited": "Rate limit elérve",
 }
@@ -1195,6 +1196,24 @@ def new_issue():
     if category not in CATEGORIES:
         category = "other"
 
+    # Profanity check — ne terheljük az AI-t és ne engedjünk trágár tartalmat
+    combined_text = f"{title} {description} {location or ''}"
+    if has_profanity(combined_text):
+        found = find_profanity(combined_text)
+        log_security(
+            "content_profanity",
+            f"user={current_user.id} type=issue words={','.join(found)}",
+            request.remote_addr,
+        )
+        return jsonify({
+            "ok": False,
+            "error": (
+                "A bejelentés trágár kifejezéseket tartalmaz, ezért nem tudjuk elfogadni. "
+                "Kérjük, fogalmazd át tárgyilagos, indulatmentes hangnemben — "
+                "a platform közterületi ügyek tényszerű bejelentésére való."
+            ),
+        }), 400
+
     conn = get_db()
     try:
         # AI processing
@@ -1633,6 +1652,23 @@ def add_comment(issue_id):
     content = data.get("content", "").strip()
     if not content:
         return jsonify({"ok": False, "error": "Üres hozzászólás."}), 400
+
+    # Profanity check — a trágár hozzászólást nem engedjük be, nem is cenzúrázunk
+    if has_profanity(content):
+        found = find_profanity(content)
+        log_security(
+            "content_profanity",
+            f"user={current_user.id} type=comment words={','.join(found)}",
+            request.remote_addr,
+        )
+        return jsonify({
+            "ok": False,
+            "error": (
+                "A hozzászólás trágár kifejezéseket tartalmaz. "
+                "Kérjük, fogalmazd át tiszteletteljes hangnemben — "
+                "ez egy közösségi platform, nem vitafórum."
+            ),
+        }), 400
 
     # Rate limit comments for restricted users
     if current_user.is_restricted:

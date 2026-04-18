@@ -49,3 +49,17 @@ def censor_text(text):
         return word[0] + '*' * (len(word) - 1)
 
     return _pattern.sub(_replace, text)
+
+
+def has_profanity(text):
+    """True, ha a szöveg legalább egy magyar trágár kifejezést tartalmaz."""
+    if not text:
+        return False
+    return bool(_pattern.search(text))
+
+
+def find_profanity(text):
+    """A szövegben szereplő trágár szavak listája (kisbetűs, duplikátumok nélkül)."""
+    if not text:
+        return []
+    return sorted({m.group(0).lower() for m in _pattern.finditer(text)})
