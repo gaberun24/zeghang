@@ -14,7 +14,7 @@ from functools import wraps
 import bcrypt
 from flask import (
     Flask, render_template, request, redirect, url_for,
-    flash, jsonify, send_from_directory,
+    flash, jsonify, send_from_directory, session,
 )
 from flask_login import (
     LoginManager, UserMixin, login_user, logout_user,
@@ -30,6 +30,10 @@ import io
 
 # Register HEIC/HEIF support in Pillow
 pillow_heif.register_heif_opener()
+
+# Pillow zip-bomb / decompression védelem — hard limit
+# 50 megapixel fölött DecompressionBombError (4K alatt minden rendes fotó belefér)
+Image.MAX_IMAGE_PIXELS = 50_000_000
 
 from lib.config import (
     FLASK_SECRET_KEY, FLASK_DEBUG, UPLOAD_DIR, MAX_UPLOAD_MB,
@@ -236,6 +240,11 @@ def log_security(event_type, details="", ip=None):
         conn.close()
 
 
+def hash_email_for_log(email: str) -> str:
+    """SHA-256 első 16 karaktere — security_log-ban email helyett, GDPR data minimization."""
+    return hashlib.sha256(email.lower().strip().encode()).hexdigest()[:16]
+
+
 def check_rate_limit(ip, event_type="login_fail", max_attempts=5, window_seconds=300):
     conn = get_db()
     try:
@@ -262,6 +271,7 @@ SECURITY_EVENT_LABELS = {
     "address_change": "Címmódosítás",
     "shadowban": "Shadowban aktiválás",
     "content_rejected": "Tartalom elutasítva",
+    "upload_bomb": "Gyanús fotó feltöltés (decompression bomb)",
     "rate_limited": "Rate limit elérve",
 }
 
@@ -598,7 +608,7 @@ def register():
             )
             conn.commit()
 
-            log_security("register_ok", f"email={email}", request.remote_addr)
+            log_security("register_ok", f"email_hash={hash_email_for_log(email)}", request.remote_addr)
             flash("Sikeres regisztráció! Most már bejelentkezhetsz.", "success")
             return redirect(url_for("login"))
         except Exception:
@@ -645,10 +655,10 @@ def login():
                 }
                 user = User(row, district_row)
                 login_user(user, remember=True)
-                log_security("login_ok", f"email={email}", ip)
+                log_security("login_ok", f"user_id={row['id']}", ip)
                 return redirect(url_for("dashboard"))
             else:
-                log_security("login_fail", f"email={email}", ip)
+                log_security("login_fail", f"email_hash={hash_email_for_log(email)}", ip)
                 flash("Hibás email vagy jelszó.", "error")
         finally:
             conn.close()
@@ -660,6 +670,7 @@ def login():
 @login_required
 def logout():
     logout_user()
+    session.clear()
     return redirect(url_for("index"))
 
 
@@ -727,7 +738,7 @@ def forgot_password():
                     </div>
                     """
                     send_email(email, "Jelszó visszaállítás — Zalaegerszeg Hangja", html)
-                    log_security("password_reset_requested", f"email={email}", request.remote_addr)
+                    log_security("password_reset_requested", f"email_hash={hash_email_for_log(email)}", request.remote_addr)
             except Exception:
                 conn.rollback()
             finally:
@@ -1161,8 +1172,13 @@ def new_issue():
                     os.makedirs(UPLOAD_DIR, exist_ok=True)
 
                     # Open & convert with Pillow (supports HEIC via pillow-heif)
+                    # MAX_IMAGE_PIXELS felett DecompressionBombError — zip-bomb védelem
                     try:
                         img = Image.open(photo)
+                        img.load()  # forces decode + triggers bomb detection
+                    except Image.DecompressionBombError:
+                        log_security("upload_bomb", f"user={current_user.id} file={photo.filename}", request.remote_addr)
+                        continue
                     except Exception:
                         continue  # Skip unreadable files
 
@@ -1171,13 +1187,12 @@ def new_issue():
                     if img.width > max_dim or img.height > max_dim:
                         img.thumbnail((max_dim, max_dim), Image.LANCZOS)
 
+                    # secure_filename + UUID: path traversal védelem a safety-belt
                     filename = f"{uuid.uuid4().hex}.webp"
-                    img.save(
-                        os.path.join(UPLOAD_DIR, filename),
-                        format="WEBP",
-                        quality=70,
-                        method=4,
-                    )
+                    safe_path = os.path.realpath(os.path.join(UPLOAD_DIR, filename))
+                    if not safe_path.startswith(os.path.realpath(UPLOAD_DIR) + os.sep):
+                        continue
+                    img.save(safe_path, format="WEBP", quality=70, method=4)
                     conn.execute(
                         "INSERT INTO issue_media (issue_id, filename, original_name, mime_type) "
                         "VALUES (%s, %s, %s, %s)",
@@ -1778,6 +1793,10 @@ def admin_issue_action(issue_id):
 @app.route("/admin/users")
 @admin_required
 def admin_users():
+    page = request.args.get("page", 1, type=int)
+    per_page = 30
+    offset = (page - 1) * per_page
+
     conn = get_db()
     try:
         users = conn.execute(
@@ -1785,9 +1804,13 @@ def admin_users():
             "(SELECT COUNT(*) FROM issues WHERE user_id = u.id) AS issue_count, "
             "(SELECT COUNT(*) FROM comments WHERE user_id = u.id) AS comment_count "
             "FROM users u LEFT JOIN districts d ON u.district_id = d.id "
-            "ORDER BY u.created_at DESC"
+            "ORDER BY u.created_at DESC LIMIT %s OFFSET %s",
+            (per_page, offset),
         ).fetchall()
-        return render_template("admin/users.html", users=users)
+        total = conn.execute("SELECT COUNT(*) AS cnt FROM users").fetchone()["cnt"]
+        return render_template("admin/users.html",
+            users=users, page=page, per_page=per_page, total=total,
+        )
     finally:
         conn.close()
 
@@ -1817,6 +1840,10 @@ def admin_user_action(user_id):
 @app.route("/admin/comments")
 @admin_required
 def admin_comments():
+    page = request.args.get("page", 1, type=int)
+    per_page = 30
+    offset = (page - 1) * per_page
+
     conn = get_db()
     try:
         comments = conn.execute(
@@ -1824,9 +1851,13 @@ def admin_comments():
             "COALESCE(u.display_name, 'Körzeti lakos') AS author_name, u.email AS author_email "
             "FROM comments c JOIN issues i ON c.issue_id = i.id "
             "JOIN users u ON c.user_id = u.id "
-            "ORDER BY c.created_at DESC LIMIT 100"
+            "ORDER BY c.created_at DESC LIMIT %s OFFSET %s",
+            (per_page, offset),
         ).fetchall()
-        return render_template("admin/comments.html", comments=comments)
+        total = conn.execute("SELECT COUNT(*) AS cnt FROM comments").fetchone()["cnt"]
+        return render_template("admin/comments.html",
+            comments=comments, page=page, per_page=per_page, total=total,
+        )
     finally:
         conn.close()
 
