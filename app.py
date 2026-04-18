@@ -528,6 +528,11 @@ def terms():
     return render_template("terms.html")
 
 
+@app.route("/kapcsolat")
+def contact():
+    return render_template("contact.html")
+
+
 # ── SEO: robots.txt + sitemap.xml ──
 @app.route("/robots.txt")
 def robots_txt():
@@ -559,6 +564,7 @@ def sitemap_xml():
         (url_for("index"), "1.0", "daily"),
         (url_for("how_it_works"), "0.8", "monthly"),
         (url_for("user_guide"), "0.8", "monthly"),
+        (url_for("contact"), "0.6", "yearly"),
         (url_for("privacy"), "0.5", "yearly"),
         (url_for("terms"), "0.5", "yearly"),
     ]
