@@ -6,6 +6,7 @@ Flask application with all routes.
 import hashlib
 import os
 import secrets
+import subprocess
 import uuid
 from datetime import datetime, timedelta, date
 from functools import wraps
@@ -69,6 +70,38 @@ login_manager.login_message_category = "error"
 
 # ── Jinja2 filters ──
 app.jinja_env.filters["censor"] = censor_text
+
+
+# ── Static cache-busting ──
+# Minden url_for('static', ...) automatikusan megkap egy ?v=<hash> query stringet,
+# így a CloudFlare (és böngésző) minden deploy után friss CSS/JS-t tölt be.
+def _get_static_version():
+    try:
+        result = subprocess.run(
+            ["git", "rev-parse", "--short", "HEAD"],
+            capture_output=True, text=True, timeout=2,
+            cwd=os.path.dirname(os.path.abspath(__file__)),
+        )
+        if result.returncode == 0 and result.stdout.strip():
+            return result.stdout.strip()
+    except Exception:
+        pass
+    try:
+        css_path = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)), "static", "css", "style.css"
+        )
+        return str(int(os.path.getmtime(css_path)))
+    except Exception:
+        return "dev"
+
+
+STATIC_VERSION = _get_static_version()
+
+
+@app.url_defaults
+def _add_static_version(endpoint, values):
+    if endpoint == "static" and "v" not in values:
+        values["v"] = STATIC_VERSION
 
 
 # ── User model ──
