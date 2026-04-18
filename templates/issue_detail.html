@@ -171,7 +171,8 @@
 
     <!-- New comment form -->
     <form onsubmit="submitComment(event)" data-issue-id="{{ issue.id }}" style="margin-top:1.5rem;">
-      <textarea placeholder="Írd ide a hozzászólásodat..." style="width:100%; min-height:80px; padding:10px 14px; border:1.5px solid var(--cream-dark); border-radius:var(--radius-sm); font-family:'Inter',sans-serif; font-size:14px; resize:vertical; background:var(--cream);"></textarea>
+      <textarea id="commentInput" oninput="profanityCheck(this.value, 'profanityWarnComment')" placeholder="Írd ide a hozzászólásodat..." style="width:100%; min-height:80px; padding:10px 14px; border:1.5px solid var(--cream-dark); border-radius:var(--radius-sm); font-family:'Inter',sans-serif; font-size:14px; resize:vertical; background:var(--cream);"></textarea>
+      <div id="profanityWarnComment" role="alert" style="display:none; background:#fff3cd; color:#664d03; border:1px solid #ffe69c; padding:10px 14px; border-radius:var(--radius-sm); font-size:13px; margin-top:0.5rem;"></div>
       <button type="submit" class="btn btn-primary" style="margin-top:0.75rem;">Hozzászólás küldése</button>
     </form>
   </div>

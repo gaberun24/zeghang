@@ -150,13 +150,15 @@
 
       <div class="field">
         <label>Cím <span>— röviden, a lényeg</span></label>
-        <input type="text" placeholder="pl. Hiányzó zebra a Balatoni úton" id="issueTitle" oninput="aiCategorize()">
+        <input type="text" placeholder="pl. Hiányzó zebra a Balatoni úton" id="issueTitle" oninput="aiCategorize(); profanityCheck(document.getElementById('issueTitle').value + ' ' + document.getElementById('issueDesc').value, 'profanityWarnIssue');">
       </div>
 
       <div class="field">
         <label>Leírás</label>
-        <textarea placeholder="Részletes leírás: hol, mi a probléma, miért sürgős, kit érint..." id="issueDesc" style="width:100%; min-height:100px; padding:10px 14px; border:1.5px solid var(--cream-dark); border-radius:var(--radius-sm); font-family:'Inter',sans-serif; font-size:14px; resize:vertical; background:var(--cream);"></textarea>
+        <textarea placeholder="Részletes leírás: hol, mi a probléma, miért sürgős, kit érint..." id="issueDesc" oninput="profanityCheck(document.getElementById('issueTitle').value + ' ' + document.getElementById('issueDesc').value, 'profanityWarnIssue');" style="width:100%; min-height:100px; padding:10px 14px; border:1.5px solid var(--cream-dark); border-radius:var(--radius-sm); font-family:'Inter',sans-serif; font-size:14px; resize:vertical; background:var(--cream);"></textarea>
       </div>
+
+      <div id="profanityWarnIssue" role="alert" style="display:none; background:#fff3cd; color:#664d03; border:1px solid #ffe69c; padding:10px 14px; border-radius:var(--radius-sm); font-size:13px; margin-bottom:1rem;"></div>
 
       <div class="field">
         <label>Kategória <span class="ai-badge" id="aiSuggest" style="display:none;">🤖 AI javaslat</span></label>

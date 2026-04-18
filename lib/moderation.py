@@ -5,34 +5,45 @@ Original text stays in DB; censoring happens at display time via Jinja2 filter.
 
 import re
 
-# Hungarian profanity list — common swear words and variations
+# Hungarian profanity list — common swear words + frequent inflected forms.
+# A regex most már BOTH-sided word boundary-t használ (\b...\b), ezért
+# toldalékos alakokat külön fel kell venni. Cserébe nincs false positive
+# olyan szavaknál mint "faszállító kamion", "szarvas", "retek" stb.
 _BADWORDS = [
-    "kurva", "kurv", "kúrva", "kurvá",
-    "fasz", "faszom", "faszát", "faszt", "faszba",
-    "geci", "gecis", "geciző",
-    "baszd", "baszom", "basszus", "basszál", "bassza", "basszá", "bazd", "bazdmeg", "bazmeg",
-    "anyád", "anyádat", "anyámat",
-    "szar", "szaros", "szarházi",
-    "picsa", "picsá", "picsa", "pina", "piná",
-    "segg", "seggfej", "segge",
+    # kurva és ragozott alakok
+    "kurva", "kurvák", "kurvát", "kurvára", "kurvának", "kurvaanyád", "kúrva", "kurvája",
+    # fasz és ragozott alakok
+    "fasz", "faszom", "faszod", "faszát", "faszt", "faszba", "faszába",
+    "faszság", "faszomba", "faszomat", "faszfej", "faszkalap",
+    # geci
+    "geci", "gecis", "geciző", "gecit", "gecik",
+    # basz + bazmeg
+    "baszd", "baszom", "baszok", "baszott", "baszni",
+    "basszus", "basszál", "bassza", "basszá", "bazd", "bazdmeg", "bazmeg",
+    # anyád
+    "anyád", "anyádat", "anyámat", "anyádba",
+    # szar és ragozott alakok
+    "szar", "szart", "szarnak", "szaros", "szarházi", "szarok", "szarjon", "szarom",
+    # picsa / pina
+    "picsa", "picsát", "picsába", "picsája", "pina", "pinát", "pinád",
+    # segg
+    "segg", "segged", "seggfej", "segge", "seggbe", "seggét", "seggében",
+    # egyéb sértések / trágárságok
     "buzi", "buzis",
     "ribanc", "ringyó", "lotyó",
     "köcsög", "köcsögök",
-    "paraszt",
     "szopd", "szopjál", "szopj",
     "dögölj", "dögöljön",
     "rohadt", "rohadj", "rohadék",
     "mocsok", "mocskos",
     "csicska", "csicskás",
-    "retkes", "retek",
-    "tetves",
-    "bunkó",
-    "pöcs",
+    "retkes",  # a sima "retek" (zöldség) kivéve a false positive miatt
+    "pöcs", "pöcsöm", "pöcsös",
 ]
 
-# Build regex pattern — case insensitive, word boundary aware
+# Mindkét oldali word boundary — "faszállító" már NEM match-el, csak pontos szó.
 _pattern = re.compile(
-    r'\b(' + '|'.join(re.escape(w) for w in sorted(_BADWORDS, key=len, reverse=True)) + r')',
+    r'\b(' + '|'.join(re.escape(w) for w in sorted(_BADWORDS, key=len, reverse=True)) + r')\b',
     re.IGNORECASE
 )
 

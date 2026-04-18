@@ -1718,6 +1718,22 @@ def api_ai_categorize():
     return jsonify({"category": category})
 
 
+@app.route("/api/check-text", methods=["POST"])
+@login_required
+def api_check_text():
+    """Real-time trágárság-szűrő a kliens-oldali figyelmeztetéshez.
+    Ugyanazt a has_profanity() függvényt használja, mint a beküldés
+    oldali blokk — így ami warning-ot ad, az biztosan blokkolva lesz."""
+    data = request.get_json() or {}
+    text = (data.get("text") or "").strip()
+    if not text:
+        return jsonify({"has_profanity": False, "words": []})
+    return jsonify({
+        "has_profanity": has_profanity(text),
+        "words": find_profanity(text),
+    })
+
+
 @app.route("/api/weather")
 def api_weather():
     """Proxy OpenWeatherMap API — keeps API key server-side."""

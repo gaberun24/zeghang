@@ -573,6 +573,39 @@ document.addEventListener('DOMContentLoaded', function() {
   initBirthDateMax();
 });
 
+// ── PROFANITY REAL-TIME CHECK ──
+// Debounce-olt POST /api/check-text a bejelentés/hozzászólás form-okhoz.
+// Ha a szöveg trágár, warning elem látható lesz.
+var _profanityTimer = null;
+function profanityCheck(text, warnElId) {
+  clearTimeout(_profanityTimer);
+  _profanityTimer = setTimeout(function() {
+    var warnEl = document.getElementById(warnElId);
+    if (!warnEl) return;
+    if (!text || text.trim().length < 3) {
+      warnEl.style.display = 'none';
+      return;
+    }
+    var csrfEl = document.querySelector('meta[name="csrf-token"]');
+    var csrf = csrfEl ? csrfEl.getAttribute('content') : '';
+    fetch('/api/check-text', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json', 'X-CSRFToken': csrf},
+      body: JSON.stringify({text: text})
+    })
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        if (data.has_profanity) {
+          warnEl.textContent = '⚠ A beírt szöveg trágár kifejezést tartalmaz — beküldéskor a bejelentés elutasításra kerül. Kérjük, fogalmazd át tárgyilagosan.';
+          warnEl.style.display = 'block';
+        } else {
+          warnEl.style.display = 'none';
+        }
+      })
+      .catch(function() {});
+  }, 400);
+}
+
 // Prevent picking future dates on the registration birthdate field
 function initBirthDateMax() {
   var el = document.getElementById('birthDate');
