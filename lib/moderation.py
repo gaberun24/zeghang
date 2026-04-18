@@ -110,6 +110,8 @@ _BADWORDS = [
     "buzikurva", "szuperbuzi",
     "ribanc", "ringyó", "lotyó", "riherongy",
     "strici", "hiperstrici", "hímringyó", "hímnőstény",
+    "kurafi", "kurafik", "kurafikat", "kurafit",
+    "szajha", "szajhák", "szajhákat", "szajhát",
 
     # ───────── szop ─────────
     "szopd", "szopjál", "szopj", "szopjatok", "szopós", "szopja",
@@ -117,7 +119,7 @@ _BADWORDS = [
 
     # ───────── köcsög / pejoratív ─────────
     "köcsög", "köcsögök",
-    "dögölj", "dögöljön",
+    "dögölj", "dögöljön", "megdöglik",
     "rohadt", "rohadj", "rohadék",
     "mocsok", "mocskos",
     "csicska", "csicskás", "szégyencsicska",
@@ -152,6 +154,9 @@ _BADWORDS = [
     "pudvás", "pudváslikú",
     "valag", "valagváladék",
     "szűklyukú",
+
+    # ───────── fokozó alakok (LDNOOBW) ─────────
+    "leggecibb", "legszarabb", "legkibaszottabb",
 ]
 
 # Mindkét oldali word boundary — pontos szó match.
