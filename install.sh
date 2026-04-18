@@ -11,7 +11,7 @@ APP_DIR="/opt/zeghang"
 REPO="https://github.com/gaberun24/zeghang.git"
 DB_NAME="zeghang"
 DB_USER="zeghang"
-DOMAIN="zeghang.hajasgabor.com"
+DOMAIN="zeghangja.hu"
 
 # Ha már van .env, olvassuk ki a meglévő jelszót és secret-et
 if [ -f "${APP_DIR}/.env" ]; then

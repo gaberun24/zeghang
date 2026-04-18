@@ -2,7 +2,7 @@
 
 Független, nonprofit közösségi platform Zalaegerszeg lakosai számára. Közterületi problémák bejelentése, szavazás, priorizálás és átláthatóvá tétel — közvetlen kapcsolat a lakók között.
 
-**Élő oldal:** [zeghang.hajasgabor.com](https://zeghang.hajasgabor.com)
+**Élő oldal:** [zeghangja.hu](https://zeghangja.hu)
 
 ---
 

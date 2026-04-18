@@ -65,7 +65,7 @@ Jelenleg nincs ismert probléma.
 
 ## Szerver
 
-- **Élő oldal:** zeghang.hajasgabor.com
+- **Élő oldal:** zeghangja.hu
 - **Szerver:** /opt/zeghang (Debian/Ubuntu)
 - **Deploy:** `git pull && systemctl restart zeghang`
 - **Service:** zeghang.service (Gunicorn)
