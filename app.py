@@ -292,6 +292,7 @@ SECURITY_EVENT_LABELS = {
     "upload_bomb": "Gyanús fotó feltöltés (decompression bomb)",
     "issue_withdrawn": "Bejelentés visszavonva (soft delete)",
     "issue_restored": "Visszavont bejelentés visszaállítva",
+    "server_error": "Szerverhiba (HTTP 500)",
     "rate_limited": "Rate limit elérve",
 }
 
@@ -357,6 +358,76 @@ def trust_cloudflare_https():
     szakaszt látja (ami lehet HTTP). CF-Visitor a user→CF szakaszt jelzi."""
     if '"scheme":"https"' in request.headers.get("CF-Visitor", ""):
         request.environ["wsgi.url_scheme"] = "https"
+
+
+# ── Hibaoldalak ──
+@app.errorhandler(404)
+def error_404(e):
+    return render_template("error.html",
+        code=404,
+        title="Nem található",
+        message=(
+            "A keresett oldal vagy bejelentés nem létezik — lehet, hogy a szerzője visszavonta, "
+            "vagy elírás van az URL-ben. Térj vissza a főoldalra, és keresd meg amit kerestél."
+        ),
+    ), 404
+
+
+@app.errorhandler(403)
+def error_403(e):
+    return render_template("error.html",
+        code=403,
+        title="Nincs jogosultságod",
+        message=(
+            "Ehhez az oldalhoz nincs jogosultságod. Ha úgy gondolod hogy tévedés, "
+            "írj nekünk a kapcsolat oldalon."
+        ),
+    ), 403
+
+
+@app.errorhandler(413)
+def error_413(e):
+    return render_template("error.html",
+        code=413,
+        title="A fájl túl nagy",
+        message=(
+            f"A feltöltött fájl meghaladja a maximum méretet ({MAX_UPLOAD_MB} MB). "
+            "Kérjük, kisebb vagy tömörített képet tölts fel — a rendszer 4K fölötti felbontást "
+            "amúgy is automatikusan méretre szabja."
+        ),
+    ), 413
+
+
+@app.errorhandler(500)
+def error_500(e):
+    try:
+        send_security_alert(
+            "server_error",
+            f"path={request.path} referrer={request.referrer or '-'}",
+            request.remote_addr or "",
+        )
+    except Exception:
+        pass
+    return render_template("error.html",
+        code=500,
+        title="Szerverhiba",
+        message=(
+            "Sajnos váratlan hiba történt a szerveren. Értesítettük az üzemeltetőt, "
+            "hamarosan javítjuk. Kérjük, próbáld újra pár perc múlva."
+        ),
+    ), 500
+
+
+@app.errorhandler(429)
+def error_429(e):
+    return render_template("error.html",
+        code=429,
+        title="Túl sok kérés",
+        message=(
+            "Rövid időn belül túl sok műveletet végeztél. Kérjük, várj néhány percet, "
+            "majd próbáld újra. Ez a védelem a botok és spam ellen szolgál."
+        ),
+    ), 429
 
 
 @app.after_request
