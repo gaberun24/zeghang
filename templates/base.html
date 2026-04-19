@@ -44,6 +44,18 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    /* Leaflet default marker fix: saját static/leaflet/ fájlok
+       (CSP img-src nem engedi az unpkg.com-ot → üres kocka). */
+    if (typeof L !== 'undefined' && L.Icon && L.Icon.Default) {
+      delete L.Icon.Default.prototype._getIconUrl;
+      L.Icon.Default.mergeOptions({
+        iconRetinaUrl: "{{ url_for('static', filename='leaflet/marker-icon-2x.png') }}",
+        iconUrl: "{{ url_for('static', filename='leaflet/marker-icon.png') }}",
+        shadowUrl: "{{ url_for('static', filename='leaflet/marker-shadow.png') }}"
+      });
+    }
+  </script>
 
   {# ── JSON-LD structured data ── #}
   <script type="application/ld+json">
