@@ -14,7 +14,7 @@ from functools import wraps
 import bcrypt
 from flask import (
     Flask, render_template, request, redirect, url_for,
-    flash, jsonify, send_from_directory, session,
+    flash, jsonify, send_from_directory, session, abort,
 )
 from flask_login import (
     LoginManager, UserMixin, login_user, logout_user,
@@ -1319,8 +1319,11 @@ def new_issue():
 
 
 @app.route("/issue/<int:issue_id>")
-@login_required
 def issue_detail(issue_id):
+    # Publikus route — anonim user is olvashatja a bejelentést, de szavazni/kommentelni csak bejelentkezve lehet.
+    is_auth = current_user.is_authenticated
+    current_uid = current_user.id if is_auth else -1  # sentinel anonim esetre a shadowban-szűrőhöz
+
     conn = get_db()
     try:
         issue = conn.execute(
@@ -1342,17 +1345,24 @@ def issue_detail(issue_id):
         ).fetchone()
 
         if not issue:
-            flash("Bejelentés nem található.", "error")
-            return redirect(url_for("dashboard"))
+            abort(404)
 
-        # User vote
-        vote_row = conn.execute(
-            "SELECT direction FROM votes WHERE issue_id = %s AND user_id = %s",
-            (issue_id, current_user.id),
-        ).fetchone()
-        user_vote = vote_row["direction"] if vote_row else 0
+        # Hidden issue: csak owner/admin nézheti
+        is_owner = is_auth and issue["user_id"] == current_user.id
+        is_admin = is_auth and current_user.is_admin
+        if issue["is_hidden"] and not (is_owner or is_admin):
+            abort(404)
 
-        # Comments (hide moderated ones for non-admins)
+        # User vote — csak bejelentkezettnek
+        user_vote = 0
+        if is_auth:
+            vote_row = conn.execute(
+                "SELECT direction FROM votes WHERE issue_id = %s AND user_id = %s",
+                (issue_id, current_user.id),
+            ).fetchone()
+            user_vote = vote_row["direction"] if vote_row else 0
+
+        # Comments (hide moderated ones for non-admins, shadowban-saját-comment anonimnak sem)
         comments_raw = conn.execute(
             "SELECT c.*, COALESCE(u.display_name, 'Körzeti lakos') AS author_name, "
             "COALESCE(("
@@ -1367,7 +1377,7 @@ def issue_detail(issue_id):
             "WHERE c.issue_id = %s AND c.is_hidden = FALSE "
             "AND (u.is_shadowbanned = FALSE OR c.user_id = %s) "
             "ORDER BY c.created_at ASC",
-            (issue_id, current_user.id)
+            (issue_id, current_uid)
         ).fetchall()
         comments = []
         for c in comments_raw:
@@ -1385,7 +1395,8 @@ def issue_detail(issue_id):
             "SELECT * FROM issue_media WHERE issue_id = %s", (issue_id,)
         ).fetchall()
 
-        stats = get_district_stats(current_user.district_id)
+        # stats csak akkor, ha bejelentkezett user van (template base: base.html, sidebar nincs — a stats használata sem fontos, de legacy)
+        stats = get_district_stats(current_user.district_id) if is_auth else None
 
         author_rep = issue["author_reputation"] or 0
         author_rep_name, author_rep_icon = get_reputation_level(author_rep)
@@ -1420,13 +1431,14 @@ def issue_detail(issue_id):
                 else:
                     resolution_no = rc["cnt"]
 
-            # Current user's vote
-            user_rv = conn.execute(
-                "SELECT vote FROM resolution_votes WHERE issue_id = %s AND user_id = %s",
-                (issue_id, current_user.id),
-            ).fetchone()
-            if user_rv is not None:
-                user_resolution_vote = user_rv["vote"]
+            # Current user's vote — csak bejelentkezettnek
+            if is_auth:
+                user_rv = conn.execute(
+                    "SELECT vote FROM resolution_votes WHERE issue_id = %s AND user_id = %s",
+                    (issue_id, current_user.id),
+                ).fetchone()
+                if user_rv is not None:
+                    user_resolution_vote = user_rv["vote"]
 
             # Who started it
             starter = conn.execute(

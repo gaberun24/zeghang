@@ -573,6 +573,54 @@ document.addEventListener('DOMContentLoaded', function() {
   initBirthDateMax();
 });
 
+// ── SOCIAL SHARE (issue detail) ──
+function _getShareUrl(btn) {
+  var row = btn.closest('.share-row');
+  return row ? row.dataset.shareUrl : location.href;
+}
+
+function shareFacebook(btn) {
+  var url = _getShareUrl(btn);
+  window.open(
+    'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(url),
+    '_blank',
+    'noopener,width=600,height=500'
+  );
+}
+
+function shareMessenger(btn) {
+  var url = _getShareUrl(btn);
+  // Mobilon az fb-messenger:// scheme nyitja a Messenger appot közvetlenül.
+  if (/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)) {
+    window.location.href = 'fb-messenger://share/?link=' + encodeURIComponent(url);
+    return;
+  }
+  // Desktopon: Web Share API (ha elérhető), különben clipboard fallback.
+  if (navigator.share) {
+    navigator.share({ url: url }).catch(function() {});
+    return;
+  }
+  copyShareLink(btn);
+}
+
+function copyShareLink(btn) {
+  var url = _getShareUrl(btn);
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(url)
+      .then(function() { showToast('✓ Link vágólapra másolva'); })
+      .catch(function() { showToast('⚠ Másolás sikertelen', true); });
+  } else {
+    // Fallback régi böngészőkre
+    var ta = document.createElement('textarea');
+    ta.value = url;
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand('copy'); showToast('✓ Link vágólapra másolva'); }
+    catch (e) { showToast('⚠ Másolás sikertelen', true); }
+    document.body.removeChild(ta);
+  }
+}
+
 // ── PROFANITY REAL-TIME CHECK ──
 // Debounce-olt POST /api/check-text a bejelentés/hozzászólás form-okhoz.
 // Ha a szöveg trágár, warning elem látható lesz.

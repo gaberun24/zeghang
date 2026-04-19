@@ -3225,6 +3225,33 @@
 [data-theme="dark"] .pw-toggle:hover { background: rgba(255, 255, 255, 0.08); }
 [data-theme="dark"] .pw-toggle:active { background: rgba(255, 255, 255, 0.14); }
 
+/* ── Social share gombok (issue detail) ── */
+.share-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding-top: 1rem;
+  margin-top: 1rem;
+  border-top: 1px solid var(--cream-dark);
+  align-items: center;
+}
+.share-btn {
+  padding: 8px 14px;
+  border-radius: var(--radius-sm);
+  border: none;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  transition: opacity 0.15s, transform 0.1s;
+}
+.share-btn:hover { opacity: 0.9; }
+.share-btn:active { transform: scale(0.97); }
+.share-fb    { background: #1877F2; color: white; }
+.share-msg   { background: #0084FF; color: white; }
+.share-copy  { background: var(--cream-dark); color: var(--text-dark); }
+[data-theme="dark"] .share-copy { background: #2a3a4e; color: var(--text-dark); }
+
 /* Date input styling consistent with other auth inputs */
 .auth-form input[type="date"] {
   width: 100%;

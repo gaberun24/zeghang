@@ -1,12 +1,24 @@
-{% extends "app_base.html" %}
-{% block title %}{{ issue.title }} — Zalaegerszeg Hangja{% endblock %}
+{% extends "base.html" %}
+{% block title %}{{ issue.title|censor }} — Zalaegerszeg Hangja{% endblock %}
+{% block meta_description %}{{ (issue.description|censor)|truncate(160, True) }}{% endblock %}
+{% block og_type %}article{% endblock %}
+{% block og_title %}{{ issue.title|censor }} — Zalaegerszeg Hangja{% endblock %}
+{% block og_description %}{{ (issue.description|censor)|truncate(160, True) }}{% endblock %}
+{% block og_image %}{% if photos %}{{ SITE_URL }}{{ url_for('uploaded_file', filename=photos[0].filename) }}{% else %}{{ SITE_URL }}{{ url_for('static', filename='og-image.png') }}{% endif %}{% endblock %}
+{% block canonical %}{{ SITE_URL }}/issue/{{ issue.id }}{% endblock %}
 
 {% block content %}
-<div style="max-width:800px;">
+<div style="max-width:800px; margin:2rem auto; padding:0 1rem;">
   <!-- Back link -->
-  <a href="{{ url_for('dashboard') }}" style="display:inline-flex; align-items:center; gap:6px; color:var(--text-muted); text-decoration:none; font-size:14px; margin-bottom:1.5rem;">
-    ← Vissza a listához
+  <a href="{{ url_for('dashboard') if current_user.is_authenticated else url_for('index') }}" style="display:inline-flex; align-items:center; gap:6px; color:var(--text-muted); text-decoration:none; font-size:14px; margin-bottom:1.5rem;">
+    ← Vissza
   </a>
+
+  {% if issue.is_hidden %}
+  <div style="background:rgba(192,57,43,0.08); border:1px solid rgba(192,57,43,0.3); border-radius:var(--radius-sm); padding:12px 16px; margin-bottom:1.5rem; color:var(--red-soft); font-size:14px;">
+    ⚠ <strong>Ez a bejelentés el van rejtve moderáció miatt.</strong> Csak te és az adminok látjátok.
+  </div>
+  {% endif %}
 
   <!-- Issue card -->
   <div style="background:var(--white); border-radius:var(--radius-lg); padding:2rem; box-shadow:var(--shadow-md); margin-bottom:2rem;">
@@ -67,18 +79,36 @@
     {% endif %}
 
     <!-- Vote row -->
-    <div style="display:flex; align-items:center; gap:1rem; padding-top:1rem; border-top:1px solid var(--cream-dark);"
+    <div style="display:flex; align-items:center; gap:1rem; padding-top:1rem; border-top:1px solid var(--cream-dark);">
+      {% if current_user.is_authenticated %}
       <div class="vote-col" data-issue-id="{{ issue.id }}" style="flex-direction:row; gap:8px;">
         <button class="vote-btn {{ 'upvoted' if user_vote == 1 }}" onclick="vote(this, 1)">👍</button>
         <span class="vote-count" style="font-size:20px;">{{ issue.vote_score }}</span>
         <button class="vote-btn {{ 'downvoted' if user_vote == -1 }}" onclick="vote(this, -1)">👎</button>
       </div>
       <span style="font-size:13px; color:var(--text-muted);">{{ issue.vote_score }} szavazat</span>
+      {% else %}
+      <div style="display:flex; align-items:center; gap:8px;">
+        <span style="font-size:20px; font-weight:700;">{{ issue.vote_score }}</span>
+        <span style="font-size:13px; color:var(--text-muted);">szavazat</span>
+      </div>
+      <span style="font-size:13px; color:var(--text-muted); margin-left:auto;">
+        <a href="{{ url_for('login') }}" style="color:var(--meadow); font-weight:600;">Jelentkezz be</a> a szavazáshoz
+      </span>
+      {% endif %}
+    </div>
+
+    <!-- Share row -->
+    <div class="share-row" data-share-url="{{ SITE_URL }}/issue/{{ issue.id }}">
+      <span style="font-size:13px; color:var(--text-muted); margin-right:0.5rem; align-self:center;">Megosztás:</span>
+      <button type="button" class="share-btn share-fb" onclick="shareFacebook(this)">Facebook</button>
+      <button type="button" class="share-btn share-msg" onclick="shareMessenger(this)">Messenger</button>
+      <button type="button" class="share-btn share-copy" onclick="copyShareLink(this)">🔗 Link másolása</button>
     </div>
   </div>
 
   <!-- Resolution voting -->
-  {% if issue.status != 'done' and not resolution_active and not resolution_expired %}
+  {% if issue.status != 'done' and not resolution_active and not resolution_expired and current_user.is_authenticated %}
   <div style="background:var(--white); border-radius:var(--radius-lg); padding:1.5rem 2rem; box-shadow:var(--shadow-sm); margin-bottom:2rem; text-align:center;">
     <p style="font-size:14px; color:var(--text-muted); margin-bottom:1rem;">Szerinted ez a probléma megoldódott?</p>
     <button onclick="startResolution({{ issue.id }})" class="btn btn-primary" style="background:var(--meadow);">
@@ -113,7 +143,7 @@
       </div>
     </div>
 
-    {% if resolution_active %}
+    {% if resolution_active and current_user.is_authenticated %}
     <div style="display:flex; gap:0.75rem; justify-content:center;">
       <button onclick="resolutionVote({{ issue.id }}, true)" class="btn" style="background:var(--meadow); color:white; {{ 'opacity:0.5;' if user_resolution_vote == true else '' }}" id="btnResYes">
         👍 Igen, megoldódott
@@ -121,6 +151,10 @@
       <button onclick="resolutionVote({{ issue.id }}, false)" class="btn" style="background:#e74c3c; color:white; {{ 'opacity:0.5;' if user_resolution_vote == false else '' }}" id="btnResNo">
         👎 Nem, még nem
       </button>
+    </div>
+    {% elif resolution_active %}
+    <div style="text-align:center; padding:0.75rem; font-size:13px; color:var(--text-muted);">
+      <a href="{{ url_for('login') }}" style="color:var(--meadow); font-weight:600;">Jelentkezz be</a> a szavazáshoz.
     </div>
     {% else %}
     <div style="text-align:center; padding:0.75rem; border-radius:var(--radius-sm); font-weight:600; font-size:14px;
@@ -170,11 +204,17 @@
     {% endfor %}
 
     <!-- New comment form -->
+    {% if current_user.is_authenticated %}
     <form onsubmit="submitComment(event)" data-issue-id="{{ issue.id }}" style="margin-top:1.5rem;">
       <textarea id="commentInput" oninput="profanityCheck(this.value, 'profanityWarnComment')" placeholder="Írd ide a hozzászólásodat..." style="width:100%; min-height:80px; padding:10px 14px; border:1.5px solid var(--cream-dark); border-radius:var(--radius-sm); font-family:'Inter',sans-serif; font-size:14px; resize:vertical; background:var(--cream);"></textarea>
       <div id="profanityWarnComment" role="alert" style="display:none; background:#fff3cd; color:#664d03; border:1px solid #ffe69c; padding:10px 14px; border-radius:var(--radius-sm); font-size:13px; margin-top:0.5rem;"></div>
       <button type="submit" class="btn btn-primary" style="margin-top:0.75rem;">Hozzászólás küldése</button>
     </form>
+    {% else %}
+    <div style="margin-top:1.5rem; padding:1rem 1.25rem; background:var(--cream); border-radius:var(--radius-sm); text-align:center; font-size:14px; color:var(--text-mid);">
+      Hozzászólás küldéséhez <a href="{{ url_for('login') }}" style="color:var(--meadow); font-weight:600;">jelentkezz be</a>, vagy <a href="{{ url_for('register') }}" style="color:var(--meadow); font-weight:600;">regisztrálj</a>.
+    </div>
+    {% endif %}
   </div>
 </div>
 {% endblock %}
