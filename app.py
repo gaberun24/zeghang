@@ -287,6 +287,8 @@ SECURITY_EVENT_LABELS = {
     "shadowban": "Shadowban aktiválás",
     "content_rejected": "Tartalom elutasítva",
     "content_profanity": "Trágár tartalom blokkolva",
+    "content_profanity_admin_bypass": "Admin átengedte a trágár tartalmat",
+    "content_rejected_admin_bypass": "Admin átengedte a moderátor-elutasított tartalmat",
     "upload_bomb": "Gyanús fotó feltöltés (decompression bomb)",
     "rate_limited": "Rate limit elérve",
 }
@@ -1197,22 +1199,30 @@ def new_issue():
         category = "other"
 
     # Profanity check — ne terheljük az AI-t és ne engedjünk trágár tartalmat
+    # Admin bypass: seed/teszt miatt átmehet (logolva).
     combined_text = f"{title} {description} {location or ''}"
     if has_profanity(combined_text):
         found = find_profanity(combined_text)
-        log_security(
-            "content_profanity",
-            f"user={current_user.id} type=issue words={','.join(found)}",
-            request.remote_addr,
-        )
-        return jsonify({
-            "ok": False,
-            "error": (
-                "A bejelentés trágár kifejezéseket tartalmaz, ezért nem tudjuk elfogadni. "
-                "Kérjük, fogalmazd át tárgyilagos, indulatmentes hangnemben — "
-                "a platform közterületi ügyek tényszerű bejelentésére való."
-            ),
-        }), 400
+        if current_user.is_admin:
+            log_security(
+                "content_profanity_admin_bypass",
+                f"user={current_user.id} type=issue words={','.join(found)}",
+                request.remote_addr,
+            )
+        else:
+            log_security(
+                "content_profanity",
+                f"user={current_user.id} type=issue words={','.join(found)}",
+                request.remote_addr,
+            )
+            return jsonify({
+                "ok": False,
+                "error": (
+                    "A bejelentés trágár kifejezéseket tartalmaz, ezért nem tudjuk elfogadni. "
+                    "Kérjük, fogalmazd át tárgyilagos, indulatmentes hangnemben — "
+                    "a platform közterületi ügyek tényszerű bejelentésére való."
+                ),
+            }), 400
 
     conn = get_db()
     try:
@@ -1220,11 +1230,15 @@ def new_issue():
         ai_result = categorize_issue(title, description)
 
         # Content moderation — reject invalid submissions
+        # Admin bypass: admin user seed/teszt bejelentése átmehet (de logoljuk).
         if ai_result.get("rejected"):
             reason = ai_result.get("rejection_reason", "A bejelentés nem közterületi probléma.")
-            log_security("content_rejected", f"user={current_user.id} reason={reason}", request.remote_addr)
-            send_security_alert("content_rejected", f"user={current_user.id} reason={reason}", request.remote_addr)
-            return jsonify({"ok": False, "error": reason}), 400
+            if current_user.is_admin:
+                log_security("content_rejected_admin_bypass", f"user={current_user.id} reason={reason}", request.remote_addr)
+            else:
+                log_security("content_rejected", f"user={current_user.id} reason={reason}", request.remote_addr)
+                send_security_alert("content_rejected", f"user={current_user.id} reason={reason}", request.remote_addr)
+                return jsonify({"ok": False, "error": reason}), 400
 
         ai_urgency = ai_result.get("urgency", "low")
         ai_cat = ai_result.get("category", category)
@@ -1666,21 +1680,29 @@ def add_comment(issue_id):
         return jsonify({"ok": False, "error": "Üres hozzászólás."}), 400
 
     # Profanity check — a trágár hozzászólást nem engedjük be, nem is cenzúrázunk
+    # Admin bypass: seed/teszt (logolva)
     if has_profanity(content):
         found = find_profanity(content)
-        log_security(
-            "content_profanity",
-            f"user={current_user.id} type=comment words={','.join(found)}",
-            request.remote_addr,
-        )
-        return jsonify({
-            "ok": False,
-            "error": (
-                "A hozzászólás trágár kifejezéseket tartalmaz. "
-                "Kérjük, fogalmazd át tiszteletteljes hangnemben — "
-                "ez egy közösségi platform, nem vitafórum."
-            ),
-        }), 400
+        if current_user.is_admin:
+            log_security(
+                "content_profanity_admin_bypass",
+                f"user={current_user.id} type=comment words={','.join(found)}",
+                request.remote_addr,
+            )
+        else:
+            log_security(
+                "content_profanity",
+                f"user={current_user.id} type=comment words={','.join(found)}",
+                request.remote_addr,
+            )
+            return jsonify({
+                "ok": False,
+                "error": (
+                    "A hozzászólás trágár kifejezéseket tartalmaz. "
+                    "Kérjük, fogalmazd át tiszteletteljes hangnemben — "
+                    "ez egy közösségi platform, nem vitafórum."
+                ),
+            }), 400
 
     # Rate limit comments for restricted users
     if current_user.is_restricted:
