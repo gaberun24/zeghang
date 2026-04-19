@@ -293,6 +293,7 @@ def init_db():
             "ALTER TABLE users ADD COLUMN IF NOT EXISTS reputation INT DEFAULT 0",
             "ALTER TABLE issues ADD COLUMN IF NOT EXISTS resolution_started_at TIMESTAMP",
             "ALTER TABLE issues ADD COLUMN IF NOT EXISTS resolution_started_by INT REFERENCES users(id)",
+            "ALTER TABLE issues ADD COLUMN IF NOT EXISTS withdrawn_at TIMESTAMP",
             "ALTER TABLE users ADD COLUMN IF NOT EXISTS theme VARCHAR(10) DEFAULT 'system'",
         ]:
             conn.execute(col_sql)

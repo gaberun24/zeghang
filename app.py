@@ -290,6 +290,8 @@ SECURITY_EVENT_LABELS = {
     "content_profanity_admin_bypass": "Admin átengedte a trágár tartalmat",
     "content_rejected_admin_bypass": "Admin átengedte a moderátor-elutasított tartalmat",
     "upload_bomb": "Gyanús fotó feltöltés (decompression bomb)",
+    "issue_withdrawn": "Bejelentés visszavonva (soft delete)",
+    "issue_restored": "Visszavont bejelentés visszaállítva",
     "rate_limited": "Rate limit elérve",
 }
 
@@ -1575,6 +1577,67 @@ def vote_issue(issue_id):
                 pass
 
         return jsonify({"ok": True, "vote_score": new_score, "user_vote": user_vote})
+    except Exception:
+        conn.rollback()
+        return jsonify({"ok": False}), 500
+    finally:
+        conn.close()
+
+
+@app.route("/issue/<int:issue_id>/withdraw", methods=["POST"])
+@login_required
+def withdraw_issue(issue_id):
+    """A bejelentés tulajdonosa visszavonja (soft delete): is_hidden=TRUE + withdrawn_at=NOW().
+    A szavazatok/kommentek megmaradnak, csak a publikus láthatóság szűnik meg. Admin is visszaállíthatja."""
+    conn = get_db()
+    try:
+        issue = conn.execute("SELECT user_id, withdrawn_at FROM issues WHERE id = %s", (issue_id,)).fetchone()
+        if not issue:
+            return jsonify({"ok": False, "error": "Nem található."}), 404
+        if issue["user_id"] != current_user.id:
+            return jsonify({"ok": False, "error": "Csak a saját bejelentésedet vonhatod vissza."}), 403
+        if issue["withdrawn_at"]:
+            return jsonify({"ok": False, "error": "Ez a bejelentés már vissza van vonva."}), 400
+
+        conn.execute(
+            "UPDATE issues SET is_hidden = TRUE, withdrawn_at = NOW(), updated_at = NOW() WHERE id = %s",
+            (issue_id,),
+        )
+        conn.commit()
+        log_security("issue_withdrawn", f"user={current_user.id} issue={issue_id}", request.remote_addr)
+        return jsonify({"ok": True})
+    except Exception:
+        conn.rollback()
+        return jsonify({"ok": False}), 500
+    finally:
+        conn.close()
+
+
+@app.route("/issue/<int:issue_id>/restore", methods=["POST"])
+@login_required
+def restore_issue(issue_id):
+    """A tulajdonos visszaállítja a visszavont bejelentést (csak ha ő vonta vissza,
+    nem admin rejtette). is_hidden=FALSE + withdrawn_at=NULL."""
+    conn = get_db()
+    try:
+        issue = conn.execute(
+            "SELECT user_id, withdrawn_at, is_hidden FROM issues WHERE id = %s",
+            (issue_id,),
+        ).fetchone()
+        if not issue:
+            return jsonify({"ok": False, "error": "Nem található."}), 404
+        if issue["user_id"] != current_user.id:
+            return jsonify({"ok": False, "error": "Csak a saját bejelentésedet állíthatod vissza."}), 403
+        if not issue["withdrawn_at"]:
+            return jsonify({"ok": False, "error": "Ez a bejelentés nincs visszavonva."}), 400
+
+        conn.execute(
+            "UPDATE issues SET is_hidden = FALSE, withdrawn_at = NULL, updated_at = NOW() WHERE id = %s",
+            (issue_id,),
+        )
+        conn.commit()
+        log_security("issue_restored", f"user={current_user.id} issue={issue_id}", request.remote_addr)
+        return jsonify({"ok": True})
     except Exception:
         conn.rollback()
         return jsonify({"ok": False}), 500

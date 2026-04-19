@@ -573,6 +573,36 @@ document.addEventListener('DOMContentLoaded', function() {
   initBirthDateMax();
 });
 
+// ── ISSUE WITHDRAW / RESTORE (owner only) ──
+function _postIssueAction(issueId, action, confirmMsg) {
+  if (!confirm(confirmMsg)) return;
+  var csrfEl = document.querySelector('meta[name="csrf-token"]');
+  var csrf = csrfEl ? csrfEl.getAttribute('content') : '';
+  fetch('/issue/' + issueId + '/' + action, {
+    method: 'POST',
+    headers: { 'X-CSRFToken': csrf }
+  })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data.ok) {
+        location.reload();
+      } else {
+        showToast('⚠ ' + (data.error || 'Hiba történt.'), true);
+      }
+    })
+    .catch(function() { showToast('⚠ Hiba történt.', true); });
+}
+
+function withdrawIssue(issueId) {
+  _postIssueAction(issueId, 'withdraw',
+    'Biztosan visszavonod a bejelentést? A szavazatok és hozzászólások megmaradnak, de másoknak nem lesz látható. Később visszaállíthatod.');
+}
+
+function restoreIssue(issueId) {
+  _postIssueAction(issueId, 'restore',
+    'Visszaállítod a bejelentést? Újra publikus lesz.');
+}
+
 // ── SOCIAL SHARE (issue detail) ──
 function _getShareUrl(btn) {
   var row = btn.closest('.share-row');

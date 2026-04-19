@@ -15,9 +15,25 @@
   </a>
 
   {% if issue.is_hidden %}
-  <div style="background:rgba(192,57,43,0.08); border:1px solid rgba(192,57,43,0.3); border-radius:var(--radius-sm); padding:12px 16px; margin-bottom:1.5rem; color:var(--red-soft); font-size:14px;">
-    ⚠ <strong>Ez a bejelentés el van rejtve moderáció miatt.</strong> Csak te és az adminok látjátok.
-  </div>
+    {% if issue.withdrawn_at %}
+    <div style="background:rgba(107,122,140,0.08); border:1px solid rgba(107,122,140,0.3); border-radius:var(--radius-sm); padding:12px 16px; margin-bottom:1.5rem; color:var(--text-mid); font-size:14px;">
+      📦 <strong>
+        {% if current_user.is_authenticated and issue.user_id == current_user.id %}
+          Visszavontad ezt a bejelentést.
+        {% else %}
+          Ezt a bejelentést a szerzője visszavonta.
+        {% endif %}
+      </strong>
+      A szavazatok és hozzászólások megmaradtak, de publikusan nem látható.
+      {% if current_user.is_authenticated and issue.user_id == current_user.id %}
+      <button type="button" onclick="restoreIssue({{ issue.id }})" class="btn btn-sm" style="margin-left:0.75rem; background:var(--meadow); color:white; border:none; padding:6px 14px; border-radius:var(--radius-sm); font-size:13px; cursor:pointer;">Mégis visszaállítom</button>
+      {% endif %}
+    </div>
+    {% else %}
+    <div style="background:rgba(192,57,43,0.08); border:1px solid rgba(192,57,43,0.3); border-radius:var(--radius-sm); padding:12px 16px; margin-bottom:1.5rem; color:var(--red-soft); font-size:14px;">
+      ⚠ <strong>Ez a bejelentés el van rejtve moderáció miatt.</strong> Csak te és az adminok látjátok.
+    </div>
+    {% endif %}
   {% endif %}
 
   <!-- Issue card -->
@@ -104,6 +120,13 @@
       <button type="button" class="share-btn share-fb" onclick="shareFacebook(this)">Facebook</button>
       <button type="button" class="share-btn share-msg" onclick="shareMessenger(this)">Messenger</button>
       <button type="button" class="share-btn share-copy" onclick="copyShareLink(this)">🔗 Link másolása</button>
+      {% if current_user.is_authenticated and issue.user_id == current_user.id and not issue.withdrawn_at %}
+      <button type="button" onclick="withdrawIssue({{ issue.id }})"
+              style="margin-left:auto; background:transparent; color:var(--text-muted); border:1px solid var(--cream-dark); padding:8px 14px; border-radius:var(--radius-sm); font-size:13px; font-weight:500; cursor:pointer; font-family:inherit;"
+              title="A bejelentés publikus láthatóságát visszavonod, a szavazatok megmaradnak.">
+        🗑 Visszavonás
+      </button>
+      {% endif %}
     </div>
   </div>
 
