@@ -273,6 +273,30 @@ def init_db():
         except Exception:
             conn.rollback()
 
+        try:
+            conn.execute("""
+                CREATE TABLE IF NOT EXISTS news_items (
+                    id SERIAL PRIMARY KEY,
+                    category VARCHAR(20) NOT NULL,
+                    external_id VARCHAR(500) UNIQUE NOT NULL,
+                    source_url TEXT NOT NULL,
+                    source_name VARCHAR(120),
+                    title VARCHAR(500) NOT NULL,
+                    ai_summary TEXT,
+                    image_url TEXT,
+                    image_local_path VARCHAR(300),
+                    published_at TIMESTAMP,
+                    fetched_at TIMESTAMP DEFAULT NOW(),
+                    event_start_at TIMESTAMP,
+                    event_end_at TIMESTAMP,
+                    event_location VARCHAR(300),
+                    fb_posted_at TIMESTAMP,
+                    fb_post_id VARCHAR(100)
+                )
+            """)
+        except Exception:
+            conn.rollback()
+
         # Migrations — add columns if missing
         for col_sql in [
             "ALTER TABLE issues ADD COLUMN IF NOT EXISTS lat DOUBLE PRECISION",
@@ -310,6 +334,9 @@ def init_db():
             "CREATE INDEX IF NOT EXISTS idx_security_log_ip ON security_log(ip_address, created_at)",
             "CREATE INDEX IF NOT EXISTS idx_page_views_created ON page_views(created_at DESC)",
             "CREATE INDEX IF NOT EXISTS idx_page_views_path ON page_views(path)",
+            "CREATE INDEX IF NOT EXISTS idx_news_category ON news_items(category)",
+            "CREATE INDEX IF NOT EXISTS idx_news_published ON news_items(published_at DESC)",
+            "CREATE INDEX IF NOT EXISTS idx_news_event_start ON news_items(event_start_at)",
         ]:
             conn.execute(idx_sql)
 

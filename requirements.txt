@@ -13,3 +13,6 @@ py-vapid==1.9.2
 psutil==7.0.0
 Pillow==11.2.1
 pillow-heif==0.21.0
+feedparser==6.0.11
+beautifulsoup4==4.12.3
+lxml==5.3.0

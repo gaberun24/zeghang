@@ -609,6 +609,86 @@ def contact():
     return render_template("contact.html")
 
 
+# ── Routes: Hírek és programok ──
+def _news_page(category: str, template: str, page_title: str, meta_desc: str):
+    page = request.args.get("page", 1, type=int)
+    per_page = 30
+    offset = (page - 1) * per_page
+
+    conn = get_db()
+    try:
+        if category == "event":
+            # Programok: jövőbeli + dátum nélküli is, ami friss; rendezés event_start_at
+            items = conn.execute(
+                """SELECT * FROM news_items
+                   WHERE category = 'event'
+                     AND (event_start_at IS NULL OR event_start_at >= CURRENT_DATE - INTERVAL '1 day')
+                   ORDER BY COALESCE(event_start_at, fetched_at) ASC
+                   LIMIT %s OFFSET %s""",
+                (per_page, offset),
+            ).fetchall()
+            total = conn.execute(
+                """SELECT COUNT(*) AS cnt FROM news_items
+                   WHERE category = 'event'
+                     AND (event_start_at IS NULL OR event_start_at >= CURRENT_DATE - INTERVAL '1 day')"""
+            ).fetchone()["cnt"]
+        else:
+            items = conn.execute(
+                """SELECT * FROM news_items
+                   WHERE category = %s
+                   ORDER BY COALESCE(published_at, fetched_at) DESC
+                   LIMIT %s OFFSET %s""",
+                (category, per_page, offset),
+            ).fetchall()
+            total = conn.execute(
+                "SELECT COUNT(*) AS cnt FROM news_items WHERE category = %s",
+                (category,),
+            ).fetchone()["cnt"]
+
+        return render_template(
+            template,
+            items=items,
+            page=page,
+            per_page=per_page,
+            total=total,
+            category=category,
+            page_title=page_title,
+            meta_desc=meta_desc,
+        )
+    finally:
+        conn.close()
+
+
+@app.route("/helyi-hirek")
+def local_news():
+    return _news_page(
+        category="local",
+        template="news.html",
+        page_title="Helyi hírek — Zalaegerszeg",
+        meta_desc="Zalaegerszegi helyi hírek aggregálva több forrásból, AI-összefoglalóval és linkekkel az eredeti cikkekre. Frissítve fél óránként.",
+    )
+
+
+@app.route("/megyei-hirek")
+def county_news():
+    return _news_page(
+        category="county",
+        template="news.html",
+        page_title="Zala megyei hírek",
+        meta_desc="Zala megyei hírek aggregálva: Zalaegerszeg, Nagykanizsa, Keszthely és a környékbeli települések eseményei. AI-összefoglaló + eredeti forrás linkek.",
+    )
+
+
+@app.route("/programok")
+def events():
+    return _news_page(
+        category="event",
+        template="events.html",
+        page_title="Zalaegerszegi programok",
+        meta_desc="Zalaegerszegi programok, koncertek, fesztiválok, kiállítások — a zalaegerszegturizmus.hu eseménynaptára alapján, AI-bemutatóval.",
+    )
+
+
 # ── SEO: robots.txt + sitemap.xml ──
 @app.route("/robots.txt")
 def robots_txt():
@@ -638,6 +718,9 @@ def sitemap_xml():
     # Statikus publikus oldalak
     static_urls = [
         (url_for("index"), "1.0", "daily"),
+        (url_for("local_news"), "0.9", "hourly"),
+        (url_for("county_news"), "0.9", "hourly"),
+        (url_for("events"), "0.9", "daily"),
         (url_for("how_it_works"), "0.8", "monthly"),
         (url_for("user_guide"), "0.8", "monthly"),
         (url_for("contact"), "0.6", "yearly"),
