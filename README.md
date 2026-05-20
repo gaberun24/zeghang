@@ -149,6 +149,44 @@ Ez beállítja a teljes stacket: PostgreSQL, Python venv, systemd service, Nginx
    flask run
    ```
 
+## Facebook auto-poster setup
+
+A 20 percenként futó `fb_autopost.py` cron a saját Facebook Page-re posztol AI által kiválasztott helyi hírt (csak `category='local'`, 07:00–22:00 Europe/Budapest, napi max 8). A link az 1. komment-be kerül (FB algoritmus link-penalty miatt).
+
+**Egyszeri setup a böngészőben** (~10 perc):
+
+1. **App létrehozása**: [developers.facebook.com](https://developers.facebook.com/) → My Apps → **Create App** → "Business" típus. Megjegyzed az **App ID + App Secret**-et.
+2. **Permissions**: Settings → Basic → Add Product → **Facebook Login + Pages API**.
+3. **Graph API Explorer** ([fejlesztői konzol](https://developers.facebook.com/tools/explorer/)): User Access Token generate `pages_manage_posts, pages_read_engagement, pages_show_list` permissionökkel.
+4. **Page Access Token**: `GET /me/accounts` → kimásolod a Zalaegerszeg Hangja page-token-jét + page-id-t.
+5. **Long-lived csere**:
+   ```
+   GET /oauth/access_token?
+       grant_type=fb_exchange_token
+       &client_id=<APP_ID>
+       &client_secret=<APP_SECRET>
+       &fb_exchange_token=<USER_TOKEN>
+   ```
+   → ~60 napos user-token. Ezzel újra `GET /me/accounts` → **soha nem lejáró page-token** (amíg nem váltasz jelszót).
+6. **`.env`** kiegészítés a szerveren:
+   ```
+   FACEBOOK_PAGE_ID=<page_id>
+   FACEBOOK_PAGE_ACCESS_TOKEN=<long_lived_page_token>
+   ```
+7. **Cron telepítése**:
+   ```bash
+   (crontab -u zeghang -l 2>/dev/null | grep -v fb_autopost; \
+    echo "*/20 7-22 * * * /opt/zeghang/venv/bin/python /opt/zeghang/fb_autopost.py >> /opt/zeghang/fb_autopost.log 2>&1") \
+    | crontab -u zeghang -
+   ```
+8. **Token-teszt**:
+   ```bash
+   sudo -u zeghang /opt/zeghang/venv/bin/python -c "from lib.facebook import verify_token; print(verify_token())"
+   ```
+   Várt válasz: `{"name": "Zalaegerszeg Hangja", "id": "..."}`
+
+A `FB_AUTOPOST_MAX_PER_DAY=8` környezeti változó-val állítható a napi posztlimit.
+
 ## Deploy és frissítés
 
 A szerveren:

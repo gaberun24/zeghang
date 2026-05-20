@@ -293,6 +293,8 @@ SECURITY_EVENT_LABELS = {
     "issue_withdrawn": "Bejelentés visszavonva (soft delete)",
     "issue_restored": "Visszavont bejelentés visszaállítva",
     "server_error": "Szerverhiba (HTTP 500)",
+    "fb_post_ok": "Facebook poszt sikeresen kiment",
+    "fb_post_failed": "Facebook poszt kudarc",
     "rate_limited": "Rate limit elérve",
 }
 

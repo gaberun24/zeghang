@@ -341,6 +341,9 @@ def init_db():
             "CREATE INDEX IF NOT EXISTS idx_news_event_start ON news_items(event_start_at)",
             "CREATE INDEX IF NOT EXISTS idx_news_title_hash ON news_items(title_hash, fetched_at)",
             "CREATE INDEX IF NOT EXISTS idx_news_normalized_url ON news_items(normalized_url)",
+            # Facebook auto-poster candidate lookup — partial index csak a poszt-jelöltekre.
+            "CREATE INDEX IF NOT EXISTS idx_news_fb_pending ON news_items(fetched_at DESC) "
+            "WHERE category = 'local' AND fb_posted_at IS NULL",
         ]:
             conn.execute(idx_sql)
 

@@ -91,6 +91,13 @@ Utolsó frissítés: 2026. április 18. — **rollout napja**
 | Footer nonprofit szöveg | ✅ Kész | Minden oldalon |
 | Magyarítás (Dashboard → Áttekintő) | ✅ Kész | Angol kifejezések eltávolítva |
 
+### Facebook auto-poszter
+| Funkció | Állapot | Megjegyzés |
+|---------|---------|------------|
+| 20 percenkénti FB auto-poszt | ✅ Kész | AI pick a legérdekesebb friss helyi hírre, 2-3 mondatos teaser, kép, forrás-link az 1. kommentbe |
+| Időablak + napi limit | ✅ Kész | 07:00-22:00 Europe/Budapest, napi max 8 (env: FB_AUTOPOST_MAX_PER_DAY) |
+| Setup útmutató | ✅ Kész | README "Facebook auto-poster setup" szekció |
+
 ### Backup és disaster recovery
 | Funkció | Állapot | Megjegyzés |
 |---------|---------|------------|
@@ -113,7 +120,6 @@ Utolsó frissítés: 2026. április 18. — **rollout napja**
 | Strict CSP — onclick→addEventListener refactor | 🟡 Közepes | M3 finding az auditból, `'unsafe-inline'` kivétele |
 | Email verifikáció regisztrációnál | 🟡 Közepes | email_verified_at oszlop + verify token flow |
 | Képviselői válasz funkció | 🟡 Közepes | Képviselők reagálhatnak a bejelentésekre |
-| Facebook auto-posztolás | 🔵 Alacsony | Napi összefoglaló poszt automatikusan |
 | Statisztika export (CSV) | 🔵 Alacsony | Admin funkció |
 | Cookie banner stílus javítás | 🔵 Alacsony | Mobilon kisebb finomítás |
 

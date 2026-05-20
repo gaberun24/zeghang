@@ -44,3 +44,10 @@ ADMIN_ALERT_EMAIL = os.getenv("ADMIN_ALERT_EMAIL", "")
 # URL-ekhez. Ne bízzunk a request.host_url-re, mert Cloudflare Flexible SSL mögött
 # rosszul (http://) jön vissza. Env override: SITE_URL.
 SITE_URL = os.getenv("SITE_URL", "https://zeghangja.hu").rstrip("/")
+
+# Facebook Page auto-poster — graph.facebook.com posztoláshoz a saját Page-re.
+# A token long-lived Page Access Token (lásd README "Facebook auto-poster" setup).
+# Üres tokennel az fb_autopost.py no-op módban fut.
+FACEBOOK_PAGE_ID = os.getenv("FACEBOOK_PAGE_ID", "")
+FACEBOOK_PAGE_ACCESS_TOKEN = os.getenv("FACEBOOK_PAGE_ACCESS_TOKEN", "")
+FB_AUTOPOST_MAX_PER_DAY = int(os.getenv("FB_AUTOPOST_MAX_PER_DAY", "8"))
