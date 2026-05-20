@@ -278,7 +278,21 @@
             </div>
           </div>
 
-          <div class="form-help" style="margin-top:14px; padding:10px; background:rgba(245,158,11,0.08); border-left:3px solid var(--admin-warning); border-radius:4px;">
+          <div class="form-help" style="margin-top:14px; padding:10px; background:rgba(59,130,246,0.08); border-left:3px solid var(--admin-primary); border-radius:4px;">
+            <b>ℹ️ Posztok elosztása:</b> a cron 20 percenként pörög, DE a script
+            ellenőrzi mikor volt az utolsó poszt és csak akkor küld újat, ha eltelt a
+            <b>min-gap</b>. Az aktuális beállítással:
+            <br><br>
+            <b>{{ fb_config.hour_max - fb_config.hour_min + 1 }} óra × 60 / {{ fb_config.max_per_day }} poszt =
+            ~{{ fb_config.auto_min_gap }} perc köz</b> a posztok között.
+            <br><br>
+            Pl. ha napi limit = {{ fb_config.max_per_day }} és időablak = {{ fb_config.hour_min }}:00–{{ fb_config.hour_max }}:59,
+            akkor a posztok kb. {% if fb_config.auto_min_gap >= 60 %}{{ (fb_config.auto_min_gap / 60)|round(1) }} óra{% else %}{{ fb_config.auto_min_gap }} perc{% endif %}-onként mennek ki.
+            <br><br>
+            Reggel az első poszt {{ fb_config.hour_min }}:00 körül jön, utána szépen elosztva.
+          </div>
+
+          <div class="form-help" style="margin-top:10px; padding:10px; background:rgba(245,158,11,0.08); border-left:3px solid var(--admin-warning); border-radius:4px;">
             <b>⚠️ Megjegyzés az idő-ablakhoz:</b> a cron jelenleg <code>*/20 7-22 * * *</code>-tal fut.
             Itt a változtatás csak <b>szűkíti</b> az időt (pl. 9–20-ra). Ha kiterjeszteni szeretnéd
             (pl. 6–23 vagy 24/7), a cron-mintát is meg kell változtatni a szerveren:
@@ -298,6 +312,7 @@
         {% if fb_config %}
           <br>Aktív beállítás: napi max <b>{{ fb_config.max_per_day }}</b> poszt,
           {{ fb_config.hour_min }}:00–{{ fb_config.hour_max }}:59 között,
+          ~<b>{{ fb_config.auto_min_gap }} perc</b> köz a posztok közt,
           friss-ablak <b>{{ fb_config.candidate_window_min }}</b> perc,
           master: {% if fb_config.enabled %}<b style="color:var(--admin-success);">ON</b>{% else %}<b style="color:var(--admin-danger);">OFF</b>{% endif %}.
         {% endif %}

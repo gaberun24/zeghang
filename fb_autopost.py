@@ -79,6 +79,33 @@ def _enabled() -> bool:
     """Master kapcsoló: ha False, semmilyen esetben sem posztolunk."""
     return get_bool_setting("fb_autopost.enabled", default=True)
 
+
+def _min_gap_minutes() -> int:
+    """Minimum perc két FB poszt között, AZNAP.
+
+    Auto-számolt: (időablak órái) × 60 / napi_max. Pl. 16 óra × 60 / 8 = 120 perc.
+    A cron 20 percenként pörög (rugalmas trigger), de a tényleges posztolás
+    a min_gap-en alapszik — így a posztok szépen elosztódnak az időablakra.
+
+    Reggeli első poszt: a `_last_post_at_today` helper visszaad None-t ha még
+    nincs aznapi poszt, és ekkor a gap-check kihagyódik (07:00-kor azonnali poszt).
+    """
+    max_per_day = max(1, _max_per_day())
+    hours = max(1, _hour_max() - _hour_min() + 1)
+    return (hours * 60) // max_per_day
+
+
+def _last_post_at_today(conn):
+    """Visszaadja az utolsó AZNAPI FB poszt timestamp-jét (datetime).
+    None ha még nem volt aznap poszt — ekkor a 07:00-kor az első cron azonnal posztol."""
+    row = conn.execute(
+        "SELECT MAX(fb_posted_at) AS last_at FROM news_items "
+        "WHERE fb_posted_at::date = CURRENT_DATE"
+    ).fetchone()
+    if row and row.get("last_at"):
+        return row["last_at"]
+    return None
+
 REPO_ROOT = os.path.dirname(os.path.abspath(__file__))
 STATIC_DIR = os.path.join(REPO_ROOT, "static")
 
@@ -186,6 +213,28 @@ def main() -> int:
             log.info(f"[fb] Napi limit elérve: {today_count}/{max_per_day}")
             return 0
         log.info(f"[fb] Napi posztok: {today_count}/{max_per_day} ✓")
+
+        # 3b. Min-gap check (poszt-elosztás az időablakra)
+        # A cron 20 percenként pörög, de a posztok kb. {min_gap} percenként
+        # mennek ki — így nem fosja ki reggel az egész napi adagot.
+        min_gap = _min_gap_minutes()
+        last_at = _last_post_at_today(conn)
+        if last_at is not None:
+            # Aware/naive timestamp egyeztetése: a postgres timestamp tz-naive lehet
+            # (depending on column type), ezért a Budapest-time-mal hasonlítjuk össze.
+            now_naive = datetime.now(BUDAPEST).replace(tzinfo=None)
+            last_naive = last_at.replace(tzinfo=None) if hasattr(last_at, "tzinfo") and last_at.tzinfo else last_at
+            elapsed_min = int((now_naive - last_naive).total_seconds() // 60)
+            if elapsed_min < min_gap:
+                next_post_in = min_gap - elapsed_min
+                log.info(
+                    f"[fb] Min-gap: utolsó poszt {elapsed_min} perce, "
+                    f"min {min_gap} perc kell. Még ~{next_post_in} perc — skip."
+                )
+                return 0
+            log.info(f"[fb] Min-gap OK: utolsó {elapsed_min}p / min {min_gap}p ✓")
+        else:
+            log.info(f"[fb] Még nem volt aznapi poszt — első cycle, min_gap={min_gap}p ✓")
 
         # 4. Kandidatok
         candidates = _fetch_candidates(conn)

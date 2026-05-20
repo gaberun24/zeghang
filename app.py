@@ -2582,6 +2582,9 @@ def admin_integrations():
         "hour_min": get_int_setting("fb_autopost.hour_min", default=7),
         "hour_max": get_int_setting("fb_autopost.hour_max", default=22),
     }
+    # Auto-számolt min-gap a posztok között (időablak / napi limit)
+    _hours = max(1, fb_config["hour_max"] - fb_config["hour_min"] + 1)
+    fb_config["auto_min_gap"] = (_hours * 60) // max(1, fb_config["max_per_day"])
 
     conn = get_db()
     try:
@@ -2805,6 +2808,8 @@ def admin_fb_exchange():
             "hour_min": get_int_setting("fb_autopost.hour_min", default=7),
             "hour_max": get_int_setting("fb_autopost.hour_max", default=22),
         }
+        _hours = max(1, fb_config["hour_max"] - fb_config["hour_min"] + 1)
+        fb_config["auto_min_gap"] = (_hours * 60) // max(1, fb_config["max_per_day"])
         return render_template(
             "admin/integrations.html",
             admin_page="integrations",
