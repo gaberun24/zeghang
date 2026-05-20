@@ -321,12 +321,17 @@ def fetch_events(max_items: int = 50) -> list[dict]:
             parsed = urlparse(full)
             if parsed.netloc != "zalaegerszegturizmus.hu":
                 continue
-            # Kihagyjuk a generic /programok/ főoldalt, és a pageinátort
+            # Kihagyjuk a generic főoldalt, és a pageinátort
             path = parsed.path.rstrip("/")
-            if path in ("/programok", "") or "/page/" in path or path.endswith("/programok"):
+            if path in ("/programok", "/info/programok", "") or "/page/" in path:
                 continue
-            # Csak ami /programok/<valami> vagy /esemenyek/<valami>
-            if not (path.startswith("/programok/") or path.startswith("/esemenyek/")):
+            # A zalaegerszegturizmus.hu valós URL-formátuma: /info/programok/<slug>/
+            # (régebbi alternatívák: /programok/<slug>, /esemenyek/<slug>)
+            if not (
+                path.startswith("/info/programok/")
+                or path.startswith("/programok/")
+                or path.startswith("/esemenyek/")
+            ):
                 continue
             title = a.get_text(" ", strip=True)
             if not title or len(title) < 5:
