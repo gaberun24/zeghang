@@ -2547,6 +2547,242 @@ def admin_security():
         conn.close()
 
 
+# ─── /admin/integraciok ────────────────────────────────────────────────────
+
+@app.route("/admin/integraciok")
+@admin_required
+def admin_integrations():
+    from lib.secrets import get_secret, get_secret_metadata
+    from lib.facebook import verify_token
+    from lib.config import FB_AUTOPOST_MAX_PER_DAY
+
+    fb_page_id = get_secret("facebook.page_id", env_fallback="FACEBOOK_PAGE_ID")
+    fb_token_set = bool(get_secret("facebook.page_access_token",
+                                    env_fallback="FACEBOOK_PAGE_ACCESS_TOKEN"))
+    fb_token_meta = get_secret_metadata("facebook.page_access_token")
+
+    fb_status = None
+    if fb_page_id and fb_token_set:
+        try:
+            fb_status = verify_token()
+        except Exception:
+            fb_status = None
+
+    conn = get_db()
+    try:
+        last_post = conn.execute(
+            "SELECT title, fb_posted_at, fb_post_id FROM news_items "
+            "WHERE fb_posted_at IS NOT NULL ORDER BY fb_posted_at DESC LIMIT 1"
+        ).fetchone()
+        post_count_today = conn.execute(
+            "SELECT COUNT(*) AS cnt FROM news_items "
+            "WHERE fb_posted_at::date = CURRENT_DATE"
+        ).fetchone()["cnt"]
+    finally:
+        conn.close()
+
+    return render_template(
+        "admin/integrations.html",
+        admin_page="integrations",
+        fb_page_id=fb_page_id,
+        fb_token_set=fb_token_set,
+        fb_token_meta=fb_token_meta,
+        fb_status=fb_status,
+        last_post=last_post,
+        post_count_today=post_count_today,
+        fb_max_per_day=FB_AUTOPOST_MAX_PER_DAY,
+        # Az OAuth wizard step 2 (page select) ezzel rendereli a select-et:
+        oauth_pages=None,
+        oauth_long_token=None,
+    )
+
+
+@app.route("/admin/integraciok/facebook/save", methods=["POST"])
+@admin_required
+def admin_fb_save():
+    from lib.secrets import set_secret, invalidate_cache
+
+    page_id = request.form.get("page_id", "").strip()
+    page_token = request.form.get("page_access_token", "").strip()
+
+    if not page_id and not page_token:
+        flash("Sem Page ID, sem token nem lett megadva.", "error")
+        return redirect(url_for("admin_integrations"))
+
+    if page_id:
+        set_secret("facebook.page_id", page_id, user_id=current_user.id)
+    if page_token:
+        set_secret("facebook.page_access_token", page_token, user_id=current_user.id)
+
+    invalidate_cache()
+    flash("Facebook beállítások mentve.", "success")
+    return redirect(url_for("admin_integrations"))
+
+
+@app.route("/admin/integraciok/facebook/disconnect", methods=["POST"])
+@admin_required
+def admin_fb_disconnect():
+    from lib.secrets import delete_secret, invalidate_cache
+    delete_secret("facebook.page_id")
+    delete_secret("facebook.page_access_token")
+    invalidate_cache()
+    flash("Facebook integráció leválasztva.", "success")
+    return redirect(url_for("admin_integrations"))
+
+
+@app.route("/admin/integraciok/facebook/test", methods=["POST"])
+@admin_required
+def admin_fb_test():
+    from lib.facebook import verify_token, get_page_id
+    result = verify_token()
+    if result and "name" in result:
+        # Egyezik-e a tárolt Page ID és amit a token mond?
+        actual_id = str(result.get("id", ""))
+        stored_id = get_page_id()
+        if stored_id and stored_id != actual_id:
+            flash(
+                f"FIGYELEM: a tárolt Page ID ({stored_id}) NEM egyezik a token "
+                f"által visszaadott Page ID-val ({actual_id} — \"{result['name']}\"). "
+                "A poszt a token által birtokolt Page-re menne.",
+                "error",
+            )
+        else:
+            flash(
+                f"Token OK ✓ Page: {result['name']} (id: {result['id']})",
+                "success",
+            )
+    else:
+        flash(
+            "Token nem működik — ellenőrizd a Page Access Token mezőt, "
+            "vagy nézd meg az alkalmazás log-ot a hibarészletekért.",
+            "error",
+        )
+    return redirect(url_for("admin_integrations"))
+
+
+@app.route("/admin/integraciok/facebook/exchange", methods=["POST"])
+@admin_required
+def admin_fb_exchange():
+    """Long-lived OAuth flow:
+    1. App ID + Secret + Short User Token → long-lived user token
+    2. /me/accounts → page list (mindegyikhez 'never-expire' page token)
+    3. 1 page → auto-save | több page → page-select render hidden long_token-nel
+    4. Save → set_secret('facebook.page_id') + set_secret('facebook.page_access_token')
+    """
+    from lib.facebook import (
+        exchange_for_long_lived_user_token,
+        list_pages,
+        verify_token,
+    )
+    from lib.secrets import (
+        get_secret,
+        get_secret_metadata,
+        set_secret,
+        invalidate_cache,
+    )
+    from lib.config import FB_AUTOPOST_MAX_PER_DAY
+
+    app_id = request.form.get("app_id", "").strip()
+    app_secret = request.form.get("app_secret", "").strip()
+    short_user_token = request.form.get("short_user_token", "").strip()
+    # Step 2 paraméterek (page kiválasztás után):
+    long_user_token = request.form.get("long_user_token", "").strip()
+    selected_page_id = request.form.get("selected_page_id", "").strip()
+
+    if not long_user_token:
+        # ── Step 1: cseréljük rövid → hosszú user tokenre
+        if not (app_id and app_secret and short_user_token):
+            flash(
+                "App ID, App Secret és Short User Token mind kötelező a wizardhoz.",
+                "error",
+            )
+            return redirect(url_for("admin_integrations"))
+
+        exchange_result = exchange_for_long_lived_user_token(
+            short_user_token, app_id, app_secret
+        )
+        if not exchange_result or "access_token" not in exchange_result:
+            flash(
+                "Long-lived token csere kudarc. Lehetséges okok: "
+                "(a) App ID vagy App Secret hibás, (b) a Short Token már lejárt "
+                "(generálj újat a Graph API Explorerben), "
+                "(c) a Short Token másik App-é. Részletek az alkalmazás logban.",
+                "error",
+            )
+            return redirect(url_for("admin_integrations"))
+
+        long_user_token = exchange_result["access_token"]
+
+    # ── Step 2: page-ek lekérése
+    pages = list_pages(long_user_token)
+    if pages is None:
+        flash(
+            "Pages lekérés kudarc — a long-lived user token nem érvényes, "
+            "vagy hiányzik a pages_show_list permission.",
+            "error",
+        )
+        return redirect(url_for("admin_integrations"))
+    if not pages:
+        flash(
+            "Nincs egyetlen Page sem a fiókodban a megadott tokennel. "
+            "Generálj új User Token-t a 'pages_show_list, pages_manage_posts, "
+            "pages_read_engagement' permissionökkel.",
+            "error",
+        )
+        return redirect(url_for("admin_integrations"))
+
+    # ── Step 3: page kiválasztás
+    chosen = None
+    if selected_page_id:
+        chosen = next((p for p in pages if str(p.get("id")) == selected_page_id), None)
+        if not chosen:
+            flash("A kiválasztott Page nincs a listában — válassz újra.", "error")
+    elif len(pages) == 1:
+        chosen = pages[0]
+
+    if not chosen:
+        # Render page-select form (hidden long_user_token-nel)
+        fb_page_id = get_secret("facebook.page_id", env_fallback="FACEBOOK_PAGE_ID")
+        fb_token_set = bool(get_secret("facebook.page_access_token",
+                                       env_fallback="FACEBOOK_PAGE_ACCESS_TOKEN"))
+        fb_token_meta = get_secret_metadata("facebook.page_access_token")
+        return render_template(
+            "admin/integrations.html",
+            admin_page="integrations",
+            fb_page_id=fb_page_id,
+            fb_token_set=fb_token_set,
+            fb_token_meta=fb_token_meta,
+            fb_status=None,
+            last_post=None,
+            post_count_today=0,
+            fb_max_per_day=FB_AUTOPOST_MAX_PER_DAY,
+            oauth_pages=pages,
+            oauth_long_token=long_user_token,
+        )
+
+    # ── Step 4: mentés
+    set_secret("facebook.page_id", str(chosen["id"]), user_id=current_user.id)
+    set_secret(
+        "facebook.page_access_token", chosen["access_token"], user_id=current_user.id
+    )
+    invalidate_cache()
+
+    # Verify token works after save
+    verify_result = verify_token()
+    if verify_result and "name" in verify_result:
+        flash(
+            f"Page Access Token mentve ✓ Page: {chosen['name']} "
+            f"(id: {chosen['id']}). Verify: {verify_result['name']}.",
+            "success",
+        )
+    else:
+        flash(
+            f"Token mentve, de a verify endpoint nem válaszolt — log-ban nézz utána.",
+            "error",
+        )
+    return redirect(url_for("admin_integrations"))
+
+
 @app.route("/api/settings/theme", methods=["POST"])
 @login_required
 def update_theme():

@@ -1,6 +1,6 @@
 # Zalaegerszeg Hangja — Projekt állapot
 
-Utolsó frissítés: 2026. április 18. — **rollout napja**
+Utolsó frissítés: 2026. május 20. — Admin UI integrációk + secret-titkosítás
 
 ---
 
@@ -97,6 +97,13 @@ Utolsó frissítés: 2026. április 18. — **rollout napja**
 | 20 percenkénti FB auto-poszt | ✅ Kész | AI pick a legérdekesebb friss helyi hírre, 2-3 mondatos teaser, kép, forrás-link az 1. kommentbe |
 | Időablak + napi limit | ✅ Kész | 07:00-22:00 Europe/Budapest, napi max 8 (env: FB_AUTOPOST_MAX_PER_DAY) |
 | Setup útmutató | ✅ Kész | README "Facebook auto-poster setup" szekció |
+| Admin UI token-kezelés | ✅ Kész | /admin/integraciok — Page ID + token mentés, "Teszt" gomb, long-lived OAuth wizard, DB-ben titkosítva |
+
+### Secret tárolás
+| Funkció | Állapot | Megjegyzés |
+|---------|---------|------------|
+| Fernet-titkosított secret-tár | ✅ Kész | lib/secrets.py + app_secrets DB tábla; FB token már innen, OpenAI/Brevo migrálható később |
+| Encryption key derivation | ✅ Kész | SETTINGS_ENCRYPTION_KEY env (preferált) vagy FLASK_SECRET_KEY-ből PBKDF2 fallback |
 
 ### Backup és disaster recovery
 | Funkció | Állapot | Megjegyzés |

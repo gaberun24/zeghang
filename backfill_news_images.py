@@ -97,7 +97,8 @@ def backfill(limit: int | None = None) -> None:
                 log.warning(f"#{row_id} nincs og:image: {title[:60]}")
                 continue
 
-            image_local = download_image(og_image)
+            # referer = a cikk URL-je (hotlink protection-bypass a CDN-eken)
+            image_local = download_image(og_image, referer=final_url if cat in ("local", "county") else url)
             if not image_local:
                 log.warning(f"#{row_id} kép-letöltés sikertelen: {title[:60]}")
                 continue

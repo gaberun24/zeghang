@@ -153,39 +153,45 @@ Ez beállítja a teljes stacket: PostgreSQL, Python venv, systemd service, Nginx
 
 A 20 percenként futó `fb_autopost.py` cron a saját Facebook Page-re posztol AI által kiválasztott helyi hírt (csak `category='local'`, 07:00–22:00 Europe/Budapest, napi max 8). A link az 1. komment-be kerül (FB algoritmus link-penalty miatt).
 
-**Egyszeri setup a böngészőben** (~10 perc):
+A Page ID-t és a Page Access Token-t **az admin felületen** lehet beállítani — DB-ben titkosítva tárolódik (Fernet, lásd "Secret tárolás" alább), nem .env-ben.
 
-1. **App létrehozása**: [developers.facebook.com](https://developers.facebook.com/) → My Apps → **Create App** → "Business" típus. Megjegyzed az **App ID + App Secret**-et.
-2. **Permissions**: Settings → Basic → Add Product → **Facebook Login + Pages API**.
-3. **Graph API Explorer** ([fejlesztői konzol](https://developers.facebook.com/tools/explorer/)): User Access Token generate `pages_manage_posts, pages_read_engagement, pages_show_list` permissionökkel.
-4. **Page Access Token**: `GET /me/accounts` → kimásolod a Zalaegerszeg Hangja page-token-jét + page-id-t.
-5. **Long-lived csere**:
-   ```
-   GET /oauth/access_token?
-       grant_type=fb_exchange_token
-       &client_id=<APP_ID>
-       &client_secret=<APP_SECRET>
-       &fb_exchange_token=<USER_TOKEN>
-   ```
-   → ~60 napos user-token. Ezzel újra `GET /me/accounts` → **soha nem lejáró page-token** (amíg nem váltasz jelszót).
-6. **`.env`** kiegészítés a szerveren:
-   ```
-   FACEBOOK_PAGE_ID=<page_id>
-   FACEBOOK_PAGE_ACCESS_TOKEN=<long_lived_page_token>
-   ```
-7. **Cron telepítése**:
+### Beállítás (egyszeri, ~5 perc)
+
+1. **Admin felület**: jelentkezz be admin user-rel → `Admin → Integrációk` (`/admin/integraciok`).
+2. **Wizard használata** (ha nincs még long-lived Page Access Token-ed):
+   - Nyisd ki a "Long-lived Page Access Token előállítás (wizard)" panelt
+   - Töltsd ki az App ID, App Secret és Short User Token mezőket (a wizard részletes lépéseket ad)
+   - Submit → a szerver kicseréli long-lived-re, lekéri a Page-eket, és (ha csak 1 van) automatikusan elmenti
+3. **Vagy manuális mód** (ha már van Page Access Token-ed):
+   - Nyisd ki a "Manuális token mentés" panelt
+   - Page ID + Page Access Token mezőket töltsd ki → Mentés
+4. **Token tesztelése**: a "Token tesztelése" gomb ellenőrzi a tárolt tokent (GET /me hívás).
+5. **Cron telepítés** (csak egyszer szerveren):
    ```bash
    (crontab -u zeghang -l 2>/dev/null | grep -v fb_autopost; \
     echo "*/20 7-22 * * * /opt/zeghang/venv/bin/python /opt/zeghang/fb_autopost.py >> /opt/zeghang/fb_autopost.log 2>&1") \
     | crontab -u zeghang -
    ```
-8. **Token-teszt**:
-   ```bash
-   sudo -u zeghang /opt/zeghang/venv/bin/python -c "from lib.facebook import verify_token; print(verify_token())"
-   ```
-   Várt válasz: `{"name": "Zalaegerszeg Hangja", "id": "..."}`
 
-A `FB_AUTOPOST_MAX_PER_DAY=8` környezeti változó-val állítható a napi posztlimit.
+A `FB_AUTOPOST_MAX_PER_DAY=8` és `FB_CANDIDATE_WINDOW_MIN=360` env változókkal hangolható a posztlimit és a friss-cikk ablak.
+
+### Token rotáció
+
+A long-lived Page Access Token "soha nem jár le" — amíg a Facebook nem kényszerít újra-engedélyezést, vagy nem váltasz jelszót. Ha 401-et adna, ismételd meg az admin wizardot.
+
+## Secret tárolás (encryption-at-rest)
+
+A `lib/secrets.py` modul Fernet-titkosítással (cryptography lib) tárolja az érzékeny kulcsokat a DB-ben (`app_secrets` tábla). Jelenleg ide tartozik:
+- `facebook.page_id`, `facebook.page_access_token`
+
+A titkosítási kulcs:
+- **Preferált**: `SETTINGS_ENCRYPTION_KEY` env változó (Fernet-formátum, 44-char base64). Generálás:
+  ```bash
+  python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
+  ```
+- **Fallback**: ha az env üres, a `FLASK_SECRET_KEY`-ből PBKDF2-vel származtatódik. Production-ban érdemes saját `SETTINGS_ENCRYPTION_KEY`-t adni, hogy a `FLASK_SECRET_KEY` rotáció ne tegye olvashatatlanná a tárolt secret-eket.
+
+`.env` fallback: ha a DB-ben üres egy kulcs, a `get_secret()` még megpróbálja a megadott env változót (kompatibilitási réteg a meglévő `.env`-es deployhoz). Új deploynál ezeket NE töltsd a `.env`-be, hanem admin felületen.
 
 ## Deploy és frissítés
 

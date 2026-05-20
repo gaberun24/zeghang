@@ -275,6 +275,18 @@ def init_db():
 
         try:
             conn.execute("""
+                CREATE TABLE IF NOT EXISTS app_secrets (
+                    key VARCHAR(64) PRIMARY KEY,
+                    value_encrypted TEXT NOT NULL,
+                    updated_at TIMESTAMP DEFAULT NOW(),
+                    updated_by INT REFERENCES users(id) ON DELETE SET NULL
+                )
+            """)
+        except Exception:
+            conn.rollback()
+
+        try:
+            conn.execute("""
                 CREATE TABLE IF NOT EXISTS news_items (
                     id SERIAL PRIMARY KEY,
                     category VARCHAR(20) NOT NULL,

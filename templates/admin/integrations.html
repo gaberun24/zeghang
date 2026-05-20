@@ -1,0 +1,242 @@
+{% extends "admin/base.html" %}
+{% block title %}Integrációk — Admin{% endblock %}
+{% block content %}
+<style>
+  .integ-card { display: flex; align-items: flex-start; gap: 1.5rem; }
+  .integ-icon {
+    width: 56px; height: 56px; border-radius: 12px;
+    background: #1877f2; color: white; display: flex; align-items: center;
+    justify-content: center; font-size: 28px; font-weight: 700; flex-shrink: 0;
+  }
+  .integ-body { flex: 1; min-width: 0; }
+  .integ-title { font-size: 18px; font-weight: 700; margin-bottom: 4px; color: var(--admin-text); }
+  .integ-status {
+    display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px;
+    border-radius: 12px; font-size: 12px; font-weight: 600;
+  }
+  .status-ok { background: #d1fae5; color: #065f46; }
+  .status-warn { background: #fef3c7; color: #92400e; }
+  .status-off { background: #f3f4f6; color: #6b7280; }
+  [data-theme="dark"] .status-ok { background: #1a2e1a; color: #66bb6a; }
+  [data-theme="dark"] .status-warn { background: #2e2414; color: #ffa726; }
+  [data-theme="dark"] .status-off { background: #1a2332; color: #9ca3af; }
+
+  .integ-meta {
+    display: grid; grid-template-columns: auto 1fr; gap: 6px 16px;
+    font-size: 13px; margin-top: 12px;
+  }
+  .integ-meta dt { color: var(--admin-muted); }
+  .integ-meta dd { color: var(--admin-text); font-family: ui-monospace, monospace; font-size: 12px; }
+
+  .integ-form { margin-top: 1.25rem; }
+  .integ-form label { display: block; font-size: 12px; font-weight: 600; color: var(--admin-muted); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.4px; }
+  .integ-form input[type="text"],
+  .integ-form input[type="password"],
+  .integ-form textarea {
+    width: 100%; padding: 8px 10px; border: 1px solid var(--admin-border);
+    border-radius: 6px; font-size: 13px; font-family: ui-monospace, monospace;
+    background: white; color: var(--admin-text);
+  }
+  .integ-form .form-row { margin-bottom: 12px; }
+  .integ-form .form-help { font-size: 12px; color: var(--admin-muted); margin-top: 4px; }
+  .integ-form .btn {
+    background: var(--admin-primary); color: white; padding: 8px 16px;
+    border: none; border-radius: 6px; font-size: 13px; font-weight: 600;
+    cursor: pointer;
+  }
+  .integ-form .btn:hover { opacity: 0.9; }
+  .integ-form .btn-secondary { background: #f1f5f9; color: var(--admin-text); border: 1px solid var(--admin-border); }
+  [data-theme="dark"] .integ-form .btn-secondary { background: #1a2332; color: #e8e8e8; }
+  .integ-form .btn-danger { background: var(--admin-danger); color: white; }
+  .integ-form .btn-group { display: flex; gap: 8px; flex-wrap: wrap; }
+
+  .flash { padding: 10px 14px; border-radius: 6px; margin-bottom: 1rem; font-size: 13px; }
+  .flash-success { background: #d1fae5; color: #065f46; border: 1px solid #6ee7b7; }
+  .flash-error { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+  [data-theme="dark"] .flash-success { background: #1a2e1a; color: #66bb6a; border-color: #2e6e3e; }
+  [data-theme="dark"] .flash-error { background: #2d1a1a; color: #ef5350; border-color: #6e2020; }
+
+  details summary {
+    cursor: pointer; font-weight: 600; padding: 8px 0; font-size: 13px;
+    color: var(--admin-primary); user-select: none;
+  }
+  details[open] summary { margin-bottom: 12px; }
+  details { margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--admin-border); }
+
+  .wizard-step { background: #f8fafc; border-left: 3px solid var(--admin-primary); padding: 10px 14px; border-radius: 4px; margin-bottom: 12px; font-size: 13px; }
+  [data-theme="dark"] .wizard-step { background: #1a2332; }
+  .wizard-step b { color: var(--admin-text); }
+  .wizard-step ol { margin: 6px 0 0 18px; line-height: 1.7; }
+  .wizard-step code { background: rgba(0,0,0,0.05); padding: 1px 5px; border-radius: 3px; font-size: 12px; }
+  [data-theme="dark"] .wizard-step code { background: rgba(255,255,255,0.08); }
+</style>
+
+<h1 style="font-size:22px; font-weight:700; margin-bottom:1rem; color:var(--admin-text);">
+  Integrációk
+</h1>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    {% for category, message in messages %}
+      <div class="flash flash-{{ 'success' if category == 'success' else 'error' }}">{{ message }}</div>
+    {% endfor %}
+  {% endif %}
+{% endwith %}
+
+{# ─── Facebook ─── #}
+<div class="admin-card">
+  <div class="integ-card">
+    <div class="integ-icon">f</div>
+    <div class="integ-body">
+      <div class="integ-title">Facebook Page auto-poszt</div>
+      <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+        {% if fb_status and fb_status.get("name") %}
+          <span class="integ-status status-ok">✓ Csatlakoztatva: {{ fb_status.name }}</span>
+        {% elif fb_token_set or fb_page_id %}
+          <span class="integ-status status-warn">⚠ Beállítva, de a token nem válaszol</span>
+        {% else %}
+          <span class="integ-status status-off">○ Nincs beállítva</span>
+        {% endif %}
+        <span style="font-size:12px; color:var(--admin-muted);">Napi limit: {{ fb_max_per_day }} poszt</span>
+      </div>
+
+      <dl class="integ-meta">
+        <dt>Page ID:</dt>
+        <dd>{{ fb_page_id if fb_page_id else "—" }}</dd>
+        <dt>Token:</dt>
+        <dd>
+          {% if fb_token_meta and fb_token_meta.preview %}
+            {{ fb_token_meta.preview }}
+            {% if fb_token_meta.updated_at %}
+              <span style="color:var(--admin-muted); font-family:inherit;">
+                · frissítve: {{ fb_token_meta.updated_at.strftime("%Y-%m-%d %H:%M") }}
+                {% if fb_token_meta.updated_by_email %}({{ fb_token_meta.updated_by_email }}){% endif %}
+              </span>
+            {% endif %}
+          {% elif fb_token_set %}
+            ✓ (.env-ben tárolva)
+          {% else %}
+            —
+          {% endif %}
+        </dd>
+        <dt>Ma posztolva:</dt>
+        <dd>{{ post_count_today }} / {{ fb_max_per_day }}</dd>
+        {% if last_post %}
+          <dt>Utolsó poszt:</dt>
+          <dd style="font-family:inherit;">
+            {{ last_post.fb_posted_at.strftime("%Y-%m-%d %H:%M") }}
+            — <span style="color:var(--admin-muted);">{{ last_post.title[:80] }}{% if last_post.title|length > 80 %}…{% endif %}</span>
+          </dd>
+        {% endif %}
+      </dl>
+
+      {# ─── OAuth step 2: page-select (csak ha több page jött) ─── #}
+      {% if oauth_pages and oauth_long_token %}
+      <form method="POST" action="{{ url_for('admin_fb_exchange') }}" class="integ-form"
+            style="background:#eff6ff; padding:1rem; border-radius:6px; margin-top:1rem;">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="long_user_token" value="{{ oauth_long_token }}">
+        <div style="font-weight:600; margin-bottom:8px; color:var(--admin-text);">
+          ✓ Long-lived token cserélve. Válaszd ki a Page-et:
+        </div>
+        <div class="form-row">
+          <label>Page</label>
+          <select name="selected_page_id" required style="width:100%; padding:8px; border:1px solid var(--admin-border); border-radius:6px; font-size:13px;">
+            {% for p in oauth_pages %}
+              <option value="{{ p.id }}">{{ p.name }} ({{ p.id }})</option>
+            {% endfor %}
+          </select>
+        </div>
+        <button type="submit" class="btn">Page mentése</button>
+      </form>
+      {% endif %}
+
+      {# ─── Direct save form ─── #}
+      <details {% if not fb_token_set %}open{% endif %}>
+        <summary>Manuális token mentés (Page ID + Page Access Token)</summary>
+
+        <form method="POST" action="{{ url_for('admin_fb_save') }}" class="integ-form">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+          <div class="form-row">
+            <label>Page ID</label>
+            <input type="text" name="page_id" value="{{ fb_page_id or '' }}" placeholder="pl. 1031790426691359">
+            <div class="form-help">A Page numerikus ID-je (Page → About → Page ID).</div>
+          </div>
+
+          <div class="form-row">
+            <label>Page Access Token</label>
+            <textarea name="page_access_token" rows="4" placeholder="EAA... (200+ karakteres)"
+                      style="width:100%; resize:vertical;"></textarea>
+            <div class="form-help">
+              Long-lived Page Access Token (never-expires). Hagyd üresen, ha csak a Page ID-t módosítod.
+              Mentés után titkosítva a DB-ben tárolódik (nem .env-ben).
+            </div>
+          </div>
+
+          <div class="btn-group">
+            <button type="submit" class="btn">Mentés</button>
+            <button type="submit" formaction="{{ url_for('admin_fb_test') }}" class="btn btn-secondary">
+              Token tesztelése (jelenleg mentett)
+            </button>
+            {% if fb_token_set or fb_page_id %}
+            <button type="submit" formaction="{{ url_for('admin_fb_disconnect') }}" class="btn btn-danger"
+                    onclick="return confirm('Biztos törlöd a Facebook Page ID-t és token-t? A cron innentől no-op módban fog futni.');">
+              Leválasztás
+            </button>
+            {% endif %}
+          </div>
+        </form>
+      </details>
+
+      {# ─── OAuth wizard ─── #}
+      {% if not oauth_pages %}
+      <details>
+        <summary>Long-lived Page Access Token előállítás (wizard)</summary>
+
+        <div class="wizard-step">
+          <b>Mit csinál ez?</b> Egy rövid (1 órás) User Tokent vesz át, kicseréli ~60 napos long-lived
+          user tokenre, majd ebből előállít egy <b>soha nem lejáró</b> Page Access Token-t a Page-edhez,
+          és tárolja titkosítva a DB-ben.<br><br>
+          <b>Lépések böngészőben (~5 perc):</b>
+          <ol>
+            <li><a href="https://developers.facebook.com/" target="_blank" rel="noopener">developers.facebook.com</a> → My Apps → Az App-edet kiválasztva → App settings → Basic. Másold ki az <b>App ID</b> és az <b>App Secret</b> mezőket.</li>
+            <li>Menj a <a href="https://developers.facebook.com/tools/explorer/" target="_blank" rel="noopener">Graph API Explorer</a>-re. Válaszd ki a User Token-t a permissions-ekkel: <code>pages_show_list</code>, <code>pages_manage_posts</code>, <code>pages_read_engagement</code>.</li>
+            <li>Generate Access Token → <b>másold ki</b> a tokent (ez a Short User Token, 1 órás).</li>
+            <li>Töltsd ki itt az alábbi mezőket és Submit.</li>
+          </ol>
+        </div>
+
+        <form method="POST" action="{{ url_for('admin_fb_exchange') }}" class="integ-form">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+          <div class="form-row">
+            <label>App ID</label>
+            <input type="text" name="app_id" required placeholder="pl. 1234567890123456">
+          </div>
+
+          <div class="form-row">
+            <label>App Secret</label>
+            <input type="password" name="app_secret" required placeholder="(soha nem tároljuk, csak a cseréhez kell)">
+            <div class="form-help">Az App Secret-et NEM mentjük el — csak a long-lived csere során használjuk egyszer.</div>
+          </div>
+
+          <div class="form-row">
+            <label>Short User Token (Graph API Explorerből)</label>
+            <textarea name="short_user_token" rows="3" required placeholder="EAA..." style="width:100%; resize:vertical;"></textarea>
+          </div>
+
+          <button type="submit" class="btn">Wizard indítása →</button>
+        </form>
+      </details>
+      {% endif %}
+
+      <div style="font-size:12px; color:var(--admin-muted); margin-top:1.5rem; padding-top:1rem; border-top:1px solid var(--admin-border);">
+        Cron: <code>*/20 7-22 * * *</code> (20 percenként, 07:00–22:40 Europe/Budapest).
+        Tartalom: AI által kiválasztott helyi hír teaser-rel + képpel, forrás-link 1. kommentben.
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

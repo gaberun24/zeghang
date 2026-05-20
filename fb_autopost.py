@@ -22,15 +22,18 @@ from datetime import datetime, timezone, timedelta
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from lib.config import (
-    FACEBOOK_PAGE_ID,
-    FACEBOOK_PAGE_ACCESS_TOKEN,
     FB_AUTOPOST_MAX_PER_DAY,
     FB_CANDIDATE_WINDOW_MIN,
     SITE_URL,
 )
 from lib.database import get_db
 from lib.ai import pick_interesting_article, generate_fb_teaser
-from lib.facebook import post_photo_with_caption, add_comment
+from lib.facebook import (
+    post_photo_with_caption,
+    add_comment,
+    get_page_id,
+    get_page_token,
+)
 
 logging.basicConfig(
     level=logging.INFO,
@@ -131,9 +134,10 @@ def _mark_posted(conn, item_id: int, fb_post_id: str) -> None:
 def main() -> int:
     log.info("=== fb_autopost.py indul ===")
 
-    # 1. Konfiguráció check
-    if not (FACEBOOK_PAGE_ID and FACEBOOK_PAGE_ACCESS_TOKEN):
-        log.info("[fb] Page ID vagy Access Token nincs beállítva — no-op")
+    # 1. Konfiguráció check (DB → .env fallback)
+    if not (get_page_id() and get_page_token()):
+        log.info("[fb] Page ID vagy Access Token nincs beállítva "
+                 "(admin /admin/integraciok vagy .env) — no-op")
         return 0
 
     # 2. Időablak
