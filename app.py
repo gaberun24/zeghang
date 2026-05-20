@@ -2554,7 +2554,7 @@ def admin_security():
 def admin_integrations():
     from lib.secrets import get_secret, get_secret_metadata
     from lib.facebook import verify_token
-    from lib.config import FB_AUTOPOST_MAX_PER_DAY
+    from lib.app_settings import get_int_setting, get_bool_setting
 
     fb_page_id = get_secret("facebook.page_id", env_fallback="FACEBOOK_PAGE_ID")
     fb_token_set = bool(get_secret("facebook.page_access_token",
@@ -2567,6 +2567,21 @@ def admin_integrations():
             fb_status = verify_token()
         except Exception:
             fb_status = None
+
+    # FB autoposter beállítások (DB → env fallback)
+    fb_config = {
+        "enabled": get_bool_setting("fb_autopost.enabled", default=True),
+        "max_per_day": get_int_setting(
+            "fb_autopost.max_per_day", default=8,
+            env_fallback="FB_AUTOPOST_MAX_PER_DAY",
+        ),
+        "candidate_window_min": get_int_setting(
+            "fb_autopost.candidate_window_min", default=360,
+            env_fallback="FB_CANDIDATE_WINDOW_MIN",
+        ),
+        "hour_min": get_int_setting("fb_autopost.hour_min", default=7),
+        "hour_max": get_int_setting("fb_autopost.hour_max", default=22),
+    }
 
     conn = get_db()
     try:
@@ -2590,11 +2605,42 @@ def admin_integrations():
         fb_status=fb_status,
         last_post=last_post,
         post_count_today=post_count_today,
-        fb_max_per_day=FB_AUTOPOST_MAX_PER_DAY,
+        fb_config=fb_config,
+        fb_max_per_day=fb_config["max_per_day"],  # template kompatibilitás
         # Az OAuth wizard step 2 (page select) ezzel rendereli a select-et:
         oauth_pages=None,
         oauth_long_token=None,
     )
+
+
+@app.route("/admin/integraciok/facebook/config", methods=["POST"])
+@admin_required
+def admin_fb_config():
+    """FB autoposter beállítások mentése."""
+    from lib.app_settings import (
+        set_bool_setting, set_int_setting, invalidate_cache,
+    )
+
+    enabled = request.form.get("enabled") == "on"
+    set_bool_setting("fb_autopost.enabled", enabled, user_id=current_user.id)
+
+    # Számok validálással
+    def _save_int(key: str, form_name: str, lo: int, hi: int):
+        try:
+            v = int(request.form.get(form_name, "").strip())
+        except (TypeError, ValueError):
+            return
+        if lo <= v <= hi:
+            set_int_setting(key, v, user_id=current_user.id)
+
+    _save_int("fb_autopost.max_per_day", "max_per_day", 0, 50)
+    _save_int("fb_autopost.candidate_window_min", "candidate_window_min", 30, 1440)
+    _save_int("fb_autopost.hour_min", "hour_min", 0, 23)
+    _save_int("fb_autopost.hour_max", "hour_max", 0, 23)
+
+    invalidate_cache()
+    flash("Beállítások mentve.", "success")
+    return redirect(url_for("admin_integrations"))
 
 
 @app.route("/admin/integraciok/facebook/save", methods=["POST"])
@@ -2680,7 +2726,7 @@ def admin_fb_exchange():
         set_secret,
         invalidate_cache,
     )
-    from lib.config import FB_AUTOPOST_MAX_PER_DAY
+    from lib.app_settings import get_int_setting, get_bool_setting
 
     app_id = request.form.get("app_id", "").strip()
     app_secret = request.form.get("app_secret", "").strip()
@@ -2746,6 +2792,19 @@ def admin_fb_exchange():
         fb_token_set = bool(get_secret("facebook.page_access_token",
                                        env_fallback="FACEBOOK_PAGE_ACCESS_TOKEN"))
         fb_token_meta = get_secret_metadata("facebook.page_access_token")
+        fb_config = {
+            "enabled": get_bool_setting("fb_autopost.enabled", default=True),
+            "max_per_day": get_int_setting(
+                "fb_autopost.max_per_day", default=8,
+                env_fallback="FB_AUTOPOST_MAX_PER_DAY",
+            ),
+            "candidate_window_min": get_int_setting(
+                "fb_autopost.candidate_window_min", default=360,
+                env_fallback="FB_CANDIDATE_WINDOW_MIN",
+            ),
+            "hour_min": get_int_setting("fb_autopost.hour_min", default=7),
+            "hour_max": get_int_setting("fb_autopost.hour_max", default=22),
+        }
         return render_template(
             "admin/integrations.html",
             admin_page="integrations",
@@ -2755,7 +2814,8 @@ def admin_fb_exchange():
             fb_status=None,
             last_post=None,
             post_count_today=0,
-            fb_max_per_day=FB_AUTOPOST_MAX_PER_DAY,
+            fb_config=fb_config,
+            fb_max_per_day=fb_config["max_per_day"],
             oauth_pages=pages,
             oauth_long_token=long_user_token,
         )

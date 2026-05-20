@@ -286,6 +286,21 @@ def init_db():
             conn.rollback()
 
         try:
+            # Nem-titkosított konfigurációs paraméterek (max_per_day, hour_min stb.).
+            # Külön az app_secrets-tól, mert nincs ott érzékeny adat — admin felületen
+            # állítható, plain text.
+            conn.execute("""
+                CREATE TABLE IF NOT EXISTS app_settings (
+                    key VARCHAR(80) PRIMARY KEY,
+                    value TEXT NOT NULL,
+                    updated_at TIMESTAMP DEFAULT NOW(),
+                    updated_by INT REFERENCES users(id) ON DELETE SET NULL
+                )
+            """)
+        except Exception:
+            conn.rollback()
+
+        try:
             conn.execute("""
                 CREATE TABLE IF NOT EXISTS news_items (
                     id SERIAL PRIMARY KEY,

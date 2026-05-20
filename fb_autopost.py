@@ -21,11 +21,7 @@ from datetime import datetime, timezone, timedelta
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from lib.config import (
-    FB_AUTOPOST_MAX_PER_DAY,
-    FB_CANDIDATE_WINDOW_MIN,
-    SITE_URL,
-)
+from lib.config import SITE_URL
 from lib.database import get_db
 from lib.ai import pick_interesting_article, generate_fb_teaser
 from lib.facebook import (
@@ -34,6 +30,7 @@ from lib.facebook import (
     get_page_id,
     get_page_token,
 )
+from lib.app_settings import get_int_setting, get_bool_setting
 
 logging.basicConfig(
     level=logging.INFO,
@@ -49,12 +46,38 @@ try:
 except ImportError:  # pre-3.9 fallback (a venv-en 3.12 fut, ez nem fut le)
     BUDAPEST = timezone(timedelta(hours=2))
 
-# Időablak: ezekben az órákban (helyi idő) megengedett a poszt.
-ALLOWED_HOUR_MIN = 7
-ALLOWED_HOUR_MAX = 22  # inclusive, azaz 22:00-22:59-ig megy
 
-# Kandidatum-ablak a config-ból (FB_CANDIDATE_WINDOW_MIN env, default 360 = 6 óra)
-CANDIDATE_WINDOW_MIN = FB_CANDIDATE_WINDOW_MIN
+# ─── Beállítások DB-ből (admin felületen átírható), .env fallback ──────────
+
+def _max_per_day() -> int:
+    return get_int_setting(
+        "fb_autopost.max_per_day", default=8,
+        env_fallback="FB_AUTOPOST_MAX_PER_DAY",
+    )
+
+
+def _candidate_window_min() -> int:
+    return get_int_setting(
+        "fb_autopost.candidate_window_min", default=360,
+        env_fallback="FB_CANDIDATE_WINDOW_MIN",
+    )
+
+
+def _hour_min() -> int:
+    """Időablak kezdő óra (Europe/Budapest), inclusive. Cron alapból 07-22, az
+    admin UI ezt szűkítheti, de a cron felé nem terjesztheti ki (a cron-mintát
+    crontab-ban kell változtatni külön)."""
+    return get_int_setting("fb_autopost.hour_min", default=7)
+
+
+def _hour_max() -> int:
+    """Időablak vég óra (inclusive). Pl. 22 = 22:00-22:59-ig megy."""
+    return get_int_setting("fb_autopost.hour_max", default=22)
+
+
+def _enabled() -> bool:
+    """Master kapcsoló: ha False, semmilyen esetben sem posztolunk."""
+    return get_bool_setting("fb_autopost.enabled", default=True)
 
 REPO_ROOT = os.path.dirname(os.path.abspath(__file__))
 STATIC_DIR = os.path.join(REPO_ROOT, "static")
@@ -80,7 +103,7 @@ def _log_event(event_type: str, details: str = "") -> None:
 def _in_time_window() -> tuple[bool, str]:
     now_local = datetime.now(BUDAPEST)
     hour = now_local.hour
-    ok = ALLOWED_HOUR_MIN <= hour <= ALLOWED_HOUR_MAX
+    ok = _hour_min() <= hour <= _hour_max()
     return ok, now_local.strftime("%H:%M")
 
 
@@ -100,6 +123,7 @@ def _fetch_candidates(conn) -> list[dict]:
     kizárjuk → ha két kicsit más szöveggel jön ugyanaz a hír több portálról
     (a fetch-time title_hash csak EXACT match-et fog), itt is kiszűrjük.
     """
+    window_min = _candidate_window_min()
     rows = conn.execute(
         f"""SELECT id, title, ai_summary, source_name, source_url,
                    image_local_path, published_at, title_hash
@@ -108,7 +132,7 @@ def _fetch_candidates(conn) -> list[dict]:
               AND fb_posted_at IS NULL
               AND image_local_path IS NOT NULL
               AND ai_summary IS NOT NULL
-              AND fetched_at >= NOW() - INTERVAL '{CANDIDATE_WINDOW_MIN} minutes'
+              AND fetched_at >= NOW() - INTERVAL '{window_min} minutes'
               AND (
                 title_hash IS NULL
                 OR title_hash NOT IN (
@@ -134,6 +158,11 @@ def _mark_posted(conn, item_id: int, fb_post_id: str) -> None:
 def main() -> int:
     log.info("=== fb_autopost.py indul ===")
 
+    # 0. Master enable check
+    if not _enabled():
+        log.info("[fb] Master enable=False — admin felületen kikapcsolva, no-op")
+        return 0
+
     # 1. Konfiguráció check (DB → .env fallback)
     if not (get_page_id() and get_page_token()):
         log.info("[fb] Page ID vagy Access Token nincs beállítva "
@@ -143,7 +172,7 @@ def main() -> int:
     # 2. Időablak
     in_window, hh_mm = _in_time_window()
     if not in_window:
-        log.info(f"[fb] Időablak ({ALLOWED_HOUR_MIN:02d}:00-{ALLOWED_HOUR_MAX:02d}:59) "
+        log.info(f"[fb] Időablak ({_hour_min():02d}:00-{_hour_max():02d}:59) "
                  f"kívül vagyunk ({hh_mm}) — exit")
         return 0
     log.info(f"[fb] Időablak: {hh_mm} ✓")
@@ -151,11 +180,12 @@ def main() -> int:
     conn = get_db()
     try:
         # 3. Napi limit
+        max_per_day = _max_per_day()
         today_count = _today_post_count(conn)
-        if today_count >= FB_AUTOPOST_MAX_PER_DAY:
-            log.info(f"[fb] Napi limit elérve: {today_count}/{FB_AUTOPOST_MAX_PER_DAY}")
+        if today_count >= max_per_day:
+            log.info(f"[fb] Napi limit elérve: {today_count}/{max_per_day}")
             return 0
-        log.info(f"[fb] Napi posztok: {today_count}/{FB_AUTOPOST_MAX_PER_DAY} ✓")
+        log.info(f"[fb] Napi posztok: {today_count}/{max_per_day} ✓")
 
         # 4. Kandidatok
         candidates = _fetch_candidates(conn)
@@ -176,7 +206,8 @@ def main() -> int:
         log.info(f"[fb] AI pick: #{chosen_id} ({chosen['source_name']}: "
                  f"{chosen['title'][:60]})")
 
-        # 6. AI teaser
+        # 6. AI teaser — az AI prompt-ja kéri, hogy az utolsó mondat utaljon a kommentre
+        # (variálva, hogy poszt-poszt között ne legyen ugyanaz a CTA)
         teaser = generate_fb_teaser(chosen["title"], chosen["ai_summary"])
         if not teaser:
             # Fallback: a meglévő ai_summary első 2 mondata
@@ -185,12 +216,13 @@ def main() -> int:
             if not teaser.endswith("."):
                 teaser += "."
 
-        # CTA — deterministically a teaser végére, hogy a user tudja a forrás-link
-        # az 1. kommentben van (FB algoritmus penalty miatt a poszt szövegébe ne tegyük)
-        teaser = teaser.rstrip()
-        if not teaser.endswith((".", "!", "?")):
-            teaser += "."
-        teaser += "\n\n📰 A teljes cikk az első kommentben 👇"
+        # Safety net: ha az AI mégis elfelejtette a komment-utalást, fűzzük hozzá.
+        # (Esetenként az AI ignorálja a CTA-szabályt — ezzel garantált a megjelenés.)
+        if "komment" not in teaser.lower():
+            teaser = teaser.rstrip()
+            if not teaser.endswith((".", "!", "?")):
+                teaser += "."
+            teaser += "\n\n📰 A teljes cikk az első kommentben 👇"
 
         log.info(f"[fb] Teaser: {teaser[:100]}...")
 

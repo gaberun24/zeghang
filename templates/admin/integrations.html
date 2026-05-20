@@ -231,9 +231,76 @@
       </details>
       {% endif %}
 
+      {# ─── FB autoposter beállítások ─── #}
+      {% if fb_config %}
+      <details {% if not fb_config.enabled %}open{% endif %}>
+        <summary>⚙️ Autoposter beállítások (limit, idő-ablak, master kapcsoló)</summary>
+
+        <form method="POST" action="{{ url_for('admin_fb_config') }}" class="integ-form">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+          {# Master switch — emelt vizuális hangsúly #}
+          <div class="form-row" style="background: {% if fb_config.enabled %}rgba(34,197,94,0.08){% else %}rgba(239,68,68,0.08){% endif %}; padding:12px; border-radius:6px; border:1px solid {% if fb_config.enabled %}rgba(34,197,94,0.25){% else %}rgba(239,68,68,0.25){% endif %};">
+            <label style="display:flex; align-items:center; gap:10px; cursor:pointer; margin:0;">
+              <input type="checkbox" name="enabled" {% if fb_config.enabled %}checked{% endif %} style="width:18px; height:18px;">
+              <span style="font-size:14px; color:var(--admin-text); text-transform:none; letter-spacing:0; font-weight:600;">
+                Autoposter bekapcsolva
+              </span>
+            </label>
+            <div class="form-help" style="margin-top:6px;">
+              Ha ki van pipálva, a cron lefut DE semmi nem posztolódik. A token és a DB-jelölések érintetlenek maradnak.
+            </div>
+          </div>
+
+          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:14px; margin-top:14px;">
+            <div class="form-row" style="margin-bottom:0;">
+              <label>Napi maximum poszt</label>
+              <input type="number" name="max_per_day" value="{{ fb_config.max_per_day }}" min="0" max="50">
+              <div class="form-help">Anti-spam korlát (0–50). Default: 8.</div>
+            </div>
+
+            <div class="form-row" style="margin-bottom:0;">
+              <label>Friss cikk ablak (perc)</label>
+              <input type="number" name="candidate_window_min" value="{{ fb_config.candidate_window_min }}" min="30" max="1440">
+              <div class="form-help">Csak az ennél frissebb cikkek kandidatok. Default: 360 (6 óra).</div>
+            </div>
+
+            <div class="form-row" style="margin-bottom:0;">
+              <label>Idő-ablak: kezdő óra</label>
+              <input type="number" name="hour_min" value="{{ fb_config.hour_min }}" min="0" max="23">
+              <div class="form-help">0–23 közötti egész szám. Default: 7 (07:00-tól).</div>
+            </div>
+
+            <div class="form-row" style="margin-bottom:0;">
+              <label>Idő-ablak: záró óra</label>
+              <input type="number" name="hour_max" value="{{ fb_config.hour_max }}" min="0" max="23">
+              <div class="form-help">Default: 22 (22:00–22:59 még megy).</div>
+            </div>
+          </div>
+
+          <div class="form-help" style="margin-top:14px; padding:10px; background:rgba(245,158,11,0.08); border-left:3px solid var(--admin-warning); border-radius:4px;">
+            <b>⚠️ Megjegyzés az idő-ablakhoz:</b> a cron jelenleg <code>*/20 7-22 * * *</code>-tal fut.
+            Itt a változtatás csak <b>szűkíti</b> az időt (pl. 9–20-ra). Ha kiterjeszteni szeretnéd
+            (pl. 6–23 vagy 24/7), a cron-mintát is meg kell változtatni a szerveren:
+            <br><code>crontab -u zeghang -e</code>
+          </div>
+
+          <div class="btn-group" style="margin-top:14px;">
+            <button type="submit" class="btn">Beállítások mentése</button>
+          </div>
+        </form>
+      </details>
+      {% endif %}
+
       <div style="font-size:12px; color:var(--admin-muted); margin-top:1.5rem; padding-top:1rem; border-top:1px solid var(--admin-border);">
         Cron: <code>*/20 7-22 * * *</code> (20 percenként, 07:00–22:40 Europe/Budapest).
         Tartalom: AI által kiválasztott helyi hír teaser-rel + képpel, forrás-link 1. kommentben.
+        {% if fb_config %}
+          <br>Aktív beállítás: napi max <b>{{ fb_config.max_per_day }}</b> poszt,
+          {{ fb_config.hour_min }}:00–{{ fb_config.hour_max }}:59 között,
+          friss-ablak <b>{{ fb_config.candidate_window_min }}</b> perc,
+          master: {% if fb_config.enabled %}<b style="color:var(--admin-success);">ON</b>{% else %}<b style="color:var(--admin-danger);">OFF</b>{% endif %}.
+        {% endif %}
       </div>
     </div>
   </div>
