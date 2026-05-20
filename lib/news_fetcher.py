@@ -21,15 +21,44 @@ import requests
 from bs4 import BeautifulSoup
 from PIL import Image
 
-# 10 mp timeout, normál böngésző UA — sokan blokkolják a sima python-requests-et.
-HTTP_TIMEOUT = 10
+# 10 mp timeout, teljes Chrome-szerű header-set (sok magyar portál — Mediaworks/
+# ZAOL/sonline/baon, stb. — anti-bot védelemmel blokkolja az egyszerű requests-UA-t).
+# Ezzel a header-szettel a Cloudflare-en is átmegy a kérés.
+HTTP_TIMEOUT = 12
 HEADERS = {
     "User-Agent": (
-        "Mozilla/5.0 (Macintosh; Intel Mac OS X 13_0) "
-        "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36"
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
+        "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
     ),
-    "Accept-Language": "hu-HU,hu;q=0.9,en;q=0.5",
+    "Accept": (
+        "text/html,application/xhtml+xml,application/xml;q=0.9,"
+        "image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7"
+    ),
+    "Accept-Language": "hu-HU,hu;q=0.9,en-US;q=0.8,en;q=0.7",
+    "Accept-Encoding": "gzip, deflate, br",
+    "Cache-Control": "no-cache",
+    "Pragma": "no-cache",
+    "Sec-Ch-Ua": '"Chromium";v="131", "Not_A Brand";v="24", "Google Chrome";v="131"',
+    "Sec-Ch-Ua-Mobile": "?0",
+    "Sec-Ch-Ua-Platform": '"macOS"',
+    "Sec-Fetch-Dest": "document",
+    "Sec-Fetch-Mode": "navigate",
+    "Sec-Fetch-Site": "none",
+    "Sec-Fetch-User": "?1",
+    "Upgrade-Insecure-Requests": "1",
 }
+
+# Külön header-szett a kép-letöltéshez: a Mediaworks CDN referrer-check-elheti,
+# hogy a cikk oldaláról jövünk-e, nem botként
+def _image_headers(article_url: str | None = None) -> dict:
+    h = HEADERS.copy()
+    h["Accept"] = "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8"
+    h["Sec-Fetch-Dest"] = "image"
+    h["Sec-Fetch-Mode"] = "no-cors"
+    h["Sec-Fetch-Site"] = "cross-site"
+    if article_url:
+        h["Referer"] = article_url
+    return h
 
 # Kép tárolása: <repo>/static/news_images/  → Flask static folder alatt,
 # url_for('static', filename='news_images/xxx.webp')-vel elérhető.
@@ -297,11 +326,12 @@ HU_MONTH = {
 
 
 def _parse_hu_date(text: str) -> datetime | None:
-    """'2026 május 20' / 'május 20 2026' formátumú dátum parser."""
+    """'2026 május 20' / 'május 20 2026' formátumú dátum parser.
+    Sanity check: 2024 előtti dátumot eldob (false-match a body szövegben,
+    pl. március 15-i emlékhely lábléce)."""
     if not text:
         return None
     text = text.lower().strip()
-    # próbáljuk megtalálni a hónap nevét és a két számot
     month = None
     for name, num in HU_MONTH.items():
         if name in text:
@@ -313,15 +343,22 @@ def _parse_hu_date(text: str) -> datetime | None:
     nums = re.findall(r"\d+", text_wo)
     if len(nums) < 2:
         return None
-    # Egy 4-jegyű az év, egy 1-2 jegyű a nap
     year = next((int(n) for n in nums if len(n) == 4), None)
     day = next((int(n) for n in nums if len(n) <= 2), None)
     if not year or not day:
+        return None
+    # Sanity check: az eseményeknek jelenkorinak kell lennie
+    if year < 2024 or year > 2030:
         return None
     try:
         return datetime(year, month, day)
     except ValueError:
         return None
+
+
+def parse_event_date(text: str) -> datetime | None:
+    """Public alias — a process_events használja a title-ből parse-oláshoz."""
+    return _parse_hu_date(text)
 
 
 def fetch_events(max_items: int = 50) -> list[dict]:
@@ -467,10 +504,13 @@ def fetch_event_detail(url: str) -> dict:
 # Kép letöltés és thumbnail
 # ─────────────────────────────────────────────────────────────────────
 
-def download_image(url: str) -> str | None:
+def download_image(url: str, referer: str | None = None) -> str | None:
     """Letölt egy képet, thumbnailre szabja (max 800x800), WebP-ben menti
     a NEWS_IMAGE_DIR alá. Visszaad: relatív path (pl. 'news_images/abc.webp')
     vagy None ha sikertelen.
+
+    referer: a cikk URL-je amelyik linkeli a képet — egyes CDN-ek
+    (Mediaworks/Cloudflare) hotlink protection-t használnak.
     """
     if not url:
         return None
@@ -480,7 +520,7 @@ def download_image(url: str) -> str | None:
         return None
 
     try:
-        resp = requests.get(url, headers=HEADERS, timeout=HTTP_TIMEOUT, stream=True)
+        resp = requests.get(url, headers=_image_headers(referer), timeout=HTTP_TIMEOUT, stream=True)
         if not resp.ok or not resp.content:
             return None
         # Max 8 MB — Pillow DecompressionBombError védelmen kívül még egy size guard

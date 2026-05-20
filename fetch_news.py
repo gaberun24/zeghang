@@ -34,6 +34,7 @@ from lib.news_fetcher import (
     download_image,
     normalize_url,
     title_hash,
+    parse_event_date,
 )
 
 logging.basicConfig(
@@ -269,6 +270,13 @@ def process_events() -> int:
                 continue
 
             detail = fetch_event_detail(item["source_url"])
+            # A listanézet title-jében benne van a dátum elöl (pl.
+            # "május 30 2026 Disco dívák") — ez megbízhatóbb mint a body-ban
+            # talált első dátum, mert az gyakran a lábléc "1848. március 15"
+            # emlékszövegét fogja meg.
+            list_date = parse_event_date(item["title"]) if item.get("title") else None
+            final_start_at = list_date or detail.get("event_start_at")
+
             # Tisztább title a részletes oldalról (og:title vagy h1), ha létezik.
             # A listanézet a dátumot is belerakja a link szövegébe — azt nem akarjuk.
             final_title = (detail.get("og_title") or item["title"]).strip()
@@ -303,14 +311,15 @@ def process_events() -> int:
                         ai_summary,
                         detail.get("og_image"),
                         image_local,
-                        detail.get("event_start_at"),
+                        final_start_at,
                         detail.get("event_end_at"),
                         detail.get("event_location"),
                     ),
                 )
                 conn.commit()
                 inserted += 1
-                log.info(f"[events] + {item['title'][:80]}")
+                date_str = final_start_at.strftime("%Y-%m-%d") if final_start_at else "?"
+                log.info(f"[events] + ({date_str}) {final_title[:60]}")
             except Exception as e:
                 conn.rollback()
                 log.warning(f"[events] INSERT failed: {e}")
