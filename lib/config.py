@@ -51,3 +51,7 @@ SITE_URL = os.getenv("SITE_URL", "https://zeghangja.hu").rstrip("/")
 FACEBOOK_PAGE_ID = os.getenv("FACEBOOK_PAGE_ID", "")
 FACEBOOK_PAGE_ACCESS_TOKEN = os.getenv("FACEBOOK_PAGE_ACCESS_TOKEN", "")
 FB_AUTOPOST_MAX_PER_DAY = int(os.getenv("FB_AUTOPOST_MAX_PER_DAY", "8"))
+# Mennyi percre visszamenőleg fogadunk el "friss" cikket FB posztra (fetched_at alapján).
+# Default 360 perc (6 óra): jó kompromisszum a "friss érzet" és a kandidat-pool között.
+# Ha a Google News pörögteti az új zalaegerszegi híreket, csökkenthető (pl. 90 perc).
+FB_CANDIDATE_WINDOW_MIN = int(os.getenv("FB_CANDIDATE_WINDOW_MIN", "360"))

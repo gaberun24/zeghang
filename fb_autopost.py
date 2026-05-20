@@ -25,6 +25,7 @@ from lib.config import (
     FACEBOOK_PAGE_ID,
     FACEBOOK_PAGE_ACCESS_TOKEN,
     FB_AUTOPOST_MAX_PER_DAY,
+    FB_CANDIDATE_WINDOW_MIN,
     SITE_URL,
 )
 from lib.database import get_db
@@ -49,9 +50,8 @@ except ImportError:  # pre-3.9 fallback (a venv-en 3.12 fut, ez nem fut le)
 ALLOWED_HOUR_MIN = 7
 ALLOWED_HOUR_MAX = 22  # inclusive, azaz 22:00-22:59-ig megy
 
-# Kandidatum-ablak: ennyi perces friss híreket fogadunk el (ha 1 cron-ciklust
-# kihagyna, a következő is még megtalálhatja).
-CANDIDATE_WINDOW_MIN = 60
+# Kandidatum-ablak a config-ból (FB_CANDIDATE_WINDOW_MIN env, default 360 = 6 óra)
+CANDIDATE_WINDOW_MIN = FB_CANDIDATE_WINDOW_MIN
 
 REPO_ROOT = os.path.dirname(os.path.abspath(__file__))
 STATIC_DIR = os.path.join(REPO_ROOT, "static")
@@ -91,16 +91,29 @@ def _today_post_count(conn) -> int:
 
 
 def _fetch_candidates(conn) -> list[dict]:
-    """Helyi, friss, képes, AI-summary-vel rendelkező, még nem posztolt cikkek."""
+    """Helyi, friss, képes, AI-summary-vel rendelkező, még nem posztolt cikkek.
+
+    Extra dedup: az utolsó 24 órában FB-re posztolt cikkek title_hash-eit
+    kizárjuk → ha két kicsit más szöveggel jön ugyanaz a hír több portálról
+    (a fetch-time title_hash csak EXACT match-et fog), itt is kiszűrjük.
+    """
     rows = conn.execute(
         f"""SELECT id, title, ai_summary, source_name, source_url,
-                   image_local_path, published_at
+                   image_local_path, published_at, title_hash
             FROM news_items
             WHERE category = 'local'
               AND fb_posted_at IS NULL
               AND image_local_path IS NOT NULL
               AND ai_summary IS NOT NULL
               AND fetched_at >= NOW() - INTERVAL '{CANDIDATE_WINDOW_MIN} minutes'
+              AND (
+                title_hash IS NULL
+                OR title_hash NOT IN (
+                    SELECT title_hash FROM news_items
+                    WHERE fb_posted_at >= NOW() - INTERVAL '24 hours'
+                      AND title_hash IS NOT NULL
+                )
+              )
             ORDER BY COALESCE(published_at, fetched_at) DESC
             LIMIT 10"""
     ).fetchall()
