@@ -195,8 +195,11 @@ def process_news(category: str) -> int:
             content = article.get("content") or article.get("og_description") or ""
             ai_summary = summarize_news(clean_title, content) if content else None
 
-            # Image
-            image_local = download_image(article.get("og_image")) if article.get("og_image") else None
+            # Image — referer = a forrás cikk URL-je (hotlink protection-bypass)
+            image_local = (
+                download_image(article.get("og_image"), referer=final_url)
+                if article.get("og_image") else None
+            )
 
             try:
                 conn.execute(
@@ -273,7 +276,10 @@ def process_events() -> int:
             t_hash = title_hash(final_title)
             content = detail.get("content") or ""
             ai_summary = summarize_event(final_title, content) if content else None
-            image_local = download_image(detail.get("og_image")) if detail.get("og_image") else None
+            image_local = (
+                download_image(detail.get("og_image"), referer=item["source_url"])
+                if detail.get("og_image") else None
+            )
 
             try:
                 conn.execute(
@@ -348,6 +354,8 @@ def purge_old(days: int = 90) -> int:
 
 
 def main():
+    """CSAK helyi és megyei hírek (Google News). Az események külön scriptből
+    futnak naponta 1x (fetch_events.py)."""
     try:
         init_db()
     except Exception as e:
@@ -356,9 +364,8 @@ def main():
     total = 0
     total += process_news("local")
     total += process_news("county")
-    total += process_events()
     purge_old(90)
-    log.info(f"[done] {total} új item")
+    log.info(f"[done] {total} új hír")
 
 
 if __name__ == "__main__":
