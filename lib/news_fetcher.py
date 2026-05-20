@@ -11,9 +11,10 @@ import hashlib
 import io
 import os
 import re
+import unicodedata
 import uuid
 from datetime import datetime
-from urllib.parse import urljoin, urlparse
+from urllib.parse import urljoin, urlparse, urlunparse, parse_qsl, urlencode
 
 import feedparser
 import requests
@@ -34,6 +35,69 @@ HEADERS = {
 # url_for('static', filename='news_images/xxx.webp')-vel elérhető.
 _REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 NEWS_IMAGE_DIR = os.path.join(_REPO_ROOT, "static", "news_images")
+
+
+# ─────────────────────────────────────────────────────────────────────
+# Dedup helpers — több szintű duplikációvédelem
+# ─────────────────────────────────────────────────────────────────────
+
+# Tracking paraméterek, amik ugyanazt a cikket "más" URL-nek tüntetik fel.
+_TRACKING_PARAMS = {
+    "utm_source", "utm_medium", "utm_campaign", "utm_term", "utm_content",
+    "fbclid", "gclid", "msclkid", "yclid", "twclid", "_ga", "mc_cid", "mc_eid",
+    "ref", "ref_src", "ref_url", "source", "share", "fb_action_ids",
+    "fb_action_types", "fb_source", "spm",
+}
+
+
+def normalize_url(url: str) -> str:
+    """URL kanonizálása dedup-hoz: tracking paraméterek leszedése, fragment kivétel,
+    lowercase scheme/netloc, trailing / nélkül.
+
+    Példa: https://nyugat.hu/cikk?utm_source=fb&id=42#kommentek
+           → https://nyugat.hu/cikk?id=42
+    """
+    if not url:
+        return ""
+    try:
+        p = urlparse(url)
+        # Tracking paraméterek kiszűrése
+        kept_params = [
+            (k, v) for k, v in parse_qsl(p.query, keep_blank_values=False)
+            if k.lower() not in _TRACKING_PARAMS
+        ]
+        clean_query = urlencode(sorted(kept_params)) if kept_params else ""
+        # Trailing / kivétele (kivéve a root)
+        path = p.path.rstrip("/") or "/"
+        clean = urlunparse((
+            p.scheme.lower(),
+            p.netloc.lower(),
+            path,
+            "",            # params (régi RFC, sosem használt)
+            clean_query,
+            "",            # fragment kivétele
+        ))
+        return clean[:500]
+    except Exception:
+        return url[:500]
+
+
+def title_hash(title: str) -> str:
+    """Cím normalizálása + SHA-256 — dedup-hoz. Két cikk akkor "ugyanaz",
+    ha a normalizált címük megegyezik. Az ékezeteket és nem-alphanum karaktereket
+    eltávolítjuk, hogy a 'Zalaegerszeg új körforgalom' és 'Zalaegerszeg: új
+    körforgalom!' egyezzen.
+    """
+    if not title:
+        return ""
+    # Lowercase + ékezet-mentesítés
+    nfkd = unicodedata.normalize("NFKD", title.lower())
+    no_accent = "".join(c for c in nfkd if not unicodedata.combining(c))
+    # Csak betű + szám marad
+    clean = re.sub(r"[^a-z0-9]+", "", no_accent)
+    if not clean:
+        return ""
+    return hashlib.sha256(clean.encode()).hexdigest()
 
 
 # ─────────────────────────────────────────────────────────────────────

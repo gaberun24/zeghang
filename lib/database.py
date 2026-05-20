@@ -319,6 +319,8 @@ def init_db():
             "ALTER TABLE issues ADD COLUMN IF NOT EXISTS resolution_started_by INT REFERENCES users(id)",
             "ALTER TABLE issues ADD COLUMN IF NOT EXISTS withdrawn_at TIMESTAMP",
             "ALTER TABLE users ADD COLUMN IF NOT EXISTS theme VARCHAR(10) DEFAULT 'system'",
+            "ALTER TABLE news_items ADD COLUMN IF NOT EXISTS title_hash VARCHAR(64)",
+            "ALTER TABLE news_items ADD COLUMN IF NOT EXISTS normalized_url VARCHAR(500)",
         ]:
             conn.execute(col_sql)
 
@@ -337,6 +339,8 @@ def init_db():
             "CREATE INDEX IF NOT EXISTS idx_news_category ON news_items(category)",
             "CREATE INDEX IF NOT EXISTS idx_news_published ON news_items(published_at DESC)",
             "CREATE INDEX IF NOT EXISTS idx_news_event_start ON news_items(event_start_at)",
+            "CREATE INDEX IF NOT EXISTS idx_news_title_hash ON news_items(title_hash, fetched_at)",
+            "CREATE INDEX IF NOT EXISTS idx_news_normalized_url ON news_items(normalized_url)",
         ]:
             conn.execute(idx_sql)
 

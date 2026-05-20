@@ -31,6 +31,8 @@ from lib.news_fetcher import (
     fetch_events,
     fetch_event_detail,
     download_image,
+    normalize_url,
+    title_hash,
 )
 
 logging.basicConfig(
@@ -47,12 +49,50 @@ def _domain(url: str) -> str:
         return ""
 
 
-def _exists(conn, external_id: str) -> bool:
+def _exists_by_external_id(conn, external_id: str) -> bool:
+    """1. szintű dedup: pontos Google guid / event hash egyezés."""
     row = conn.execute(
         "SELECT 1 FROM news_items WHERE external_id = %s",
         (external_id,),
     ).fetchone()
     return bool(row)
+
+
+def _exists_by_url(conn, normalized: str) -> bool:
+    """2. szintű dedup: ugyanaz a kanonizált forrás-URL (tracking-paraméterek
+    nélkül). Ez fogja meg az utm-paraméteres + reposztolt duplikátumokat."""
+    if not normalized:
+        return False
+    row = conn.execute(
+        "SELECT 1 FROM news_items WHERE normalized_url = %s",
+        (normalized,),
+    ).fetchone()
+    return bool(row)
+
+
+def _exists_by_title_recent(conn, t_hash: str, days: int = 14) -> bool:
+    """3. szintű dedup: ugyanaz a cím-hash az utolsó N napban — fogja meg az
+    MTI-alapú cikkeket amit több portál is leadott."""
+    if not t_hash:
+        return False
+    row = conn.execute(
+        """SELECT 1 FROM news_items
+           WHERE title_hash = %s
+             AND fetched_at >= NOW() - INTERVAL '%s days'""",
+        (t_hash, days),
+    ).fetchone()
+    return bool(row)
+
+
+def _is_duplicate(conn, external_id: str, normalized_url: str, t_hash: str) -> tuple[bool, str]:
+    """Triple-check dedup. Returns (is_dup, reason)."""
+    if _exists_by_external_id(conn, external_id):
+        return True, "guid"
+    if _exists_by_url(conn, normalized_url):
+        return True, "url"
+    if _exists_by_title_recent(conn, t_hash):
+        return True, "title"
+    return False, ""
 
 
 def process_news(category: str) -> int:
@@ -62,18 +102,41 @@ def process_news(category: str) -> int:
     log.info(f"[{category}] {len(items)} item az RSS-ben")
 
     inserted = 0
+    skipped = {"guid": 0, "url": 0, "title": 0}
     conn = get_db()
     try:
         for item in items:
-            if _exists(conn, item["external_id"]):
+            # 1. szintű dedup: pontos guid match (gyors, fetch nélkül)
+            if _exists_by_external_id(conn, item["external_id"]):
+                skipped["guid"] += 1
                 continue
 
-            # Resolve a real source URL
+            # 2. szintű előzetes title-hash check — még a HTTP fetch ELŐTT, költség-spórolás
+            t_hash = title_hash(item["title"])
+            if _exists_by_title_recent(conn, t_hash):
+                skipped["title"] += 1
+                continue
+
+            # Resolve a real source URL (HTTP redirect)
             real_url = resolve_real_url(item["source_url"]) or item["source_url"]
+            norm_url = normalize_url(real_url)
+
+            # 3. szintű URL-dedup — most már a kanonizált URL ismeretében
+            if _exists_by_url(conn, norm_url):
+                skipped["url"] += 1
+                continue
+
             article = fetch_article_content(real_url)
+            # Frissítsük a normalized_url-t a fetch utáni végleges URL-lel
+            final_url = article.get("real_url") or real_url
+            norm_url = normalize_url(final_url)
+            # És még egy ellenőrzés — egy redirect ide vezethetett egy már beillesztett cikkre
+            if _exists_by_url(conn, norm_url):
+                skipped["url"] += 1
+                continue
 
             # Source name: priorizáljuk az RSS-ből kapottat, ha nincs, domain
-            source_name = item["source_name"] or _domain(article.get("real_url") or real_url)
+            source_name = item["source_name"] or _domain(final_url)
 
             # AI summary
             content = article.get("content") or article.get("og_description") or ""
@@ -87,16 +150,19 @@ def process_news(category: str) -> int:
                     """
                     INSERT INTO news_items
                       (category, external_id, source_url, source_name, title,
+                       title_hash, normalized_url,
                        ai_summary, image_url, image_local_path, published_at)
-                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                     ON CONFLICT (external_id) DO NOTHING
                     """,
                     (
                         category,
                         item["external_id"],
-                        article.get("real_url") or real_url,
+                        final_url,
                         source_name,
                         item["title"],
+                        t_hash,
+                        norm_url,
                         ai_summary,
                         article.get("og_image"),
                         image_local,
@@ -112,7 +178,10 @@ def process_news(category: str) -> int:
     finally:
         conn.close()
 
-    log.info(f"[{category}] {inserted} új cikk hozzáadva")
+    log.info(
+        f"[{category}] {inserted} új · skip: guid={skipped['guid']} "
+        f"url={skipped['url']} title={skipped['title']}"
+    )
     return inserted
 
 
@@ -123,10 +192,24 @@ def process_events() -> int:
     log.info(f"[events] {len(items)} esemény a listán")
 
     inserted = 0
+    skipped = {"guid": 0, "url": 0, "title": 0}
     conn = get_db()
     try:
         for item in items:
-            if _exists(conn, item["external_id"]):
+            if _exists_by_external_id(conn, item["external_id"]):
+                skipped["guid"] += 1
+                continue
+
+            norm_url = normalize_url(item["source_url"])
+            if _exists_by_url(conn, norm_url):
+                skipped["url"] += 1
+                continue
+
+            t_hash = title_hash(item["title"])
+            # Eseményeknél hosszabb dedup-ablak — 60 nap, mert ugyanaz a koncert
+            # több hónapig lehet a listán (ismétlések)
+            if _exists_by_title_recent(conn, t_hash, days=60):
+                skipped["title"] += 1
                 continue
 
             detail = fetch_event_detail(item["source_url"])
@@ -139,9 +222,10 @@ def process_events() -> int:
                     """
                     INSERT INTO news_items
                       (category, external_id, source_url, source_name, title,
+                       title_hash, normalized_url,
                        ai_summary, image_url, image_local_path,
                        event_start_at, event_end_at, event_location)
-                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                     ON CONFLICT (external_id) DO NOTHING
                     """,
                     (
@@ -150,6 +234,8 @@ def process_events() -> int:
                         item["source_url"],
                         item["source_name"],
                         item["title"],
+                        t_hash,
+                        norm_url,
                         ai_summary,
                         detail.get("og_image"),
                         image_local,
@@ -167,7 +253,10 @@ def process_events() -> int:
     finally:
         conn.close()
 
-    log.info(f"[events] {inserted} új esemény hozzáadva")
+    log.info(
+        f"[events] {inserted} új · skip: guid={skipped['guid']} "
+        f"url={skipped['url']} title={skipped['title']}"
+    )
     return inserted
 
 
