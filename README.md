@@ -159,6 +159,7 @@ A Page ID-t és a Page Access Token-t **az admin felületen** lehet beállítani
 
 1. **Admin felület**: jelentkezz be admin user-rel → `Admin → Integrációk` (`/admin/integraciok`).
 2. **Wizard használata** (ha nincs még long-lived Page Access Token-ed):
+   - Graph API Explorerben generálj User Token-t MIND A 4 permissionnel: `pages_show_list`, `pages_manage_posts`, `pages_read_engagement`, **`pages_manage_engagement`** (utóbbi a Page-saját-kommenteléshez kell — link az 1. kommentben!)
    - Nyisd ki a "Long-lived Page Access Token előállítás (wizard)" panelt
    - Töltsd ki az App ID, App Secret és Short User Token mezőket (a wizard részletes lépéseket ad)
    - Submit → a szerver kicseréli long-lived-re, lekéri a Page-eket, és (ha csak 1 van) automatikusan elmenti
