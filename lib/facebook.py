@@ -19,7 +19,9 @@ log = logging.getLogger(__name__)
 
 # Pinned API verzió — frissítéskor tudatosan léptessük át.
 FB_API_VERSION = "v19.0"
-FB_TIMEOUT = 15  # mp — multipart upload (kép) lassabb lehet
+# Photo upload néha 15+ mp-et igényel (FB szerveroldalon dolgozza fel a képet).
+# 60 mp safe choice — a teljes cron lefutás akkor sem haladja meg az 1-2 percet.
+FB_TIMEOUT = 60
 
 
 # ─── Konfiguráció olvasás (DB → .env fallback) ─────────────────────────────
