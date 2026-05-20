@@ -37,6 +37,12 @@ log = logging.getLogger(__name__)
 
 
 def backfill(limit: int | None = None) -> None:
+    """Két esetet kezel:
+    1) image_local_path IS NULL — egyáltalán nincs kép
+    2) source_url LIKE %news.google.com% — Google decoder fix ELŐTT készült rekordok,
+       ahol a 'kép' valójában a Google News összesítő ikonja (mert a Google
+       HTML-jéből bányászta az og:image-et). Itt is újra-fetchelünk.
+    """
     conn = get_db()
     try:
         params = []
@@ -45,15 +51,17 @@ def backfill(limit: int | None = None) -> None:
             limit_sql = "LIMIT %s"
             params.append(int(limit))
         rows = conn.execute(
-            f"""SELECT id, category, source_url, title
+            f"""SELECT id, category, source_url, title, image_local_path
                 FROM news_items
                 WHERE image_local_path IS NULL
+                   OR source_url LIKE 'https://news.google.com/%%'
+                   OR source_url LIKE 'http://news.google.com/%%'
                 ORDER BY id ASC
                 {limit_sql}""",
             tuple(params) if params else None,
         ).fetchall()
 
-        log.info(f"Kép nélküli cikk: {len(rows)}")
+        log.info(f"Backfill kandidátusok: {len(rows)}")
         if not rows:
             return
 
