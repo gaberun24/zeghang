@@ -223,7 +223,19 @@ def fetch_article_content(url: str) -> dict:
         # OG image
         og_img = soup.find("meta", property="og:image") or soup.find("meta", attrs={"name": "og:image"})
         if og_img and og_img.get("content"):
-            out["og_image"] = urljoin(resp.url, og_img["content"].strip())
+            candidate = urljoin(resp.url, og_img["content"].strip())
+            # Néhány portál a Google News összesítő ikont adja vissza ha aggregator-ról
+            # látogatjuk — ezt szűrjük, mert nem a cikk-kép
+            if "news.google.com" not in candidate and "gstatic.com" not in candidate:
+                out["og_image"] = candidate
+
+        # twitter:image fallback (egyes portálok csak ezt használják)
+        if not out["og_image"]:
+            tw = soup.find("meta", attrs={"name": "twitter:image"}) or soup.find("meta", property="twitter:image")
+            if tw and tw.get("content"):
+                cand = urljoin(resp.url, tw["content"].strip())
+                if "news.google.com" not in cand and "gstatic.com" not in cand:
+                    out["og_image"] = cand
 
         # OG description (fallback ha nincs body extractolható)
         og_desc = soup.find("meta", property="og:description") or soup.find("meta", attrs={"name": "description"})
@@ -240,6 +252,28 @@ def fetch_article_content(url: str) -> dict:
             for tag in article(["script", "style", "nav", "aside", "form", "iframe"]):
                 tag.decompose()
             content = article.get_text(" ", strip=True)
+
+        # 3. fallback OG image: első nagy <img> az article body-ban
+        if not out["og_image"] and article:
+            for img_tag in article.find_all("img"):
+                src = (
+                    img_tag.get("data-src")
+                    or img_tag.get("data-lazy-src")
+                    or img_tag.get("src")
+                    or ""
+                ).strip()
+                if not src or src.startswith("data:"):
+                    continue
+                full = urljoin(resp.url, src)
+                # Filter: kicsi ikonok, sprite-ok, social buttons kihagyása
+                if any(p in full.lower() for p in ["icon", "logo", "sprite", "avatar", "1x1", "tracking"]):
+                    continue
+                # Kihagyjuk a túl kicsi képet (width attribute alapján, ha van)
+                w = img_tag.get("width", "")
+                if w.isdigit() and int(w) < 200:
+                    continue
+                out["og_image"] = full
+                break
         # Whitespace normalizálás + truncate
         content = re.sub(r"\s+", " ", content).strip()
         out["content"] = content[:8000]
