@@ -33,7 +33,7 @@
                style="width:100%; height:100%; object-fit:cover; display:block; min-height:140px;">
         </a>
         {% else %}
-        <div style="background:var(--cream-dark); display:flex; align-items:center; justify-content:center; min-height:140px; color:var(--text-muted); font-size:32px;">📰</div>
+        <div style="background:var(--forest); display:flex; align-items:center; justify-content:center; min-height:140px; color:white; font-family:'Playfair Display', serif; font-size:56px; font-weight:900; font-style:italic; letter-spacing:-0.02em;">Z!</div>
         {% endif %}
 
         <div style="padding:1rem 1.25rem 1rem 0;">
@@ -66,13 +66,13 @@
     </div>
 
     {% if total and total > per_page %}
-    <div style="display:flex; gap:0.5rem; justify-content:center; margin-top:2rem;">
+    <div style="display:flex; gap:0.5rem; justify-content:center; align-items:center; margin-top:2rem;">
       {% if page > 1 %}
-      <a href="?page={{ page - 1 }}" class="btn btn-outline">← Előző</a>
+      <a href="?page={{ page - 1 }}" style="display:inline-block; padding:10px 18px; background:var(--forest); color:white; text-decoration:none; border-radius:var(--radius-sm); font-weight:600; font-size:14px;">← Előző</a>
       {% endif %}
-      <span style="padding:8px 14px; color:var(--text-muted); font-size:13px;">{{ page }} / {{ ((total - 1) // per_page) + 1 }}</span>
+      <span style="padding:10px 14px; color:var(--text-mid); font-size:13px; font-weight:500;">{{ page }} / {{ ((total - 1) // per_page) + 1 }}</span>
       {% if page * per_page < total %}
-      <a href="?page={{ page + 1 }}" class="btn btn-outline">Következő →</a>
+      <a href="?page={{ page + 1 }}" style="display:inline-block; padding:10px 18px; background:var(--forest); color:white; text-decoration:none; border-radius:var(--radius-sm); font-weight:600; font-size:14px;">Következő →</a>
       {% endif %}
     </div>
     {% endif %}
