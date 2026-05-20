@@ -363,10 +363,12 @@ def fetch_events(max_items: int = 50) -> list[dict]:
 
 def fetch_event_detail(url: str) -> dict:
     """Egyetlen esemény részletes oldal scrape.
-    Returns: {og_image, content (description), event_start_at, event_end_at, event_location}
+    Returns: {og_image, og_title, content (description), event_start_at,
+              event_end_at, event_location}
     """
     out = {
         "og_image": None,
+        "og_title": None,
         "content": "",
         "event_start_at": None,
         "event_end_at": None,
@@ -381,6 +383,16 @@ def fetch_event_detail(url: str) -> dict:
         og_img = soup.find("meta", property="og:image") or soup.find("meta", attrs={"name": "og:image"})
         if og_img and og_img.get("content"):
             out["og_image"] = urljoin(resp.url, og_img["content"].strip())
+
+        # Tiszta cím a részletes oldalról: og:title vagy <h1>
+        og_title = soup.find("meta", property="og:title") or soup.find("meta", attrs={"name": "og:title"})
+        if og_title and og_title.get("content"):
+            out["og_title"] = og_title["content"].strip()
+        elif soup.find("h1"):
+            out["og_title"] = soup.find("h1").get_text(" ", strip=True)
+        if out["og_title"]:
+            # Sok WP-template "Esemény neve | Site Name" formát ad — vágjuk le
+            out["og_title"] = re.split(r"\s+[\|\-–]\s+", out["og_title"])[0][:500]
 
         og_desc = soup.find("meta", property="og:description") or soup.find("meta", attrs={"name": "description"})
         if og_desc and og_desc.get("content"):

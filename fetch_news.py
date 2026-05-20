@@ -15,6 +15,7 @@ Idempotens: dedup az external_id UNIQUE constraint-en.
 
 import logging
 import os
+import re
 import sys
 from datetime import datetime, timedelta
 from urllib.parse import urlparse
@@ -40,6 +41,45 @@ logging.basicConfig(
     format="%(asctime)s [%(levelname)s] %(message)s",
 )
 log = logging.getLogger(__name__)
+
+
+# Zaj-szűrő: ezek nem hírek, kiszűrve a Google News dump-ból.
+# (idokep = időjárás, listing.hu = hirdetés, stb.)
+SOURCE_BLACKLIST_PATTERNS = [
+    "idokep.hu",
+    "meteoblue",
+    "weatheronline",
+    "youtube.com",
+    "facebook.com",
+    "instagram.com",
+    "tiktok.com",
+]
+
+
+def _is_noise(url: str, title: str) -> bool:
+    """Megnézi, hogy a cikk zaj-forrásból jön-e (időjárás, social, stb.)."""
+    if not url:
+        return False
+    url_l = url.lower()
+    if any(p in url_l for p in SOURCE_BLACKLIST_PATTERNS):
+        return True
+    return False
+
+
+def _clean_title(raw: str) -> str:
+    """Title-prefix tisztítás: 'Hírarchívum - ', 'Archív - ', 'Vélemény - ', stb."""
+    if not raw:
+        return raw
+    prefixes = [
+        r"^h[ií]rarch[ií]vum\s*[\-–:]\s*",
+        r"^arch[ií]v\s*[\-–:]\s*",
+        r"^v[eé]lem[eé]ny\s*[\-–:]\s*",
+        r"^sport\s*[\-–:]\s*",
+    ]
+    cleaned = raw
+    for p in prefixes:
+        cleaned = re.sub(p, "", cleaned, flags=re.IGNORECASE)
+    return cleaned.strip()
 
 
 def _domain(url: str) -> str:
@@ -123,6 +163,12 @@ def process_news(category: str) -> int:
             if not real_url:
                 log.warning(f"[{category}] URL nem feloldható, skip: {item['title'][:50]}")
                 continue
+
+            # Zaj-szűrő: időjárás-oldalak, social, stb.
+            if _is_noise(real_url, item["title"]):
+                log.info(f"[{category}] zaj-forrás, skip: {real_url[:60]}")
+                continue
+
             norm_url = normalize_url(real_url)
 
             # 3. szintű URL-dedup — most már a kanonizált URL ismeretében
@@ -142,9 +188,12 @@ def process_news(category: str) -> int:
             # Source name: priorizáljuk az RSS-ből kapottat, ha nincs, domain
             source_name = item["source_name"] or _domain(final_url)
 
+            # Title clean (Hírarchívum-prefix, stb.)
+            clean_title = _clean_title(item["title"])
+
             # AI summary
             content = article.get("content") or article.get("og_description") or ""
-            ai_summary = summarize_news(item["title"], content) if content else None
+            ai_summary = summarize_news(clean_title, content) if content else None
 
             # Image
             image_local = download_image(article.get("og_image")) if article.get("og_image") else None
@@ -164,7 +213,7 @@ def process_news(category: str) -> int:
                         item["external_id"],
                         final_url,
                         source_name,
-                        item["title"],
+                        clean_title,
                         t_hash,
                         norm_url,
                         ai_summary,
@@ -217,8 +266,13 @@ def process_events() -> int:
                 continue
 
             detail = fetch_event_detail(item["source_url"])
+            # Tisztább title a részletes oldalról (og:title vagy h1), ha létezik.
+            # A listanézet a dátumot is belerakja a link szövegébe — azt nem akarjuk.
+            final_title = (detail.get("og_title") or item["title"]).strip()
+            # title_hash újraszámolás — már a tiszta címmel
+            t_hash = title_hash(final_title)
             content = detail.get("content") or ""
-            ai_summary = summarize_event(item["title"], content) if content else None
+            ai_summary = summarize_event(final_title, content) if content else None
             image_local = download_image(detail.get("og_image")) if detail.get("og_image") else None
 
             try:
@@ -237,7 +291,7 @@ def process_events() -> int:
                         item["external_id"],
                         item["source_url"],
                         item["source_name"],
-                        item["title"],
+                        final_title,
                         t_hash,
                         norm_url,
                         ai_summary,
