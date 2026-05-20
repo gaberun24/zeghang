@@ -184,6 +184,14 @@ def main() -> int:
             teaser = ". ".join(sentences[:2]).strip()
             if not teaser.endswith("."):
                 teaser += "."
+
+        # CTA — deterministically a teaser végére, hogy a user tudja a forrás-link
+        # az 1. kommentben van (FB algoritmus penalty miatt a poszt szövegébe ne tegyük)
+        teaser = teaser.rstrip()
+        if not teaser.endswith((".", "!", "?")):
+            teaser += "."
+        teaser += "\n\n📰 A teljes cikk az első kommentben 👇"
+
         log.info(f"[fb] Teaser: {teaser[:100]}...")
 
         # 7. Kép abszolút path
