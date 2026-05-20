@@ -160,8 +160,31 @@ def fetch_google_news(category: str, max_items: int = 50) -> list[dict]:
 
 
 def resolve_real_url(google_news_url: str) -> str | None:
-    """A Google News redirect URL-jét követve visszaadja az igazi forrás URL-t.
-    A Google news.google.com/articles/... → 301/302 → tényleges portál."""
+    """A Google News redirect URL-jét feloldja az igazi forrás URL-re.
+
+    A 2024-es Google News már nem HTTP redirect-tel dolgozik; a
+    /articles/CBM... URL-ek base64-encoded protobuf payload-ot tartalmaznak.
+    A googlenewsdecoder lib (PyPI: googlenewsdecoder, MIT) ezt decode-olja.
+
+    Nem-Google URL-ek (pl. zalaegerszegturizmus.hu) esetén fallback-elünk
+    a klasszikus HTTP redirect-követésre.
+    """
+    if not google_news_url:
+        return None
+
+    # 1. Google News URL: dedicated decoder
+    if "news.google.com" in google_news_url:
+        try:
+            from googlenewsdecoder import gnewsdecoder
+            result = gnewsdecoder(google_news_url, interval=1)
+            if isinstance(result, dict) and result.get("status") and result.get("decoded_url"):
+                return result["decoded_url"]
+        except ImportError:
+            pass  # ha nincs telepítve, fallback
+        except Exception:
+            pass  # rate limit vagy egyéb hiba — fallback
+
+    # 2. Klasszikus HTTP redirect (nem-Google URL vagy decoder kudarc)
     try:
         resp = requests.get(
             google_news_url,
@@ -170,6 +193,9 @@ def resolve_real_url(google_news_url: str) -> str | None:
             allow_redirects=True,
         )
         if resp.ok:
+            # Ha a végén még mindig news.google.com, nem oldódott fel
+            if "news.google.com" in resp.url:
+                return None
             return resp.url
     except requests.RequestException:
         pass

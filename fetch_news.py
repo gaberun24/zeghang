@@ -117,8 +117,12 @@ def process_news(category: str) -> int:
                 skipped["title"] += 1
                 continue
 
-            # Resolve a real source URL (HTTP redirect)
-            real_url = resolve_real_url(item["source_url"]) or item["source_url"]
+            # Resolve a real source URL — Google News base64 payload dekódolás.
+            # Ha nem oldódik fel, skip — Google URL-jén úgysem találunk OG image-et.
+            real_url = resolve_real_url(item["source_url"])
+            if not real_url:
+                log.warning(f"[{category}] URL nem feloldható, skip: {item['title'][:50]}")
+                continue
             norm_url = normalize_url(real_url)
 
             # 3. szintű URL-dedup — most már a kanonizált URL ismeretében
