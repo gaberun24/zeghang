@@ -67,6 +67,36 @@ def _is_noise(url: str, title: str) -> bool:
     return False
 
 
+# A helyi (category='local') relevancia-szűréshez: ezek bármelyikének
+# benne kell lenni a title-ben / URL-ben / source-name-ben.
+# (A "zalaegerszeg" tartalmazza a "zalaegerszegi" formát is.)
+ZEG_RELEVANCE_TOKENS = (
+    "zalaegerszeg",  # lefedi "zalaegerszegi", "Zalaegerszegen" stb.
+    "egerszeg",      # lefedi "egerszegi", "Egerszegi Hírek" stb.
+    "zaol",          # ZAOL portál
+)
+
+
+def _is_zeg_relevant(title: str, source_name: str, source_url: str) -> bool:
+    """True ha a cikk valószínűleg ZALAEGERSZEGI helyi vonatkozású.
+
+    A Google News q=zalaegerszeg túl megengedő — visszaadhat olyan cikket
+    is, ami csak egy mellékmondatban említi a várost (pl. Fradi Shop
+    "zalaegerszegi üzlete" → NEM helyi hír). Ezért követelünk min. egy
+    token-match-et a title / source-name / URL valamelyikében.
+
+    Példák:
+      "Új körforgalom a Balatoni úton" + "Egerszegi Hírek" → ✓ (source-name)
+      "Pünkösdkor zárva tart a Fradi Shop" + "Fradi.hu" → ✗ (sehol sincs)
+    """
+    haystack = " ".join([
+        (title or "").lower(),
+        (source_name or "").lower(),
+        (source_url or "").lower(),
+    ])
+    return any(tok in haystack for tok in ZEG_RELEVANCE_TOKENS)
+
+
 def _clean_title(raw: str) -> str:
     """Title-prefix tisztítás: 'Hírarchívum - ', 'Archív - ', 'Vélemény - ', stb."""
     if not raw:
@@ -169,6 +199,19 @@ def process_news(category: str) -> int:
             if _is_noise(real_url, item["title"]):
                 log.info(f"[{category}] zaj-forrás, skip: {real_url[:60]}")
                 continue
+
+            # Helyi-relevancia szűrő: ha a category='local', követeljük meg
+            # hogy a title/URL/source-name tartalmazza valamelyik zeg-tokent.
+            # Cél: kiszűrni a Google News false-positive találatokat (pl. Fradi Shop
+            # cikk, ami csak egy mondatban említi Zalaegerszeget).
+            if category == "local":
+                src_name = item.get("source_name") or _domain(real_url)
+                if not _is_zeg_relevant(item["title"], src_name, real_url):
+                    log.info(
+                        f"[{category}] nem ZEG-releváns ({src_name}), skip: "
+                        f"{item['title'][:60]}"
+                    )
+                    continue
 
             norm_url = normalize_url(real_url)
 
