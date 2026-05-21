@@ -2579,6 +2579,9 @@ def admin_integrations():
             "fb_autopost.candidate_window_min", default=360,
             env_fallback="FB_CANDIDATE_WINDOW_MIN",
         ),
+        "max_article_age_hours": get_int_setting(
+            "fb_autopost.max_article_age_hours", default=48,
+        ),
         "hour_min": get_int_setting("fb_autopost.hour_min", default=7),
         "hour_max": get_int_setting("fb_autopost.hour_max", default=22),
     }
@@ -2638,6 +2641,7 @@ def admin_fb_config():
 
     _save_int("fb_autopost.max_per_day", "max_per_day", 0, 50)
     _save_int("fb_autopost.candidate_window_min", "candidate_window_min", 30, 1440)
+    _save_int("fb_autopost.max_article_age_hours", "max_article_age_hours", 1, 720)
     _save_int("fb_autopost.hour_min", "hour_min", 0, 23)
     _save_int("fb_autopost.hour_max", "hour_max", 0, 23)
 
@@ -2804,6 +2808,9 @@ def admin_fb_exchange():
             "candidate_window_min": get_int_setting(
                 "fb_autopost.candidate_window_min", default=360,
                 env_fallback="FB_CANDIDATE_WINDOW_MIN",
+            ),
+            "max_article_age_hours": get_int_setting(
+                "fb_autopost.max_article_age_hours", default=48,
             ),
             "hour_min": get_int_setting("fb_autopost.hour_min", default=7),
             "hour_max": get_int_setting("fb_autopost.hour_max", default=22),

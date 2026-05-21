@@ -262,7 +262,13 @@
             <div class="form-row" style="margin-bottom:0;">
               <label>Friss cikk ablak (perc)</label>
               <input type="number" name="candidate_window_min" value="{{ fb_config.candidate_window_min }}" min="30" max="1440">
-              <div class="form-help">Csak az ennél frissebb cikkek kandidatok. Default: 360 (6 óra).</div>
+              <div class="form-help">Csak az ennél frissebb cikkek kandidatok (fetched_at alapján). Default: 360 (6 óra).</div>
+            </div>
+
+            <div class="form-row" style="margin-bottom:0;">
+              <label>Max cikk-kor (óra)</label>
+              <input type="number" name="max_article_age_hours" value="{{ fb_config.max_article_age_hours }}" min="1" max="720">
+              <div class="form-help">A cikk published_at-jétől max ennyi óra. Default: 48 (2 nap). Re-publish-szűrő.</div>
             </div>
 
             <div class="form-row" style="margin-bottom:0;">

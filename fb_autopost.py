@@ -106,6 +106,14 @@ def _last_post_at_today(conn):
         return row["last_at"]
     return None
 
+
+def _max_article_age_hours() -> int:
+    """A cikk published_at-jét vesszük figyelembe — ennyi óránál régebbi cikk NE menjen FB-re.
+    Default 48 (2 nap). Magyarázat: a portálok néha re-publish-elnek régi cikkeket
+    (frissítés, kiemelés), amik fetched_at szempontjából "frissek", de tartalmilag
+    elavultak. Ez a szűrő blokkolja őket."""
+    return get_int_setting("fb_autopost.max_article_age_hours", default=48)
+
 REPO_ROOT = os.path.dirname(os.path.abspath(__file__))
 STATIC_DIR = os.path.join(REPO_ROOT, "static")
 
@@ -146,11 +154,18 @@ def _today_post_count(conn) -> int:
 def _fetch_candidates(conn) -> list[dict]:
     """Helyi, friss, képes, AI-summary-vel rendelkező, még nem posztolt cikkek.
 
+    Két idő-szűrő:
+    - fetched_at: max `candidate_window_min` perce került a DB-be (default 360 = 6 óra)
+    - published_at: max `max_article_age_hours` órás publikálás (default 48 óra)
+      → blokkolja a régi cikkek re-publish-eit (portálok néha kiemelnek
+      hetes-hónapos cikkeket frissítésként, ezeket NEM küldjük FB-re).
+
     Extra dedup: az utolsó 24 órában FB-re posztolt cikkek title_hash-eit
     kizárjuk → ha két kicsit más szöveggel jön ugyanaz a hír több portálról
     (a fetch-time title_hash csak EXACT match-et fog), itt is kiszűrjük.
     """
     window_min = _candidate_window_min()
+    max_age_h = _max_article_age_hours()
     rows = conn.execute(
         f"""SELECT id, title, ai_summary, source_name, source_url,
                    image_local_path, published_at, title_hash
@@ -160,6 +175,10 @@ def _fetch_candidates(conn) -> list[dict]:
               AND image_local_path IS NOT NULL
               AND ai_summary IS NOT NULL
               AND fetched_at >= NOW() - INTERVAL '{window_min} minutes'
+              AND (
+                published_at IS NULL
+                OR published_at >= NOW() - INTERVAL '{max_age_h} hours'
+              )
               AND (
                 title_hash IS NULL
                 OR title_hash NOT IN (
