@@ -77,6 +77,28 @@ ZEG_RELEVANCE_TOKENS = (
     "egerszeg",      # lefedi "egerszegi", "Egerszegi"
 )
 
+# Zala megyei (category='county') relevancia: Zala megyei városok/települések
+# vagy "zala" prefix. A ZAOL aggregator néha országos/külföldi hírt is bedob —
+# ezek nem érdekesek a megyei oldalon ("Dnyipró dróncsapás", "Eurós nyugdíj" stb.).
+ZALA_RELEVANCE_TOKENS = (
+    "zala",         # zalai, Zalaegerszeg, Zalakaros, Zalaszentgrót, Zalalövő, Zalában stb.
+    "egerszeg",     # Zalaegerszeg → már fent, de itt is biztosra megy
+    "lenti",
+    "nagykanizsa", "kanizsa",
+    "keszthely",
+    "hévíz", "heviz",
+    "letenye",
+    "pacsa",
+    "söjtör", "sojtor",
+    "becsehely",
+    "gellénháza", "gellenhaza",
+    "alibánfa",
+    "zalakaros",
+    "lispeszentadorján",
+    "csesztreg",
+    "göcsej",       # földrajzi régió Zalában
+)
+
 
 def _is_zeg_relevant(title: str, source_name: str, source_url: str) -> bool:
     """True ha a cikk valószínűleg ZALAEGERSZEGI helyi vonatkozású.
@@ -102,6 +124,27 @@ def _is_zeg_relevant(title: str, source_name: str, source_url: str) -> bool:
         (source_url or "").lower(),
     ])
     return any(tok in haystack for tok in ZEG_RELEVANCE_TOKENS)
+
+
+def _is_zala_relevant(title: str, source_url: str) -> bool:
+    """True ha a cikk Zala-megyei vonatkozású.
+
+    A ZAOL aggregator (Hirstart) néha országos/külföldi cikket is bedob a
+    feedjébe (pl. "Dnyipró dróncsapás", "Eurós nyugdíj Magyarországon",
+    "YouTube új rendszert vezet be"). Ezek a megyei oldalon zajnak számítanak.
+
+    Példák:
+      "Hatalmas fogás Zalában, sormási pihenő" → ✓ (zala)
+      "Söjtörön filmforgatás" → ✓ (söjtör)
+      "Nagykanizsa csapatkapitány" → ✓ (nagykanizsa)
+      "Dnyipró dróncsapás" → ✗ (semmi)
+      "Eurós nyugdíj Magyarországon" → ✗ (országos)
+    """
+    haystack = " ".join([
+        (title or "").lower(),
+        (source_url or "").lower(),
+    ])
+    return any(tok in haystack for tok in ZALA_RELEVANCE_TOKENS)
 
 
 def _clean_title(raw: str) -> str:
@@ -217,6 +260,16 @@ def process_news(category: str) -> int:
                     log.info(
                         f"[{category}] nem ZEG-releváns ({src_name}), skip: "
                         f"{item['title'][:60]}"
+                    )
+                    continue
+
+            # Megyei relevancia: a Google News q=zala+megye-feed-ből csak Zala-
+            # releváns cikkeket fogadunk el. A feed sokszor országos hírt is bedob
+            # (pl. Fradi-cikkek, országos szabályozás), ezeket szűrjük.
+            if category == "county":
+                if not _is_zala_relevant(item["title"], real_url):
+                    log.info(
+                        f"[{category}] nem Zala-releváns, skip: {item['title'][:60]}"
                     )
                     continue
 
@@ -371,11 +424,25 @@ def process_direct_rss(
 
             # 4. ZEG-relevancia-szűrő — meghatározzuk az effective_category-t
             # ZEG-releváns → primary category (local). Non-ZEG: ha van fallback,
-            # oda kerül (pl. ZAOL fallback='county'), különben skip.
+            # de Zala-releváns → fallback (county). Külföldi/országos → skip.
             effective_category = category
             if category == "local":
                 if not _is_zeg_relevant(item["title"], source_name, real_url):
-                    if fallback_category:
+                    if fallback_category == "county":
+                        # County-ba csak Zala-releváns mehet, különben skip
+                        if not _is_zala_relevant(item["title"], real_url):
+                            skipped["irrelevant"] += 1
+                            log.info(
+                                f"[direct:{source_name}] nem Zala-releváns "
+                                f"(külföldi/országos), skip: {item['title'][:60]}"
+                            )
+                            continue
+                        effective_category = fallback_category
+                        log.info(
+                            f"[direct:{source_name}] non-ZEG → county: "
+                            f"{item['title'][:60]}"
+                        )
+                    elif fallback_category:
                         effective_category = fallback_category
                         log.info(
                             f"[direct:{source_name}] non-ZEG → {fallback_category}: "
