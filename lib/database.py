@@ -348,6 +348,9 @@ def init_db():
             "ALTER TABLE users ADD COLUMN IF NOT EXISTS theme VARCHAR(10) DEFAULT 'system'",
             "ALTER TABLE news_items ADD COLUMN IF NOT EXISTS title_hash VARCHAR(64)",
             "ALTER TABLE news_items ADD COLUMN IF NOT EXISTS normalized_url VARCHAR(500)",
+            # Fontosság-skála 1-3 (1=napi rutin, 2=közérdek, 3=kiemelt). AI állítja
+            # be, admin manuálisan felülírhatja /admin/news-on.
+            "ALTER TABLE news_items ADD COLUMN IF NOT EXISTS importance SMALLINT DEFAULT 1",
         ]:
             conn.execute(col_sql)
 
@@ -368,6 +371,9 @@ def init_db():
             "CREATE INDEX IF NOT EXISTS idx_news_event_start ON news_items(event_start_at)",
             "CREATE INDEX IF NOT EXISTS idx_news_title_hash ON news_items(title_hash, fetched_at)",
             "CREATE INDEX IF NOT EXISTS idx_news_normalized_url ON news_items(normalized_url)",
+            # Importance-szerinti rendezéshez (hero + grid sorrend) — compound:
+            # category-szűrés után importance DESC, published DESC.
+            "CREATE INDEX IF NOT EXISTS idx_news_importance ON news_items(category, importance DESC, published_at DESC)",
             # Facebook auto-poster candidate lookup — partial index csak a poszt-jelöltekre.
             "CREATE INDEX IF NOT EXISTS idx_news_fb_pending ON news_items(fetched_at DESC) "
             "WHERE category = 'local' AND fb_posted_at IS NULL",

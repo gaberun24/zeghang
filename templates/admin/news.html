@@ -1,0 +1,157 @@
+{% extends "admin/base.html" %}
+{% block title %}Hírek — Admin{% endblock %}
+{% block content %}
+<style>
+  .news-thumb { width: 60px; height: 40px; object-fit: cover; border-radius: 4px; display: block; }
+  .news-thumb-placeholder { width: 60px; height: 40px; background: #1e293b; color: white; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-family: 'Playfair Display', serif; font-weight: 900; font-style: italic; font-size: 22px; }
+  .imp-btn { display: inline-block; padding: 3px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; border: 1px solid var(--admin-border); cursor: pointer; background: white; color: var(--admin-text); }
+  .imp-btn:hover { background: #f1f5f9; }
+  .imp-btn.active-1 { background: #f1f5f9; color: #475569; border-color: #94a3b8; }
+  .imp-btn.active-2 { background: #fef3c7; color: #92400e; border-color: #d97706; }
+  .imp-btn.active-3 { background: #fee2e2; color: #991b1b; border-color: #dc2626; }
+  [data-theme="dark"] .imp-btn { background: #1a2332; color: #e8e8e8; }
+  [data-theme="dark"] .imp-btn.active-1 { background: #243040; }
+  [data-theme="dark"] .imp-btn.active-2 { background: #2e2414; color: #ffa726; }
+  [data-theme="dark"] .imp-btn.active-3 { background: #2d1a1a; color: #ef5350; }
+
+  .imp-group { display: inline-flex; gap: 3px; }
+  .imp-group form { display: inline; }
+
+  .stat-grid-news { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.75rem; margin-bottom: 1.25rem; }
+  .stat-mini { background: var(--admin-card); border: 1px solid var(--admin-border); border-radius: 6px; padding: 10px 14px; }
+  .stat-mini-cat { font-size: 11px; color: var(--admin-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+  .stat-mini-imps { display: flex; gap: 10px; font-size: 13px; }
+  .stat-mini-imp { display: flex; align-items: baseline; gap: 4px; }
+  .stat-mini-imp b { font-size: 16px; font-weight: 700; color: var(--admin-text); }
+  .stat-mini-imp span { font-size: 11px; color: var(--admin-muted); }
+</style>
+
+<h1 style="font-size:22px; font-weight:700; margin-bottom:1rem; color:var(--admin-text);">Hírek és programok</h1>
+
+{# ─── Stat-bontás ─── #}
+{% set cat_imp = {} %}
+{% for row in cat_stats %}
+  {% if row.category not in cat_imp %}{% set _ = cat_imp.update({row.category: {}}) %}{% endif %}
+  {% set _ = cat_imp[row.category].update({row.importance: row.cnt}) %}
+{% endfor %}
+
+<div class="stat-grid-news">
+  {% for cat_key, cat_label in [('local', 'Helyi'), ('county', 'Megyei'), ('event', 'Programok')] %}
+  <div class="stat-mini">
+    <div class="stat-mini-cat">{{ cat_label }}</div>
+    <div class="stat-mini-imps">
+      <div class="stat-mini-imp"><b>{{ cat_imp.get(cat_key, {}).get(3, 0) }}</b><span>📌</span></div>
+      <div class="stat-mini-imp"><b>{{ cat_imp.get(cat_key, {}).get(2, 0) }}</b><span>⭐</span></div>
+      <div class="stat-mini-imp"><b>{{ cat_imp.get(cat_key, {}).get(1, 0) }}</b><span>·</span></div>
+      <div class="stat-mini-imp" style="margin-left:auto;"><b>{{ cat_imp.get(cat_key, {}).values()|sum }}</b><span>össz</span></div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+{# ─── Szűrők ─── #}
+<div class="filter-bar">
+  <a href="{{ url_for('admin_news') }}" class="filter-link {{ 'active' if not cat_filter and not imp_filter else '' }}">Mind</a>
+  <a href="{{ url_for('admin_news', cat='local') }}" class="filter-link {{ 'active' if cat_filter == 'local' else '' }}">Helyi</a>
+  <a href="{{ url_for('admin_news', cat='county') }}" class="filter-link {{ 'active' if cat_filter == 'county' else '' }}">Megyei</a>
+  <a href="{{ url_for('admin_news', cat='event') }}" class="filter-link {{ 'active' if cat_filter == 'event' else '' }}">Programok</a>
+  <span style="border-left: 1px solid var(--admin-border); padding-left: 8px; margin-left: 8px;">
+    <a href="{{ url_for('admin_news', imp='3') }}" class="filter-link {{ 'active' if imp_filter == '3' else '' }}">📌 Kiemelt</a>
+    <a href="{{ url_for('admin_news', imp='2') }}" class="filter-link {{ 'active' if imp_filter == '2' else '' }}">⭐ Fontos</a>
+    <a href="{{ url_for('admin_news', imp='1') }}" class="filter-link {{ 'active' if imp_filter == '1' else '' }}">Normál</a>
+  </span>
+</div>
+
+<div class="admin-card" style="padding: 0; overflow-x: auto;">
+  <table class="admin-table">
+    <thead>
+      <tr>
+        <th style="width:60px;">Kép</th>
+        <th>Cím / Forrás</th>
+        <th style="width:90px;">Kat.</th>
+        <th style="width:130px;">Dátum</th>
+        <th style="width:160px;">Fontosság</th>
+        <th style="width:120px;">Műveletek</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for it in items %}
+      <tr>
+        <td>
+          {% if it.image_local_path %}
+          <img src="{{ url_for('static', filename=it.image_local_path) }}" alt="" class="news-thumb" loading="lazy">
+          {% else %}
+          <div class="news-thumb-placeholder">Z!</div>
+          {% endif %}
+        </td>
+        <td>
+          <div style="font-weight:600; color:var(--admin-text); margin-bottom:2px;">
+            <a href="{{ it.source_url }}" target="_blank" rel="noopener noreferrer" style="color:inherit; text-decoration:none;" title="{{ it.title }}">
+              {{ it.title[:90] }}{% if it.title|length > 90 %}…{% endif %}
+            </a>
+          </div>
+          <div style="font-size:11px; color:var(--admin-muted);">
+            {{ it.source_name or '—' }}
+            {% if it.fb_posted_at %}· <span style="color:var(--admin-success);">📘 FB</span>{% endif %}
+          </div>
+        </td>
+        <td>
+          <span class="badge {% if it.category == 'local' %}badge-new{% elif it.category == 'county' %}badge-in-progress{% else %}badge-done{% endif %}">
+            {% if it.category == 'local' %}helyi
+            {% elif it.category == 'county' %}megyei
+            {% elif it.category == 'event' %}program
+            {% else %}{{ it.category }}{% endif %}
+          </span>
+        </td>
+        <td style="font-size:12px; color:var(--admin-muted);">
+          {% if it.published_at %}
+            {{ it.published_at.strftime('%Y-%m-%d') }}
+          {% else %}
+            {{ it.fetched_at.strftime('%Y-%m-%d') }}
+          {% endif %}
+        </td>
+        <td>
+          <div class="imp-group">
+            {% for imp in [1, 2, 3] %}
+            <form method="POST" action="{{ url_for('admin_news_set_importance', item_id=it.id) }}">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <input type="hidden" name="importance" value="{{ imp }}">
+              <button type="submit" class="imp-btn {{ 'active-' + imp|string if it.importance == imp else '' }}"
+                      title="{% if imp == 1 %}Normál{% elif imp == 2 %}Fontos{% else %}Kiemelt{% endif %}">
+                {% if imp == 1 %}·{% elif imp == 2 %}⭐{% else %}📌{% endif %}
+              </button>
+            </form>
+            {% endfor %}
+          </div>
+        </td>
+        <td>
+          <form method="POST" action="{{ url_for('admin_news_delete', item_id=it.id) }}" class="action-form"
+                onsubmit="return confirm('Biztosan törlöd? Ez visszafordíthatatlan.');">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="btn-sm btn-danger">Törlés</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% if pages > 1 %}
+<div style="display:flex; gap:0.5rem; justify-content:center; align-items:center; margin-top:1.5rem;">
+  {% if page > 1 %}
+  <a href="?page={{ page - 1 }}{% if cat_filter %}&cat={{ cat_filter }}{% endif %}{% if imp_filter %}&imp={{ imp_filter }}{% endif %}" class="btn-sm btn-action">← Előző</a>
+  {% endif %}
+  <span style="color: var(--admin-muted); font-size: 13px;">{{ page }} / {{ pages }} ({{ total }} össz)</span>
+  {% if page < pages %}
+  <a href="?page={{ page + 1 }}{% if cat_filter %}&cat={{ cat_filter }}{% endif %}{% if imp_filter %}&imp={{ imp_filter }}{% endif %}" class="btn-sm btn-action">Következő →</a>
+  {% endif %}
+</div>
+{% endif %}
+
+<p style="text-align:center; font-size:12px; color:var(--admin-muted); margin-top:1.5rem;">
+  Fontosság skála: <b>·</b> (1) Normál · <b>⭐</b> (2) Fontos · <b>📌</b> (3) Kiemelt — a <code>/helyi-hirek</code> és <code>/megyei-hirek</code> oldalakon
+  a 2-es és 3-as cikkek badge-et kapnak, és a top-cikk hero-card formátumban jelenik meg.
+</p>
+
+{% endblock %}

@@ -307,9 +307,12 @@ def process_news(category: str) -> int:
             # Title clean (Hírarchívum-prefix, stb.)
             clean_title = _clean_title(item["title"])
 
-            # AI summary
+            # AI summary + importance
             content = article.get("content") or article.get("og_description") or ""
-            ai_summary = summarize_news(clean_title, content) if content else None
+            if content:
+                ai_summary, importance = summarize_news(clean_title, content)
+            else:
+                ai_summary, importance = None, 1
 
             # Image — referer = a forrás cikk URL-je (hotlink protection-bypass)
             image_local = (
@@ -323,8 +326,9 @@ def process_news(category: str) -> int:
                     INSERT INTO news_items
                       (category, external_id, source_url, source_name, title,
                        title_hash, normalized_url,
-                       ai_summary, image_url, image_local_path, published_at)
-                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                       ai_summary, image_url, image_local_path, published_at,
+                       importance)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                     ON CONFLICT (external_id) DO NOTHING
                     """,
                     (
@@ -339,11 +343,13 @@ def process_news(category: str) -> int:
                         article.get("og_image"),
                         image_local,
                         item["published_at"],
+                        importance,
                     ),
                 )
                 conn.commit()
                 inserted += 1
-                log.info(f"[{category}] + {item['title'][:80]}")
+                imp_marker = "📌📌📌"[:importance] if importance > 1 else ""
+                log.info(f"[{category}] + {imp_marker}{item['title'][:80]}")
             except Exception as e:
                 conn.rollback()
                 log.warning(f"[{category}] INSERT failed: {e}")
@@ -465,7 +471,7 @@ def process_direct_rss(
             # Title clean
             clean_title = _clean_title(item["title"])
 
-            # AI summary a snippet-ből
+            # AI summary + importance a snippet-ből
             content = item.get("description") or ""
             if not content:
                 skipped["no_content"] += 1
@@ -473,7 +479,7 @@ def process_direct_rss(
                     f"[direct:{source_name}] üres snippet, skip: {clean_title[:60]}"
                 )
                 continue
-            ai_summary = summarize_news(clean_title, content)
+            ai_summary, importance = summarize_news(clean_title, content)
 
             # Kép letöltés az enclosure-ből (referer = a cikk URL-je)
             image_local = None
@@ -488,8 +494,9 @@ def process_direct_rss(
                     INSERT INTO news_items
                       (category, external_id, source_url, source_name, title,
                        title_hash, normalized_url,
-                       ai_summary, image_url, image_local_path, published_at)
-                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                       ai_summary, image_url, image_local_path, published_at,
+                       importance)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                     ON CONFLICT (external_id) DO NOTHING
                     """,
                     (
@@ -504,13 +511,15 @@ def process_direct_rss(
                         item.get("enclosure_url"),
                         image_local,
                         item["published_at"],
+                        importance,
                     ),
                 )
                 conn.commit()
                 inserted += 1
                 counts_per_cat[effective_category] = counts_per_cat.get(effective_category, 0) + 1
+                imp_marker = "📌📌📌"[:importance] if importance > 1 else ""
                 log.info(
-                    f"[direct:{source_name}/{effective_category}] + {clean_title[:80]}"
+                    f"[direct:{source_name}/{effective_category}] + {imp_marker}{clean_title[:80]}"
                 )
             except Exception as e:
                 conn.rollback()

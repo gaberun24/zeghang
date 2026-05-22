@@ -635,10 +635,11 @@ def _news_page(category: str, template: str, page_title: str, meta_desc: str):
                      AND (event_start_at IS NULL OR event_start_at >= CURRENT_DATE - INTERVAL '1 day')"""
             ).fetchone()["cnt"]
         else:
+            # Importance DESC → published DESC: a kiemeltek a tetejére, közöttük frissesség.
             items = conn.execute(
                 """SELECT * FROM news_items
                    WHERE category = %s
-                   ORDER BY COALESCE(published_at, fetched_at) DESC
+                   ORDER BY importance DESC, COALESCE(published_at, fetched_at) DESC
                    LIMIT %s OFFSET %s""",
                 (category, per_page, offset),
             ).fetchall()
@@ -647,9 +648,21 @@ def _news_page(category: str, template: str, page_title: str, meta_desc: str):
                 (category,),
             ).fetchone()["cnt"]
 
+        # Hero-card: az 1. cikk csak akkor hero ha (a) az 1. oldalon vagyunk
+        # ÉS (b) van legalább 1 importance >= 2 cikk a top elemnél (különben semmi
+        # nem érdemli meg a kiemelést). category='event'-nél nincs hero.
+        hero = None
+        rest_items = items
+        if category != "event" and page == 1 and items:
+            top = items[0]
+            if top.get("importance", 1) >= 2:
+                hero = top
+                rest_items = items[1:]
+
         return render_template(
             template,
-            items=items,
+            items=rest_items,
+            hero=hero,
             page=page,
             per_page=per_page,
             total=total,
@@ -2545,6 +2558,96 @@ def admin_security():
         )
     finally:
         conn.close()
+
+
+# ─── /admin/news — news-item kezelés (importance override, delete) ─────────
+
+@app.route("/admin/news")
+@admin_required
+def admin_news():
+    page = request.args.get("page", 1, type=int)
+    cat_filter = request.args.get("cat", "")  # local, county, event, vagy ""
+    imp_filter = request.args.get("imp", "", type=str)  # "1", "2", "3", vagy ""
+    per_page = 50
+
+    conn = get_db()
+    try:
+        where_parts = []
+        params = []
+        if cat_filter in ("local", "county", "event"):
+            where_parts.append("category = %s")
+            params.append(cat_filter)
+        if imp_filter in ("1", "2", "3"):
+            where_parts.append("importance = %s")
+            params.append(int(imp_filter))
+        where_sql = ("WHERE " + " AND ".join(where_parts)) if where_parts else ""
+
+        total = conn.execute(
+            f"SELECT COUNT(*) AS cnt FROM news_items {where_sql}", params
+        ).fetchone()["cnt"]
+
+        items = conn.execute(
+            f"""SELECT id, category, title, source_name, source_url,
+                       image_local_path, published_at, fetched_at,
+                       importance, fb_posted_at, ai_summary
+                FROM news_items
+                {where_sql}
+                ORDER BY importance DESC, COALESCE(published_at, fetched_at) DESC
+                LIMIT %s OFFSET %s""",
+            params + [per_page, (page - 1) * per_page],
+        ).fetchall()
+
+        # Stat: kategória + importance bontás
+        cat_stats = conn.execute(
+            "SELECT category, importance, COUNT(*) AS cnt FROM news_items "
+            "GROUP BY category, importance ORDER BY category, importance DESC"
+        ).fetchall()
+
+        return render_template(
+            "admin/news.html",
+            admin_page="news",
+            items=items, total=total, page=page, per_page=per_page,
+            pages=(total + per_page - 1) // per_page,
+            cat_filter=cat_filter, imp_filter=imp_filter,
+            cat_stats=cat_stats,
+        )
+    finally:
+        conn.close()
+
+
+@app.route("/admin/news/<int:item_id>/importance", methods=["POST"])
+@admin_required
+def admin_news_set_importance(item_id):
+    """Importance manuális beállítás (1, 2, 3)."""
+    try:
+        importance = int(request.form.get("importance", "1"))
+    except (TypeError, ValueError):
+        importance = 1
+    importance = max(1, min(3, importance))
+
+    conn = get_db()
+    try:
+        conn.execute(
+            "UPDATE news_items SET importance = %s WHERE id = %s",
+            (importance, item_id),
+        )
+        conn.commit()
+    finally:
+        conn.close()
+    return safe_admin_redirect("admin_news")
+
+
+@app.route("/admin/news/<int:item_id>/delete", methods=["POST"])
+@admin_required
+def admin_news_delete(item_id):
+    """Cikk törlése (manuális moderáció — pl. spam, rossz forrás)."""
+    conn = get_db()
+    try:
+        conn.execute("DELETE FROM news_items WHERE id = %s", (item_id,))
+        conn.commit()
+    finally:
+        conn.close()
+    return safe_admin_redirect("admin_news")
 
 
 # ─── /admin/integraciok ────────────────────────────────────────────────────
