@@ -648,21 +648,12 @@ def _news_page(category: str, template: str, page_title: str, meta_desc: str):
                 (category,),
             ).fetchone()["cnt"]
 
-        # Hero-card: az 1. cikk csak akkor hero ha (a) az 1. oldalon vagyunk
-        # ÉS (b) van legalább 1 importance >= 2 cikk a top elemnél (különben semmi
-        # nem érdemli meg a kiemelést). category='event'-nél nincs hero.
-        hero = None
-        rest_items = items
-        if category != "event" and page == 1 and items:
-            top = items[0]
-            if top.get("importance", 1) >= 2:
-                hero = top
-                rest_items = items[1:]
-
+        # Masonry-grid: az items-ben az importance szerint span-os card-ok
+        # (importance=3 → 2x2, =2 → 2x1, =1 → 1x1). Nincs külön hero — minden
+        # ugyanabban a grid-ben él, csak a méret változik.
         return render_template(
             template,
-            items=rest_items,
-            hero=hero,
+            items=items,
             page=page,
             per_page=per_page,
             total=total,
