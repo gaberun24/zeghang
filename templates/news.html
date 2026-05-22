@@ -64,7 +64,7 @@
   </div>
 
   {% if total and total > per_page %}
-  <nav class="np-pager" aria-label="Oldalszám">
+  <div class="np-pager" role="navigation" aria-label="Oldalszám">
     {% if page > 1 %}
     <a href="?page={{ page - 1 }}">← Előző</a>
     {% endif %}
@@ -72,7 +72,7 @@
     {% if page * per_page < total %}
     <a href="?page={{ page + 1 }}">Következő →</a>
     {% endif %}
-  </nav>
+  </div>
   {% endif %}
 
   <footer class="np-footnote">
