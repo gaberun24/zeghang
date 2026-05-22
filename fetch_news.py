@@ -27,6 +27,8 @@ from lib.database import get_db, init_db
 from lib.ai import summarize_news, summarize_event
 from lib.news_fetcher import (
     fetch_google_news,
+    fetch_direct_rss,
+    DIRECT_RSS_SOURCES,
     resolve_real_url,
     fetch_article_content,
     fetch_events,
@@ -285,6 +287,120 @@ def process_news(category: str) -> int:
     return inserted
 
 
+def process_direct_rss(rss_url: str, category: str, source_name: str) -> int:
+    """Direkt portál-RSS feldolgozása (Cloudflare-megkerülés).
+
+    A Google News-flow-tól eltérően:
+    - source_url már a valódi cikk URL-je (nem Google redirect)
+    - description (snippet) az AI summary forrása (nincs HTML-content-fetch)
+    - enclosure_url a kép URL — közvetlenül letöltjük (referer = a cikk URL-je)
+
+    Dedup + relevancia-szűrő + noise-szűrő ugyanúgy alkalmazzuk.
+    """
+    log.info(f"[direct:{source_name}] RSS lekérés…")
+    items = fetch_direct_rss(rss_url, category, source_name)
+    log.info(f"[direct:{source_name}] {len(items)} item az RSS-ben")
+
+    inserted = 0
+    skipped = {"guid": 0, "url": 0, "title": 0, "noise": 0, "irrelevant": 0, "no_content": 0}
+    conn = get_db()
+    try:
+        for item in items:
+            # 1. guid dedup
+            if _exists_by_external_id(conn, item["external_id"]):
+                skipped["guid"] += 1
+                continue
+
+            # 2. előzetes title-hash dedup
+            t_hash = title_hash(item["title"])
+            if _exists_by_title_recent(conn, t_hash):
+                skipped["title"] += 1
+                continue
+
+            real_url = item["source_url"]
+
+            # 3. noise-szűrő (csak URL alapján — title-t direkt RSS-ben már látjuk)
+            if _is_noise(real_url, item["title"]):
+                skipped["noise"] += 1
+                log.info(f"[direct:{source_name}] zaj-forrás, skip: {real_url[:60]}")
+                continue
+
+            # 4. ZEG-relevancia-szűrő — a ZAOL néha megyei híreket is publish-el
+            if category == "local":
+                if not _is_zeg_relevant(item["title"], source_name, real_url):
+                    skipped["irrelevant"] += 1
+                    log.info(
+                        f"[direct:{source_name}] nem ZEG-releváns, skip: {item['title'][:60]}"
+                    )
+                    continue
+
+            # 5. URL-dedup (normalizált)
+            norm_url = normalize_url(real_url)
+            if _exists_by_url(conn, norm_url):
+                skipped["url"] += 1
+                continue
+
+            # Title clean
+            clean_title = _clean_title(item["title"])
+
+            # AI summary a snippet-ből
+            content = item.get("description") or ""
+            if not content:
+                skipped["no_content"] += 1
+                log.info(
+                    f"[direct:{source_name}] üres snippet, skip: {clean_title[:60]}"
+                )
+                continue
+            ai_summary = summarize_news(clean_title, content)
+
+            # Kép letöltés az enclosure-ből (referer = a cikk URL-je)
+            image_local = None
+            if item.get("enclosure_url"):
+                image_local = download_image(
+                    item["enclosure_url"], referer=real_url
+                )
+
+            try:
+                conn.execute(
+                    """
+                    INSERT INTO news_items
+                      (category, external_id, source_url, source_name, title,
+                       title_hash, normalized_url,
+                       ai_summary, image_url, image_local_path, published_at)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    ON CONFLICT (external_id) DO NOTHING
+                    """,
+                    (
+                        category,
+                        item["external_id"],
+                        real_url,
+                        source_name,
+                        clean_title,
+                        t_hash,
+                        norm_url,
+                        ai_summary,
+                        item.get("enclosure_url"),
+                        image_local,
+                        item["published_at"],
+                    ),
+                )
+                conn.commit()
+                inserted += 1
+                log.info(f"[direct:{source_name}] + {clean_title[:80]}")
+            except Exception as e:
+                conn.rollback()
+                log.warning(f"[direct:{source_name}] INSERT failed: {e}")
+    finally:
+        conn.close()
+
+    log.info(
+        f"[direct:{source_name}] {inserted} új · skip: guid={skipped['guid']} "
+        f"url={skipped['url']} title={skipped['title']} noise={skipped['noise']} "
+        f"irrelevant={skipped['irrelevant']} no_content={skipped['no_content']}"
+    )
+    return inserted
+
+
 def process_events() -> int:
     """Zalaegerszegturizmus.hu programok. Returns: új események száma."""
     log.info("[events] zalaegerszegturizmus.hu/programok scrape…")
@@ -416,6 +532,14 @@ def main():
     total = 0
     total += process_news("local")
     total += process_news("county")
+
+    # Direkt portál-RSS-ek (Cloudflare-megkerülés a Mediaworks-féle portálokhoz)
+    for src in DIRECT_RSS_SOURCES:
+        try:
+            total += process_direct_rss(src["url"], src["category"], src["source_name"])
+        except Exception as e:
+            log.warning(f"[direct:{src['source_name']}] feldolgozási hiba: {e}")
+
     purge_old(90)
     log.info(f"[done] {total} új hír")
 

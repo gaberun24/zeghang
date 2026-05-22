@@ -144,6 +144,122 @@ def google_news_rss_url(query: str) -> str:
     return f"https://news.google.com/rss/search?q={query}&hl=hu&gl=HU&ceid=HU:hu"
 
 
+# ─────────────────────────────────────────────────────────────────────
+# Direkt portál-RSS — Cloudflare-megkerülés
+#
+# A Mediaworks (ZAOL) és társai a HTML-fetch-et anti-bot-tal blokkolják,
+# de a saját RSS-feed-jeiken NINCS Cloudflare-challenge. Az RSS-ben benne van
+# a title, snippet (description) és kép URL (enclosure) → minden amire szükségünk
+# van, anélkül hogy a HTML-cikkre felmennénk.
+# ─────────────────────────────────────────────────────────────────────
+
+DIRECT_RSS_SOURCES = [
+    # ZAOL: /feed/ az RSS-feed (a /rss/ Cloudflare-mögött van).
+    # Snippet + enclosure URL (cdn.zaol.hu képek) is jön.
+    {
+        "url": "https://www.zaol.hu/feed/",
+        "category": "local",
+        "source_name": "ZAOL",
+    },
+    # Egerszegi Hírek és zalamedia: a curl-teszt eredménye alapján
+    # bekapcsolható (Egerszegi Hírek CGI URL-en, zalamedia www-vel).
+    # Most kommentelve — élesen csak a működő ZAOL-lal indítunk.
+    # {"url": "https://www.egerszegihirek.hu/cgi-bin/rss.cgi?id=125&rssid=8741",
+    #  "category": "local", "source_name": "Egerszegi Hírek"},
+    # {"url": "https://www.zalamedia.hu/feed/",
+    #  "category": "local", "source_name": "zalamedia"},
+]
+
+
+def fetch_direct_rss(
+    rss_url: str, category: str, source_name: str, max_items: int = 50
+) -> list[dict]:
+    """Direkt portál-RSS olvasás. A Google News-mellé hozzá-fetchel — a
+    Cloudflare-mögötti portálok (ZAOL stb.) snippet+kép adatait innen vesszük,
+    így nem kell HTML-cikkre felmenni.
+
+    Az item-szerkezet kompatibilis a fetch_google_news kimenettel, plus EXTRA:
+    - description: snippet (1-3 mondat) → AI summary forrás
+    - enclosure_url: kép URL (cdn.XXX) → letöltjük közvetlenül
+    """
+    try:
+        feed = feedparser.parse(rss_url, request_headers={
+            "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 14_5) "
+                          "AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Safari/605.1.15",
+            "Accept": "application/rss+xml, application/atom+xml, application/xml;q=0.9, */*;q=0.8",
+        })
+    except Exception as e:
+        log.error(f"[direct-rss] feedparser hiba {rss_url}: {e}")
+        return []
+
+    if not feed.entries:
+        return []
+
+    items = []
+    for entry in feed.entries[:max_items]:
+        # external_id: source_name-prefixelt, hogy ne ütközzön a Google News-szal
+        guid = entry.get("id") or entry.get("guid") or entry.get("link") or ""
+        if not guid:
+            continue
+        ext_id = f"direct:{source_name}:{guid}"[:500]
+
+        link = (entry.get("link") or "").strip()
+        if not link:
+            continue
+        # UTM/tracking paraméterek levágása később a normalize_url-ben
+
+        published_at = None
+        if hasattr(entry, "published_parsed") and entry.published_parsed:
+            try:
+                published_at = datetime(*entry.published_parsed[:6])
+            except (ValueError, TypeError):
+                pass
+
+        # description: snippet (HTML-stripping ha kell)
+        description = (entry.get("summary") or entry.get("description") or "").strip()
+        if description and ("<" in description or "&" in description):
+            try:
+                description = BeautifulSoup(description, "lxml").get_text(" ", strip=True)
+            except Exception:
+                pass
+
+        # enclosure: RSS 2.0 image
+        enclosure_url = None
+        if hasattr(entry, "enclosures") and entry.enclosures:
+            for enc in entry.enclosures:
+                enc_url = (enc.get("href") or enc.get("url") or "").strip()
+                enc_type = (enc.get("type") or "").lower()
+                if enc_url and (
+                    enc_type.startswith("image/")
+                    or any(ext in enc_url.lower() for ext in (".jpg", ".jpeg", ".png", ".webp"))
+                ):
+                    enclosure_url = enc_url
+                    break
+
+        # Fallback: media_content / media_thumbnail
+        if not enclosure_url:
+            for mkey in ("media_content", "media_thumbnail"):
+                media = entry.get(mkey)
+                if media:
+                    if isinstance(media, list) and media:
+                        enclosure_url = (media[0].get("url") or "").strip() or None
+                    elif isinstance(media, dict):
+                        enclosure_url = (media.get("url") or "").strip() or None
+                if enclosure_url:
+                    break
+
+        items.append({
+            "external_id": ext_id,
+            "source_url": link,  # NEM Google redirect — már a valódi cikk URL
+            "source_name": source_name[:120],
+            "title": (entry.get("title") or "")[:500],
+            "published_at": published_at,
+            "description": description[:1500],
+            "enclosure_url": enclosure_url,
+        })
+    return items
+
+
 def fetch_google_news(category: str, max_items: int = 50) -> list[dict]:
     """Visszaadja a frissítendő hír-itemeket. Még nem fetcheli a forrás cikket
     (azt később az ai-summary-hez kell), csak az RSS metadatát.
