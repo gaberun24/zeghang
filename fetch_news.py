@@ -70,12 +70,11 @@ def _is_noise(url: str, title: str) -> bool:
 
 
 # A helyi (category='local') relevancia-szűréshez: ezek bármelyikének
-# benne kell lenni a title-ben / URL-ben / source-name-ben.
+# benne kell lenni a TITLE-ben vagy az URL-ben.
 # (A "zalaegerszeg" tartalmazza a "zalaegerszegi" formát is.)
 ZEG_RELEVANCE_TOKENS = (
     "zalaegerszeg",  # lefedi "zalaegerszegi", "Zalaegerszegen" stb.
-    "egerszeg",      # lefedi "egerszegi", "Egerszegi Hírek" stb.
-    "zaol",          # ZAOL portál
+    "egerszeg",      # lefedi "egerszegi", "Egerszegi"
 )
 
 
@@ -85,15 +84,21 @@ def _is_zeg_relevant(title: str, source_name: str, source_url: str) -> bool:
     A Google News q=zalaegerszeg túl megengedő — visszaadhat olyan cikket
     is, ami csak egy mellékmondatban említi a várost (pl. Fradi Shop
     "zalaegerszegi üzlete" → NEM helyi hír). Ezért követelünk min. egy
-    token-match-et a title / source-name / URL valamelyikében.
+    token-match-et a TITLE vagy az URL-ben.
+
+    FIGYELEM: a source_name szándékosan KIHAGYVA — a "ZAOL" source-name
+    tartalmazná a "zaol" tokent, és minden ZAOL cikket ZEG-relevánsnak
+    minősítene (még a Lenti/Nagykanizsa megyei cikkeket is). A title +
+    URL pontos jelzés.
 
     Példák:
-      "Új körforgalom a Balatoni úton" + "Egerszegi Hírek" → ✓ (source-name)
-      "Pünkösdkor zárva tart a Fradi Shop" + "Fradi.hu" → ✗ (sehol sincs)
+      "Új körforgalom a Balatoni úton, Zalaegerszegen" → ✓ (title)
+      "Hatalmas fogás Zalában, sormási pihenő..." → ✗ (csak megyei,
+        a ZAOL fallback_category=county-ba menti)
+      "Pünkösdkor zárva tart a Fradi Shop" → ✗
     """
     haystack = " ".join([
         (title or "").lower(),
-        (source_name or "").lower(),
         (source_url or "").lower(),
     ])
     return any(tok in haystack for tok in ZEG_RELEVANCE_TOKENS)
