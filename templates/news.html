@@ -22,7 +22,7 @@
       </p>
     {% endif %}
 
-    {# ─── Masonry-grid: importance szerint span-osak ─── #}
+    {# Telex-szerű egyenletes grid — minden cell ugyanaz a méret, csak a content tér el #}
     <div class="news-grid">
       {% for item in items %}
       {% set imp = item.importance or 1 %}
@@ -37,7 +37,7 @@
           {% if item.image_local_path %}
             <img src="{{ url_for('static', filename=item.image_local_path) }}" alt="" loading="lazy">
           {% else %}
-            <div class="news-card-placeholder">Z!</div>
+            <div class="news-card-placeholder"><span>Z!</span></div>
           {% endif %}
         </a>
 
@@ -88,19 +88,12 @@
 </div>
 
 <style>
-  /* ─── Masonry-grid ─── */
+  /* ─── Telex-szerű egyenletes grid (3-4 oszlop desktopon) ─── */
   .news-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    grid-auto-rows: minmax(120px, auto);
-    gap: 1.25rem;
+    gap: 1.5rem;
   }
-
-  /* importance=1 → 1x1 (default) */
-  /* importance=2 → 2x1 — szélesebb, érdekesebb */
-  .news-card.imp-2 { grid-column: span 2; }
-  /* importance=3 → 2x2 — domináns, hero-szerű */
-  .news-card.imp-3 { grid-column: span 2; grid-row: span 2; }
 
   /* ─── Card alap ─── */
   .news-card {
@@ -115,17 +108,23 @@
   }
   .news-card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.10);
   }
 
-  /* Kiemelt cikkek kicsit erősebb keret */
-  .news-card.imp-3 { border-color: var(--meadow); border-width: 2px; }
-  .news-card.imp-2 { border-color: var(--cream-dark); }
+  /* Kiemelés-jelölés finomabb — csak keret-szín, NEM méret */
+  .news-card.imp-3 {
+    border-color: var(--meadow);
+    border-width: 2px;
+  }
+  .news-card.imp-2 {
+    border-color: var(--cream-dark);
+  }
 
+  /* ─── Kép ─── */
   .news-card-image-link {
     display: block;
     overflow: hidden;
-    background: var(--cream-dark);
+    background: linear-gradient(135deg, var(--forest) 0%, var(--meadow) 100%);
     aspect-ratio: 16 / 10;
   }
   .news-card-image-link img {
@@ -133,38 +132,45 @@
     object-fit: cover;
     display: block;
   }
+
+  /* NO_IMG: diszkrét gradient + kis Z! badge a sarkában — NEM dominál */
   .news-card-placeholder {
     width: 100%; height: 100%;
-    background: var(--forest);
-    color: white;
-    display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(135deg, var(--forest) 0%, var(--meadow) 100%);
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .news-card-placeholder span {
     font-family: 'Playfair Display', serif;
-    font-size: 56px; font-weight: 900; font-style: italic;
+    font-size: 36px;
+    font-weight: 900;
+    font-style: italic;
+    color: rgba(255,255,255,0.55);
     letter-spacing: -0.02em;
   }
 
-  /* importance=3 kép aspect-ratio kicsit más, hogy ne legyen túl magas */
-  .news-card.imp-3 .news-card-image-link { aspect-ratio: 16 / 9; }
-  .news-card.imp-3 .news-card-placeholder { font-size: 100px; }
-
+  /* ─── Body ─── */
   .news-card-body {
     padding: 1rem 1.1rem 1rem;
     display: flex;
     flex-direction: column;
     flex: 1;
   }
-  .news-card.imp-3 .news-card-body { padding: 1.25rem 1.5rem 1.25rem; }
 
   .news-card-meta {
     display: flex;
     justify-content: space-between;
     gap: 0.5rem;
-    font-size: 12px;
+    font-size: 11px;
     color: var(--text-muted);
-    margin-bottom: 0.4rem;
+    margin-bottom: 0.5rem;
     flex-wrap: wrap;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
   }
-  .news-card-source { font-weight: 600; color: var(--meadow); }
+  .news-card-source { font-weight: 700; color: var(--meadow); }
 
   .news-card-title {
     font-family: 'Playfair Display', serif;
@@ -176,23 +182,22 @@
   .news-card-title a { color: var(--text-dark); text-decoration: none; }
   .news-card-title a:hover { color: var(--meadow); }
 
-  /* importance=3 nagyobb cím + summary */
-  .news-card.imp-3 .news-card-title { font-size: 24px; line-height: 1.25; margin-bottom: 0.75rem; }
-  .news-card.imp-2 .news-card-title { font-size: 19px; }
+  /* Importance vizuális hierarchia CSAK a title-méreten (NEM cell-méreten!) */
+  .news-card.imp-3 .news-card-title { font-size: 20px; }
+  .news-card.imp-2 .news-card-title { font-size: 18px; }
 
   .news-card-summary {
     font-size: 13px;
     color: var(--text-mid);
-    line-height: 1.55;
+    line-height: 1.5;
     margin-bottom: 0.75rem;
-    /* Truncate after N lines */
+    /* Truncate */
     display: -webkit-box;
-    -webkit-line-clamp: 4;
+    -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
-  .news-card.imp-1 .news-card-summary { -webkit-line-clamp: 3; }
-  .news-card.imp-3 .news-card-summary { font-size: 14px; -webkit-line-clamp: 8; }
+  .news-card.imp-3 .news-card-summary { -webkit-line-clamp: 4; }
 
   .news-card-link {
     margin-top: auto;
@@ -206,7 +211,7 @@
     align-self: flex-start;
   }
 
-  /* ─── Importance badge ─── */
+  /* ─── Importance badge — diszkrét, a kép bal-felső sarkán ─── */
   .imp-badge {
     position: absolute;
     top: 10px; left: 10px;
@@ -221,23 +226,22 @@
   .imp-badge-2 { background: rgba(255,255,255,0.95); color: var(--meadow); }
   .imp-badge-3 { background: var(--meadow); color: white; }
 
-  /* ─── Mobile: minden 1-oszlopos ─── */
-  @media (max-width: 720px) {
+  /* ─── Tablet ─── */
+  @media (max-width: 1023px) {
     .news-grid {
-      grid-template-columns: 1fr;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 1.25rem;
     }
-    .news-card.imp-2, .news-card.imp-3 {
-      grid-column: span 1;
-      grid-row: span 1;
-    }
-    .news-card.imp-3 .news-card-title { font-size: 20px; }
-    .news-card.imp-3 .news-card-summary { -webkit-line-clamp: 4; }
   }
 
-  /* ─── Tablet (1 oszlop nem elég, de span-ok visszafogottabbak) ─── */
-  @media (min-width: 721px) and (max-width: 1023px) {
-    .news-card.imp-3 { grid-row: span 1; }
-    .news-card.imp-3 .news-card-summary { -webkit-line-clamp: 4; }
+  /* ─── Mobile: 1 oszlop ─── */
+  @media (max-width: 640px) {
+    .news-grid {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+    .news-card-title { font-size: 17px !important; }
+    .news-card.imp-3 .news-card-title { font-size: 19px !important; }
   }
 </style>
 {% endblock %}
