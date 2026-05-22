@@ -3,19 +3,19 @@
 {% block meta_description %}{{ meta_desc }}{% endblock %}
 
 {% block content %}
-<div class="how-page">
-  <div class="how-hero">
+<div class="news-page">
+  <div class="news-page-header">
     <h1>{{ page_title }}</h1>
-    <p>
+    <p class="news-page-sub">
       {% if category == 'local' %}
-        Zalaegerszegi hírek aggregálva több magyar nyelvű forrásból, AI-összefoglalóval. Az eredeti cikkek minden esetben kattintható forrás-linkkel elérhetők.
+        AI-összefoglaló · forrás-link minden cikknél · fél óránként frissül
       {% elif category == 'county' %}
-        Zala megyei hírek a régió több portálja alapján.
+        Zala megye régió több portálja alapján · AI-összefoglalóval
       {% endif %}
     </p>
   </div>
 
-  <div class="how-section" style="background:transparent; box-shadow:none; padding:0;">
+  <div class="news-page-content">
     {% if not items %}
       <p style="text-align:center; padding:3rem 1rem; color:var(--text-muted);">
         Még nincsenek elérhető hírek ebben a kategóriában. Térj vissza később — a rendszer fél óránként frissül.
@@ -88,6 +88,34 @@
 </div>
 
 <style>
+  /* ─── Kompakt header ─── */
+  .news-page {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1.25rem 3rem;
+  }
+  .news-page-header {
+    padding: 1.5rem 0 1.25rem;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid var(--cream-dark);
+  }
+  .news-page-header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin: 0 0 6px;
+    line-height: 1.2;
+  }
+  .news-page-sub {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 500;
+  }
+
   /* ─── Telex-szerű egyenletes grid (3-4 oszlop desktopon) ─── */
   .news-grid {
     display: grid;
