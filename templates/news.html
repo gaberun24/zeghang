@@ -3,273 +3,353 @@
 {% block meta_description %}{{ meta_desc }}{% endblock %}
 
 {% block content %}
-<div class="news-page">
-  <div class="news-page-header">
-    <h1>{{ page_title }}</h1>
-    <p class="news-page-sub">
-      {% if category == 'local' %}
-        AI-összefoglaló · forrás-link minden cikknél · fél óránként frissül
-      {% elif category == 'county' %}
-        Zala megye régió több portálja alapján · AI-összefoglalóval
-      {% endif %}
-    </p>
-  </div>
+<div class="np-page">
+  <header class="np-header">
+    <div class="np-header-row">
+      <h1 class="np-title">{{ page_title }}</h1>
+      <span class="np-count">{{ total }} cikk</span>
+    </div>
+    <div class="np-subline">
+      <span class="np-dot"></span>
+      <span>
+        {% if category == 'local' %}Helyi · AI-összefoglaló · forrás-link · fél óránként frissül{% elif category == 'county' %}Zala megye · több portál · AI-összefoglaló{% endif %}
+      </span>
+    </div>
+  </header>
 
-  <div class="news-page-content">
-    {% if not items %}
-      <p style="text-align:center; padding:3rem 1rem; color:var(--text-muted);">
-        Még nincsenek elérhető hírek ebben a kategóriában. Térj vissza később — a rendszer fél óránként frissül.
-      </p>
-    {% endif %}
+  {% if not items %}
+    <p class="np-empty">Még nincsenek elérhető hírek ebben a kategóriában. Térj vissza később.</p>
+  {% endif %}
 
-    {# Telex-szerű egyenletes grid — minden cell ugyanaz a méret, csak a content tér el #}
-    <div class="news-grid">
-      {% for item in items %}
-      {% set imp = item.importance or 1 %}
-      <article class="news-card imp-{{ imp }}">
+  <div class="np-grid">
+    {% for item in items %}
+    {% set imp = item.importance or 1 %}
+    <article class="np-card imp-{{ imp }}">
+      <a href="{{ item.source_url }}" target="_blank" rel="noopener noreferrer" class="np-img-link" aria-label="{{ item.title }}">
+        {% if item.image_local_path %}
+          <img src="{{ url_for('static', filename=item.image_local_path) }}" alt="" loading="lazy">
+        {% else %}
+          <div class="np-placeholder"><span>Z!</span></div>
+        {% endif %}
         {% if imp >= 2 %}
-        <span class="imp-badge imp-badge-{{ imp }}">
-          {% if imp >= 3 %}📌 KIEMELT{% else %}⭐ FONTOS{% endif %}
+        <span class="np-flag np-flag-{{ imp }}">
+          {% if imp >= 3 %}KIEMELT{% else %}FONTOS{% endif %}
         </span>
         {% endif %}
+      </a>
 
-        <a href="{{ item.source_url }}" target="_blank" rel="noopener noreferrer" class="news-card-image-link">
-          {% if item.image_local_path %}
-            <img src="{{ url_for('static', filename=item.image_local_path) }}" alt="" loading="lazy">
-          {% else %}
-            <div class="news-card-placeholder"><span>Z!</span></div>
-          {% endif %}
-        </a>
-
-        <div class="news-card-body">
-          <div class="news-card-meta">
-            <span class="news-card-source">{{ item.source_name or '—' }}</span>
-            <span class="news-card-date">
-              {% if item.published_at %}
-                {{ item.published_at.strftime('%Y. %m. %d.') }}
-              {% else %}
-                {{ item.fetched_at.strftime('%Y. %m. %d.') }}
-              {% endif %}
-            </span>
-          </div>
-
-          <h2 class="news-card-title">
-            <a href="{{ item.source_url }}" target="_blank" rel="noopener noreferrer">{{ item.title }}</a>
-          </h2>
-
-          {% if item.ai_summary %}
-          <p class="news-card-summary">{{ item.ai_summary }}</p>
-          {% endif %}
-
-          <a href="{{ item.source_url }}" target="_blank" rel="noopener noreferrer" class="news-card-link">
-            Tovább a forrásra ↗
-          </a>
+      <div class="np-body">
+        <div class="np-meta">
+          <span class="np-source">{{ item.source_name or '—' }}</span>
+          <span class="np-sep">·</span>
+          <span class="np-date">
+            {% if item.published_at %}
+              {{ item.published_at.strftime('%m. %d.') }}
+            {% else %}
+              {{ item.fetched_at.strftime('%m. %d.') }}
+            {% endif %}
+          </span>
         </div>
-      </article>
-      {% endfor %}
-    </div>
 
-    {% if total and total > per_page %}
-    <div style="display:flex; gap:0.5rem; justify-content:center; align-items:center; margin-top:2rem;">
-      {% if page > 1 %}
-      <a href="?page={{ page - 1 }}" style="display:inline-block; padding:10px 18px; background:var(--forest); color:white; text-decoration:none; border-radius:var(--radius-sm); font-weight:600; font-size:14px;">← Előző</a>
-      {% endif %}
-      <span style="padding:10px 14px; color:var(--text-mid); font-size:13px; font-weight:500;">{{ page }} / {{ ((total - 1) // per_page) + 1 }}</span>
-      {% if page * per_page < total %}
-      <a href="?page={{ page + 1 }}" style="display:inline-block; padding:10px 18px; background:var(--forest); color:white; text-decoration:none; border-radius:var(--radius-sm); font-weight:600; font-size:14px;">Következő →</a>
-      {% endif %}
-    </div>
-    {% endif %}
+        <h2 class="np-card-title">
+          <a href="{{ item.source_url }}" target="_blank" rel="noopener noreferrer">{{ item.title }}</a>
+        </h2>
 
-    <p style="text-align:center; margin-top:2rem; font-size:12px; color:var(--text-muted);">
-      AI-generált összefoglaló, minden cikk az eredeti forrás tulajdona. Kattintással a forrás portálra navigálsz.
-    </p>
+        {% if item.ai_summary %}
+        <p class="np-card-summary">{{ item.ai_summary }}</p>
+        {% endif %}
+      </div>
+    </article>
+    {% endfor %}
   </div>
+
+  {% if total and total > per_page %}
+  <nav class="np-pager" aria-label="Oldalszám">
+    {% if page > 1 %}
+    <a href="?page={{ page - 1 }}">← Előző</a>
+    {% endif %}
+    <span class="np-pager-info">{{ page }} / {{ ((total - 1) // per_page) + 1 }}</span>
+    {% if page * per_page < total %}
+    <a href="?page={{ page + 1 }}">Következő →</a>
+    {% endif %}
+  </nav>
+  {% endif %}
+
+  <footer class="np-footnote">
+    AI-generált összefoglaló · minden cikk az eredeti forrás tulajdona · kattintással a forrás portálra navigálsz
+  </footer>
 </div>
 
 <style>
-  /* ─── Kompakt header ─── */
-  .news-page {
-    max-width: 1200px;
+  /* ─────────────────────────────────────────────────────────
+   * News-page design — modern hír-portál stílus
+   * ───────────────────────────────────────────────────────── */
+
+  .np-page {
+    max-width: 1240px;
     margin: 0 auto;
-    padding: 0 1.25rem 3rem;
+    padding: 0 1.5rem 4rem;
   }
-  .news-page-header {
-    padding: 1.5rem 0 1.25rem;
-    margin-bottom: 1.5rem;
-    border-bottom: 1px solid var(--cream-dark);
+
+  /* ─── Header ─── */
+  .np-header {
+    padding: 2rem 0 1.25rem;
+    margin-bottom: 2rem;
+    border-bottom: 2px solid var(--forest);
   }
-  .news-page-header h1 {
+  .np-header-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+  .np-title {
     font-family: 'Playfair Display', serif;
-    font-size: 26px;
-    font-weight: 700;
+    font-size: 28px;
+    font-weight: 800;
     color: var(--text-dark);
-    margin: 0 0 6px;
-    line-height: 1.2;
+    margin: 0;
+    line-height: 1.15;
+    letter-spacing: -0.01em;
   }
-  .news-page-sub {
+  .np-count {
     font-size: 12px;
     color: var(--text-muted);
-    margin: 0;
+    font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.5px;
+  }
+  .np-subline {
+    margin-top: 6px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
     font-weight: 500;
   }
+  .np-dot {
+    width: 6px; height: 6px;
+    background: var(--meadow);
+    border-radius: 50%;
+    animation: np-pulse 2s ease-in-out infinite;
+  }
+  @keyframes np-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
 
-  /* ─── Telex-szerű egyenletes grid (3-4 oszlop desktopon) ─── */
-  .news-grid {
+  /* ─── Grid ─── */
+  .np-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 1.5rem;
+    gap: 1.75rem 1.5rem;
   }
 
-  /* ─── Card alap ─── */
-  .news-card {
-    background: var(--cream);
-    border: 1px solid var(--cream-dark);
-    border-radius: var(--radius);
-    overflow: hidden;
+  /* ─── Card ─── */
+  .np-card {
     display: flex;
     flex-direction: column;
-    position: relative;
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    background: var(--white);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    transition: transform 0.18s ease;
   }
-  .news-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(0,0,0,0.10);
+  .np-card:hover {
+    transform: translateY(-3px);
   }
-
-  /* Kiemelés-jelölés finomabb — csak keret-szín, NEM méret */
-  .news-card.imp-3 {
-    border-color: var(--meadow);
-    border-width: 2px;
-  }
-  .news-card.imp-2 {
-    border-color: var(--cream-dark);
+  .np-card:hover .np-card-title a {
+    color: var(--meadow);
   }
 
-  /* ─── Kép ─── */
-  .news-card-image-link {
+  /* ─── Kép-blokk ─── */
+  .np-img-link {
     display: block;
+    aspect-ratio: 16 / 10;
     overflow: hidden;
     background: linear-gradient(135deg, var(--forest) 0%, var(--meadow) 100%);
-    aspect-ratio: 16 / 10;
+    border-radius: var(--radius-sm);
+    position: relative;
   }
-  .news-card-image-link img {
+  .np-img-link img {
     width: 100%; height: 100%;
     object-fit: cover;
     display: block;
+    transition: transform 0.5s ease;
   }
-
-  /* NO_IMG: diszkrét gradient + kis Z! badge a sarkában — NEM dominál */
-  .news-card-placeholder {
+  .np-card:hover .np-img-link img {
+    transform: scale(1.04);
+  }
+  .np-placeholder {
     width: 100%; height: 100%;
+    display: flex; align-items: center; justify-content: center;
     background: linear-gradient(135deg, var(--forest) 0%, var(--meadow) 100%);
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
   }
-  .news-card-placeholder span {
+  .np-placeholder span {
     font-family: 'Playfair Display', serif;
-    font-size: 36px;
+    font-size: 34px;
     font-weight: 900;
     font-style: italic;
-    color: rgba(255,255,255,0.55);
+    color: rgba(255,255,255,0.4);
     letter-spacing: -0.02em;
   }
 
+  /* ─── Flag (importance badge) ─── */
+  .np-flag {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    font-size: 10px;
+    font-weight: 800;
+    padding: 4px 9px;
+    letter-spacing: 0.6px;
+    border-radius: 3px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+  }
+  .np-flag-2 {
+    background: var(--white);
+    color: var(--meadow);
+  }
+  .np-flag-3 {
+    background: var(--red-soft);
+    color: var(--white);
+  }
+
   /* ─── Body ─── */
-  .news-card-body {
-    padding: 1rem 1.1rem 1rem;
+  .np-body {
+    padding: 0.85rem 0.1rem 0;
     display: flex;
     flex-direction: column;
     flex: 1;
   }
 
-  .news-card-meta {
+  .np-meta {
     display: flex;
-    justify-content: space-between;
-    gap: 0.5rem;
+    align-items: center;
+    gap: 6px;
     font-size: 11px;
-    color: var(--text-muted);
     margin-bottom: 0.5rem;
     flex-wrap: wrap;
-    text-transform: uppercase;
-    letter-spacing: 0.4px;
   }
-  .news-card-source { font-weight: 700; color: var(--meadow); }
+  .np-source {
+    color: var(--meadow);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+  }
+  .np-sep {
+    color: var(--text-muted);
+  }
+  .np-date {
+    color: var(--text-muted);
+    font-weight: 500;
+  }
 
-  .news-card-title {
+  .np-card-title {
     font-family: 'Playfair Display', serif;
     font-size: 17px;
     font-weight: 700;
     line-height: 1.3;
-    margin-bottom: 0.5rem;
+    margin: 0 0 0.5rem;
+    color: var(--text-dark);
   }
-  .news-card-title a { color: var(--text-dark); text-decoration: none; }
-  .news-card-title a:hover { color: var(--meadow); }
+  .np-card-title a {
+    color: inherit;
+    text-decoration: none;
+    transition: color 0.15s ease;
+  }
 
-  /* Importance vizuális hierarchia CSAK a title-méreten (NEM cell-méreten!) */
-  .news-card.imp-3 .news-card-title { font-size: 20px; }
-  .news-card.imp-2 .news-card-title { font-size: 18px; }
+  /* Importance vizuális kiemelés CSAK title-méreten */
+  .np-card.imp-3 .np-card-title { font-size: 19px; }
+  .np-card.imp-2 .np-card-title { font-size: 18px; }
 
-  .news-card-summary {
+  .np-card-summary {
     font-size: 13px;
     color: var(--text-mid);
-    line-height: 1.5;
-    margin-bottom: 0.75rem;
-    /* Truncate */
+    line-height: 1.55;
+    margin: 0;
     display: -webkit-box;
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
-  .news-card.imp-3 .news-card-summary { -webkit-line-clamp: 4; }
+  .np-card.imp-3 .np-card-summary { -webkit-line-clamp: 4; }
 
-  .news-card-link {
-    margin-top: auto;
-    display: inline-flex;
+  /* ─── Empty / pager / footnote ─── */
+  .np-empty {
+    text-align: center;
+    padding: 4rem 1rem;
+    color: var(--text-muted);
+    font-size: 14px;
+  }
+
+  .np-pager {
+    display: flex;
     align-items: center;
-    gap: 6px;
-    font-size: 13px;
-    color: var(--meadow);
-    font-weight: 600;
+    justify-content: center;
+    gap: 12px;
+    margin: 3rem 0 0;
+  }
+  .np-pager a {
+    display: inline-block;
+    padding: 9px 18px;
+    background: var(--white);
+    border: 1px solid var(--cream-dark);
+    color: var(--text-dark);
     text-decoration: none;
-    align-self: flex-start;
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+    font-size: 13px;
+    transition: background 0.15s ease;
+  }
+  .np-pager a:hover {
+    background: var(--cream);
+    border-color: var(--meadow);
+  }
+  .np-pager-info {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-weight: 500;
   }
 
-  /* ─── Importance badge — diszkrét, a kép bal-felső sarkán ─── */
-  .imp-badge {
-    position: absolute;
-    top: 10px; left: 10px;
-    z-index: 2;
-    font-size: 10px;
-    font-weight: 700;
-    padding: 4px 10px;
-    border-radius: 12px;
+  .np-footnote {
+    text-align: center;
+    margin-top: 3rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--cream-dark);
+    font-size: 11px;
+    color: var(--text-muted);
+    text-transform: uppercase;
     letter-spacing: 0.5px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.15);
   }
-  .imp-badge-2 { background: rgba(255,255,255,0.95); color: var(--meadow); }
-  .imp-badge-3 { background: var(--meadow); color: white; }
 
-  /* ─── Tablet ─── */
+  /* ─── Responsive ─── */
   @media (max-width: 1023px) {
-    .news-grid {
+    .np-grid {
       grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-      gap: 1.25rem;
+      gap: 1.5rem 1.25rem;
     }
+  }
+  @media (max-width: 640px) {
+    .np-page { padding: 0 1rem 3rem; }
+    .np-header { padding: 1.25rem 0 1rem; margin-bottom: 1.5rem; }
+    .np-title { font-size: 23px; }
+    .np-grid {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+    .np-card-title { font-size: 18px !important; }
   }
 
-  /* ─── Mobile: 1 oszlop ─── */
-  @media (max-width: 640px) {
-    .news-grid {
-      grid-template-columns: 1fr;
-      gap: 1rem;
-    }
-    .news-card-title { font-size: 17px !important; }
-    .news-card.imp-3 .news-card-title { font-size: 19px !important; }
-  }
+  /* ─── Dark mode ─── */
+  [data-theme="dark"] .np-card { background: transparent; }
+  [data-theme="dark"] .np-pager a { background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.1); color: #e8e8e8; }
+  [data-theme="dark"] .np-pager a:hover { background: rgba(255,255,255,0.08); }
+  [data-theme="dark"] .np-flag-2 { background: rgba(255,255,255,0.95); }
+  [data-theme="dark"] .np-footnote { border-top-color: rgba(255,255,255,0.1); }
+  [data-theme="dark"] .np-header { border-bottom-color: var(--meadow); }
 </style>
 {% endblock %}
