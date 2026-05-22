@@ -345,6 +345,9 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+    /* A tagline néha túllóg a 64px-en — sötét hero-n nem látszott, fehér háttér
+       alatt igen. Ezzel a navbar belsejében tartjuk. */
+    overflow: hidden;
   }
 
   .nav-logo {
@@ -383,6 +386,7 @@
     font-weight: 300;
     letter-spacing: 0.08em;
     text-transform: uppercase;
+    line-height: 1.1;
   }
 
   .nav-links {
