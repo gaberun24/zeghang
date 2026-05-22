@@ -239,6 +239,18 @@ def process_news(category: str) -> int:
             # Source name: priorizáljuk az RSS-ből kapottat, ha nincs, domain
             source_name = item["source_name"] or _domain(final_url)
 
+            # Skip a direkt RSS-eken keresztül kapott forrásokat — onnan
+            # snippet + image jön teljes adattal. A Google News-on át ezek
+            # Cloudflare-blokkba esnek (NO_IMG/NO_SUM), és blokkolnák a
+            # direkt RSS-flow-t az URL-dedup miatt.
+            direct_rss_sources = {src["source_name"] for src in DIRECT_RSS_SOURCES}
+            if source_name in direct_rss_sources:
+                log.info(
+                    f"[{category}] direkt RSS-en jön: skip Google News-on át "
+                    f"({source_name}): {item['title'][:50]}"
+                )
+                continue
+
             # Title clean (Hírarchívum-prefix, stb.)
             clean_title = _clean_title(item["title"])
 
@@ -594,8 +606,45 @@ def main():
         except Exception as e:
             log.warning(f"[direct:{src['source_name']}] feldolgozási hiba: {e}")
 
+    # Auto-cleanup: hiányos (NO_IMG VAGY NO_SUM) cikkek törlése amik már 1+ órája
+    # bent vannak. Ezek főleg a Google News-on át kapott Cloudflare-blokkos
+    # ZAOL cikkek — a direkt RSS-flow majd újra-fetcheli őket képpel + summary-val.
+    cleanup_incomplete(min_age_hours=1)
+
     purge_old(90)
     log.info(f"[done] {total} új hír")
+
+
+def cleanup_incomplete(min_age_hours: int = 1) -> None:
+    """Hiányos (NO_IMG VAGY NO_SUM) unposted cikkek törlése amik már min_age_hours+
+    órája bent vannak — addigra ha a direkt RSS-flow tudta volna fetchelni, megtette.
+    """
+    conn = get_db()
+    try:
+        r = conn.execute(
+            f"""DELETE FROM news_items
+                WHERE fb_posted_at IS NULL
+                  AND fetched_at < NOW() - INTERVAL '{min_age_hours} hours'
+                  AND (image_local_path IS NULL OR ai_summary IS NULL)
+                RETURNING id, category, source_name"""
+        ).fetchall()
+        conn.commit()
+        if r:
+            from collections import Counter
+            by_cat = Counter(row["category"] for row in r)
+            by_src = Counter(row["source_name"] for row in r if row["source_name"])
+            log.info(
+                f"[cleanup] {len(r)} hiányos cikk törölve (kat: "
+                f"{dict(by_cat)}, top forrás: {by_src.most_common(3)})"
+            )
+    except Exception as e:
+        log.warning(f"[cleanup] hiba: {e}")
+        try:
+            conn.rollback()
+        except Exception:
+            pass
+    finally:
+        conn.close()
 
 
 if __name__ == "__main__":
