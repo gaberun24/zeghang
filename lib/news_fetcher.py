@@ -155,19 +155,32 @@ def google_news_rss_url(query: str) -> str:
 
 DIRECT_RSS_SOURCES = [
     # ZAOL: /feed/ az RSS-feed (a /rss/ Cloudflare-mögött van).
-    # Snippet + enclosure URL (cdn.zaol.hu képek) is jön.
+    # Snippet + enclosure URL (cdn.zaol.hu képek) is jön. Minden cikk elfogadva
+    # (az _is_zeg_relevant utólag szűri a megyei híreket).
     {
         "url": "https://www.zaol.hu/feed/",
         "category": "local",
         "source_name": "ZAOL",
+        "allowed_categories": None,  # mind elfogadva
     },
-    # Egerszegi Hírek és zalamedia: a curl-teszt eredménye alapján
-    # bekapcsolható (Egerszegi Hírek CGI URL-en, zalamedia www-vel).
-    # Most kommentelve — élesen csak a működő ZAOL-lal indítunk.
-    # {"url": "https://www.egerszegihirek.hu/cgi-bin/rss.cgi?id=125&rssid=8741",
-    #  "category": "local", "source_name": "Egerszegi Hírek"},
-    # {"url": "https://www.zalamedia.hu/feed/",
-    #  "category": "local", "source_name": "zalamedia"},
+    # Egerszegi Hírek: a /feed/ 404, de a CGI-rss elérhető.
+    # FONTOS: csak a "Helyi hírek" kategóriájú cikkeket fogadjuk el — a portál
+    # publish-el "Light" (országos szórakoztató) és más rovatban is, amik nem
+    # helyi hírek (pl. "Váratlanul eltűnt a Metropol" — budapesti).
+    {
+        "url": "https://www.egerszegihirek.hu/cgi-bin/rss.cgi?id=125&rssid=8741",
+        "category": "local",
+        "source_name": "Egerszegi Hírek",
+        "allowed_categories": ["Helyi hírek"],
+    },
+    # zalaegerszeg.hu — Zalaegerszeg Város Hivatalos Weboldala WordPress feed.
+    # Önkormányzati közlemények, programok. Mind elfogadva (definíció szerint helyi).
+    {
+        "url": "https://zalaegerszeg.hu/feed/",
+        "category": "local",
+        "source_name": "Zalaegerszeg.hu",
+        "allowed_categories": None,
+    },
 ]
 
 
@@ -248,6 +261,14 @@ def fetch_direct_rss(
                 if enclosure_url:
                     break
 
+        # tags (kategória-list) — pl. Egerszegi Hírek-nél "Helyi hírek", "Light", "Programok"
+        tags = []
+        if hasattr(entry, "tags") and entry.tags:
+            for t in entry.tags:
+                term = t.get("term") if hasattr(t, "get") else getattr(t, "term", None)
+                if term:
+                    tags.append(term.strip())
+
         items.append({
             "external_id": ext_id,
             "source_url": link,  # NEM Google redirect — már a valódi cikk URL
@@ -256,6 +277,7 @@ def fetch_direct_rss(
             "published_at": published_at,
             "description": description[:1500],
             "enclosure_url": enclosure_url,
+            "tags": tags,
         })
     return items
 

@@ -287,13 +287,20 @@ def process_news(category: str) -> int:
     return inserted
 
 
-def process_direct_rss(rss_url: str, category: str, source_name: str) -> int:
+def process_direct_rss(
+    rss_url: str, category: str, source_name: str,
+    allowed_categories: list[str] | None = None,
+) -> int:
     """Direkt portál-RSS feldolgozása (Cloudflare-megkerülés).
 
     A Google News-flow-tól eltérően:
     - source_url már a valódi cikk URL-je (nem Google redirect)
     - description (snippet) az AI summary forrása (nincs HTML-content-fetch)
     - enclosure_url a kép URL — közvetlenül letöltjük (referer = a cikk URL-je)
+
+    allowed_categories: ha be van állítva, csak azokat az item-eket fogadjuk
+    el, amik <category> tagjében szerepel valamelyik elem. Pl. Egerszegi Hírek-
+    nél `["Helyi hírek"]` → a "Light" rovat országos cikkei kiesnek.
 
     Dedup + relevancia-szűrő + noise-szűrő ugyanúgy alkalmazzuk.
     """
@@ -302,10 +309,21 @@ def process_direct_rss(rss_url: str, category: str, source_name: str) -> int:
     log.info(f"[direct:{source_name}] {len(items)} item az RSS-ben")
 
     inserted = 0
-    skipped = {"guid": 0, "url": 0, "title": 0, "noise": 0, "irrelevant": 0, "no_content": 0}
+    skipped = {"guid": 0, "url": 0, "title": 0, "noise": 0, "irrelevant": 0, "no_content": 0, "category": 0}
     conn = get_db()
     try:
         for item in items:
+            # 0. kategória-szűrő (ha be van állítva forrás-szinten)
+            if allowed_categories:
+                item_tags = item.get("tags") or []
+                if not any(t in allowed_categories for t in item_tags):
+                    skipped["category"] += 1
+                    log.info(
+                        f"[direct:{source_name}] kategória ({item_tags}) "
+                        f"nincs az engedélyezettek között, skip: {item['title'][:60]}"
+                    )
+                    continue
+
             # 1. guid dedup
             if _exists_by_external_id(conn, item["external_id"]):
                 skipped["guid"] += 1
@@ -396,7 +414,8 @@ def process_direct_rss(rss_url: str, category: str, source_name: str) -> int:
     log.info(
         f"[direct:{source_name}] {inserted} új · skip: guid={skipped['guid']} "
         f"url={skipped['url']} title={skipped['title']} noise={skipped['noise']} "
-        f"irrelevant={skipped['irrelevant']} no_content={skipped['no_content']}"
+        f"irrelevant={skipped['irrelevant']} no_content={skipped['no_content']} "
+        f"category={skipped['category']}"
     )
     return inserted
 
@@ -533,10 +552,14 @@ def main():
     total += process_news("local")
     total += process_news("county")
 
-    # Direkt portál-RSS-ek (Cloudflare-megkerülés a Mediaworks-féle portálokhoz)
+    # Direkt portál-RSS-ek (Cloudflare-megkerülés a Mediaworks-féle portálokhoz,
+    # és az Egerszegi Hírek + zalaegerszeg.hu kategória-szűrőkkel)
     for src in DIRECT_RSS_SOURCES:
         try:
-            total += process_direct_rss(src["url"], src["category"], src["source_name"])
+            total += process_direct_rss(
+                src["url"], src["category"], src["source_name"],
+                allowed_categories=src.get("allowed_categories"),
+            )
         except Exception as e:
             log.warning(f"[direct:{src['source_name']}] feldolgozási hiba: {e}")
 
