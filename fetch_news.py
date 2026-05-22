@@ -290,6 +290,7 @@ def process_news(category: str) -> int:
 def process_direct_rss(
     rss_url: str, category: str, source_name: str,
     allowed_categories: list[str] | None = None,
+    fallback_category: str | None = None,
 ) -> int:
     """Direkt portál-RSS feldolgozása (Cloudflare-megkerülés).
 
@@ -302,6 +303,11 @@ def process_direct_rss(
     el, amik <category> tagjében szerepel valamelyik elem. Pl. Egerszegi Hírek-
     nél `["Helyi hírek"]` → a "Light" rovat országos cikkei kiesnek.
 
+    fallback_category: ha a forrás dual-purpose (pl. ZAOL = ZEG + Zala megye),
+    akkor a non-ZEG cikkek ide kerülnek a primary `category` helyett. Pl. ZAOL
+    forrásnál category='local', fallback_category='county' → a Lenti/Nagykanizsa
+    cikkek 'county'-ba mennek a 'local' helyett.
+
     Dedup + relevancia-szűrő + noise-szűrő ugyanúgy alkalmazzuk.
     """
     log.info(f"[direct:{source_name}] RSS lekérés…")
@@ -309,6 +315,9 @@ def process_direct_rss(
     log.info(f"[direct:{source_name}] {len(items)} item az RSS-ben")
 
     inserted = 0
+    counts_per_cat = {category: 0}
+    if fallback_category:
+        counts_per_cat[fallback_category] = 0
     skipped = {"guid": 0, "url": 0, "title": 0, "noise": 0, "irrelevant": 0, "no_content": 0, "category": 0}
     conn = get_db()
     try:
@@ -343,14 +352,25 @@ def process_direct_rss(
                 log.info(f"[direct:{source_name}] zaj-forrás, skip: {real_url[:60]}")
                 continue
 
-            # 4. ZEG-relevancia-szűrő — a ZAOL néha megyei híreket is publish-el
+            # 4. ZEG-relevancia-szűrő — meghatározzuk az effective_category-t
+            # ZEG-releváns → primary category (local). Non-ZEG: ha van fallback,
+            # oda kerül (pl. ZAOL fallback='county'), különben skip.
+            effective_category = category
             if category == "local":
                 if not _is_zeg_relevant(item["title"], source_name, real_url):
-                    skipped["irrelevant"] += 1
-                    log.info(
-                        f"[direct:{source_name}] nem ZEG-releváns, skip: {item['title'][:60]}"
-                    )
-                    continue
+                    if fallback_category:
+                        effective_category = fallback_category
+                        log.info(
+                            f"[direct:{source_name}] non-ZEG → {fallback_category}: "
+                            f"{item['title'][:60]}"
+                        )
+                    else:
+                        skipped["irrelevant"] += 1
+                        log.info(
+                            f"[direct:{source_name}] nem ZEG-releváns, skip: "
+                            f"{item['title'][:60]}"
+                        )
+                        continue
 
             # 5. URL-dedup (normalizált)
             norm_url = normalize_url(real_url)
@@ -389,7 +409,7 @@ def process_direct_rss(
                     ON CONFLICT (external_id) DO NOTHING
                     """,
                     (
-                        category,
+                        effective_category,
                         item["external_id"],
                         real_url,
                         source_name,
@@ -404,18 +424,22 @@ def process_direct_rss(
                 )
                 conn.commit()
                 inserted += 1
-                log.info(f"[direct:{source_name}] + {clean_title[:80]}")
+                counts_per_cat[effective_category] = counts_per_cat.get(effective_category, 0) + 1
+                log.info(
+                    f"[direct:{source_name}/{effective_category}] + {clean_title[:80]}"
+                )
             except Exception as e:
                 conn.rollback()
                 log.warning(f"[direct:{source_name}] INSERT failed: {e}")
     finally:
         conn.close()
 
+    cat_breakdown = ", ".join(f"{cat}={cnt}" for cat, cnt in counts_per_cat.items() if cnt > 0) or "0"
     log.info(
-        f"[direct:{source_name}] {inserted} új · skip: guid={skipped['guid']} "
-        f"url={skipped['url']} title={skipped['title']} noise={skipped['noise']} "
-        f"irrelevant={skipped['irrelevant']} no_content={skipped['no_content']} "
-        f"category={skipped['category']}"
+        f"[direct:{source_name}] {inserted} új ({cat_breakdown}) · skip: "
+        f"guid={skipped['guid']} url={skipped['url']} title={skipped['title']} "
+        f"noise={skipped['noise']} irrelevant={skipped['irrelevant']} "
+        f"no_content={skipped['no_content']} category={skipped['category']}"
     )
     return inserted
 
@@ -553,12 +577,14 @@ def main():
     total += process_news("county")
 
     # Direkt portál-RSS-ek (Cloudflare-megkerülés a Mediaworks-féle portálokhoz,
-    # és az Egerszegi Hírek + zalaegerszeg.hu kategória-szűrőkkel)
+    # és az Egerszegi Hírek + zalaegerszeg.hu kategória-szűrőkkel).
+    # ZAOL dual-purpose: ZEG-releváns→local, többi→county.
     for src in DIRECT_RSS_SOURCES:
         try:
             total += process_direct_rss(
                 src["url"], src["category"], src["source_name"],
                 allowed_categories=src.get("allowed_categories"),
+                fallback_category=src.get("fallback_category"),
             )
         except Exception as e:
             log.warning(f"[direct:{src['source_name']}] feldolgozási hiba: {e}")

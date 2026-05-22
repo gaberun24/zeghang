@@ -155,13 +155,15 @@ def google_news_rss_url(query: str) -> str:
 
 DIRECT_RSS_SOURCES = [
     # ZAOL: /feed/ az RSS-feed (a /rss/ Cloudflare-mögött van).
-    # Snippet + enclosure URL (cdn.zaol.hu képek) is jön. Minden cikk elfogadva
-    # (az _is_zeg_relevant utólag szűri a megyei híreket).
+    # Dual-purpose: ZEG-releváns → local, non-ZEG (de Zala megyei) → county.
+    # A ZAOL Zala megyei napilap, így minden cikk valószínűleg releváns valamelyik
+    # kategóriában. Snippet + enclosure URL (cdn.zaol.hu képek) is jön.
     {
         "url": "https://www.zaol.hu/feed/",
         "category": "local",
+        "fallback_category": "county",  # non-ZEG → megyei
         "source_name": "ZAOL",
-        "allowed_categories": None,  # mind elfogadva
+        "allowed_categories": None,
     },
     # Egerszegi Hírek: a /feed/ 404, de a CGI-rss elérhető.
     # FONTOS: csak a "Helyi hírek" kategóriájú cikkeket fogadjuk el — a portál
@@ -170,6 +172,7 @@ DIRECT_RSS_SOURCES = [
     {
         "url": "https://www.egerszegihirek.hu/cgi-bin/rss.cgi?id=125&rssid=8741",
         "category": "local",
+        "fallback_category": None,  # NEM megyei portál — non-helyi cikkek eldobva
         "source_name": "Egerszegi Hírek",
         "allowed_categories": ["Helyi hírek"],
     },
@@ -178,6 +181,7 @@ DIRECT_RSS_SOURCES = [
     {
         "url": "https://zalaegerszeg.hu/feed/",
         "category": "local",
+        "fallback_category": None,  # helyi forrás — minden helyi
         "source_name": "Zalaegerszeg.hu",
         "allowed_categories": None,
     },
