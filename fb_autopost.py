@@ -259,7 +259,10 @@ def main() -> int:
         candidates = _fetch_candidates(conn)
         log.info(f"[fb] {len(candidates)} kandidat")
         if not candidates:
-            log.info("[fb] Nincs új helyi hír az utolsó 60 percben — semmit nem posztolunk")
+            log.info(
+                f"[fb] Nincs friss helyi kandidat: ablak={_candidate_window_min()}p "
+                f"fetched / {_max_article_age_hours()}h published. Semmit nem posztolunk."
+            )
             return 0
 
         # 5. AI pick (1 kandidatnál is OK — a function direkt visszaadja)
