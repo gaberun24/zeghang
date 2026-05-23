@@ -2736,7 +2736,13 @@
 @media (max-width: 768px) {
   /* Nav */
   .nav-hamburger { display: block; }
-  nav { padding: 0 1rem; }
+  nav {
+    padding: 0 1rem;
+    /* Mobile-on a hamburger lenyíló menü position: absolute top: 64px-en
+       van — kifelé esik a navbar magasságából. Az overflow: hidden (ami
+       desktop-on a tagline-t tartja bent) levágná, ezért itt visible. */
+    overflow: visible;
+  }
   .nav-links {
     display: none;
     position: absolute;
